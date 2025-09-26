@@ -48,7 +48,7 @@ const Index = () => {
         <div className="relative text-center space-y-8 max-w-4xl mx-auto">
           <div className="space-y-4">
             <h1 className="text-6xl md:text-8xl font-bold neon-text animate-pulse-neon tracking-wide">
-              M≡TAKNIGHTS
+              myamiKNYT
             </h1>
             <h2 className="text-2xl md:text-4xl font-semibold text-neon-magenta">
               myamiKNYT Aigent Site
