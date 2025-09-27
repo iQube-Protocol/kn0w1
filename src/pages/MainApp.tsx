@@ -87,7 +87,7 @@ export default function MainApp() {
 
       {isFullscreen ? (
         /* Full Screen View */
-        <div className="fixed inset-0 z-40 bg-background cosmic-bg">
+        <div className="fixed inset-0 z-20 bg-background cosmic-bg">
           <div className="h-full flex flex-col">
             <div className="flex-1 flex items-center justify-center p-4">
               <MediaPlayer
