@@ -3,86 +3,58 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Play, BookOpen, Users, Award, Mic, Search } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
-
 const Index = () => {
   const navigate = useNavigate();
-
-  const features = [
-    {
-      icon: <Play className="h-6 w-6" />,
-      title: "Rich Media Experience",
-      description: "Immersive video and audio content with full-screen support"
-    },
-    {
-      icon: <Mic className="h-6 w-6" />,
-      title: "Voice AI Assistant", 
-      description: "Natural language search and voice interactions"
-    },
-    {
-      icon: <BookOpen className="h-6 w-6" />,
-      title: "Learn to Earn",
-      description: "Educational content with reward mechanisms"
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      title: "Social Features",
-      description: "Connect with community and share content"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen cosmic-bg">
+  const features = [{
+    icon: <Play className="h-6 w-6" />,
+    title: "Rich Media Experience",
+    description: "Immersive video and audio content with full-screen support"
+  }, {
+    icon: <Mic className="h-6 w-6" />,
+    title: "Voice AI Assistant",
+    description: "Natural language search and voice interactions"
+  }, {
+    icon: <BookOpen className="h-6 w-6" />,
+    title: "Learn to Earn",
+    description: "Educational content with reward mechanisms"
+  }, {
+    icon: <Users className="h-6 w-6" />,
+    title: "Social Features",
+    description: "Connect with community and share content"
+  }];
+  return <div className="min-h-screen cosmic-bg">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center p-4">
         {/* Background */}
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: `url(${heroImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+        <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: `url(${heroImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }} />
         
         {/* Content */}
         <div className="relative text-center space-y-8 max-w-4xl mx-auto">
           <div className="space-y-4">
-            <h1 className="text-6xl md:text-8xl font-bold neon-text animate-pulse-neon tracking-wide">
-              myamiKNYT
-            </h1>
-            <h2 className="text-2xl md:text-4xl font-semibold text-neon-magenta">
-              myamiKNYT Aigent Site
-            </h2>
+            <h1 className="text-6xl md:text-8xl font-bold neon-text animate-pulse-neon tracking-wide">METAKNYTS</h1>
+            <h2 className="text-2xl md:text-4xl font-semibold text-neon-magenta">Kn0w1 /// QriptoMedia Aigent</h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               A revolutionary media-rich platform combining immersive content discovery with AI-powered interactions and learn-to-earn opportunities.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={() => navigate("/app")}
-              className="hover-glow text-lg px-8 py-3"
-            >
+            <Button size="lg" onClick={() => navigate("/app")} className="hover-glow text-lg px-8 py-3">
               <Play className="h-5 w-5 mr-2" />
               Explore Content
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => navigate("/auth")}
-              className="glass hover-glow text-lg px-8 py-3"
-            >
+            <Button variant="outline" size="lg" onClick={() => navigate("/auth")} className="glass hover-glow text-lg px-8 py-3">
               Get Started
             </Button>
           </div>
 
           {/* Quick Access Paths */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
-            <Card 
-              className="glass-card p-6 hover-float cursor-pointer"
-              onClick={() => navigate("/gotv")}
-            >
+            <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/gotv")}>
               <div className="text-center space-y-2">
                 <Award className="h-8 w-8 text-neon-blue mx-auto" />
                 <h3 className="text-xl font-semibold">Civic Readiness</h3>
@@ -92,10 +64,7 @@ const Index = () => {
               </div>
             </Card>
             
-            <Card 
-              className="glass-card p-6 hover-float cursor-pointer"
-              onClick={() => navigate("/l2e")}
-            >
+            <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/l2e")}>
               <div className="text-center space-y-2">
                 <BookOpen className="h-8 w-8 text-neon-orange mx-auto" />
                 <h3 className="text-xl font-semibold">Learn to Earn</h3>
@@ -121,8 +90,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="glass-card p-6 hover-float">
+            {features.map((feature, index) => <Card key={index} className="glass-card p-6 hover-float">
                 <div className="text-center space-y-4">
                   <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                     <div className="text-primary">{feature.icon}</div>
@@ -130,8 +98,7 @@ const Index = () => {
                   <h3 className="text-lg font-semibold">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
                 </div>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -155,8 +122,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
