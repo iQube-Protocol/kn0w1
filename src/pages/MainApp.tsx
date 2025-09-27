@@ -216,6 +216,9 @@ export default function MainApp() {
         onToggle={() => setIsChatExpanded(!isChatExpanded)}
         onTextSearch={handleContentSearch}
         onVoiceSearch={handleContentSearch}
+        currentTitle={selectedContent.title}
+        currentDescription={selectedContent.description}
+        viewMode={viewMode}
       />
 
     </div>

@@ -72,16 +72,7 @@ export function MediaPlayer({
 
         {/* Bottom Content */}
         <div className="space-y-4 mb-8">
-          <div>
-            <h1 className={`font-bold text-foreground mb-2 neon-text ${
-              viewMode === 'discovery' ? 'text-2xl lg:text-3xl' : 'text-4xl'
-            }`}>
-              {title}
-            </h1>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-              {description}
-            </p>
-          </div>
+          {/* Content moved to navigation area */}
           
           {/* Action Buttons and View Toggle - Same row in discovery mode */}
           {viewMode === 'discovery' && (
