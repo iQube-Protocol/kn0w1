@@ -101,10 +101,10 @@ export default function MainApp() {
           </div>
         </div>
       ) : (
-        /* 2/3rds View with Content Below */
+        /* 2/3rds View with Fixed Hero and Scrollable Content */
         <div className="min-h-screen">
-          {/* Hero Section - 2/3rds height */}
-          <section className="relative h-[67vh] flex items-center justify-center">
+          {/* Fixed Hero Section - 2/3rds height */}
+          <section className="fixed top-0 left-0 right-0 h-[67vh] flex items-center justify-center z-10">
             <MediaPlayer
               title="THE GENESIS BLOCK"
               episode="Episode 1.0"
@@ -114,32 +114,35 @@ export default function MainApp() {
             />
           </section>
 
-          {/* KnytBooks Content - 1/3rd and scrollable */}
-          <div className="relative z-20 min-h-[33vh] cosmic-bg/95 backdrop-blur-sm">
-            <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
-              {/* Content Sections */}
-              <section className="space-y-8 px-4 pt-8">
-                {/* Media Carousels */}
-                <MediaCarousel
-                  title="KnytBooks"
-                  items={sampleMediaItems.filter(item => item.type === 'article')}
-                  onItemClick={handleContentSelect}
-                  showOwnedToggle={true}
-                />
+          {/* Scrollable Content Container - starts at 2/3rds height */}
+          <div className="relative" style={{ paddingTop: '67vh' }}>
+            {/* KnytBooks Content - scrollable */}
+            <div className="relative z-20 min-h-screen cosmic-bg/95 backdrop-blur-sm">
+              <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
+                {/* Content Sections */}
+                <section className="space-y-8 px-4 pt-8">
+                  {/* Media Carousels */}
+                  <MediaCarousel
+                    title="KnytBooks"
+                    items={sampleMediaItems.filter(item => item.type === 'article')}
+                    onItemClick={handleContentSelect}
+                    showOwnedToggle={true}
+                  />
 
-                <MediaCarousel
-                  title="Learn to Earn"
-                  items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
-                  onItemClick={handleContentSelect}
-                />
+                  <MediaCarousel
+                    title="Learn to Earn"
+                    items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
+                    onItemClick={handleContentSelect}
+                  />
 
-                <MediaCarousel
-                  title="Featured Content"
-                  items={sampleMediaItems}
-                  onItemClick={handleContentSelect}
-                />
-              </section>
-            </main>
+                  <MediaCarousel
+                    title="Featured Content"
+                    items={sampleMediaItems}
+                    onItemClick={handleContentSelect}
+                  />
+                </section>
+              </main>
+            </div>
           </div>
         </div>
       )}
