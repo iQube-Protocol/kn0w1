@@ -43,7 +43,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
         </h2>
         <div className="flex justify-center">
           {showOwnedToggle && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pt-6">
               <span className="text-sm text-muted-foreground">Owned</span>
               <Switch />
             </div>
