@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Pause, Maximize, Share2, BookOpen, Volume2, Bot } from "lucide-react";
+import { Play, Pause, Maximize, Share2, BookOpen, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -11,7 +11,6 @@ interface MediaPlayerProps {
   isPlaying?: boolean;
   onPlay?: () => void;
   onFullscreen?: () => void;
-  onChatToggle?: () => void;
 }
 
 export function MediaPlayer({
@@ -22,7 +21,6 @@ export function MediaPlayer({
   isPlaying = false,
   onPlay,
   onFullscreen,
-  onChatToggle,
 }: MediaPlayerProps) {
   const [playing, setPlaying] = useState(isPlaying);
 
@@ -70,7 +68,7 @@ export function MediaPlayer({
         </div>
 
         {/* Bottom Content */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4 mb-32">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2 neon-text">
               {title}
@@ -80,42 +78,7 @@ export function MediaPlayer({
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 justify-center mt-6">
-            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-              <BookOpen className="h-3 w-3 mr-1" />
-              Read
-            </Button>
-            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-              <Play className="h-3 w-3 mr-1" />
-              Watch
-            </Button>
-            <Button
-              variant="ghost" 
-              size="sm" 
-              className="glass hover-glow h-7 w-7 p-0"
-              onClick={onFullscreen}
-            >
-              <Maximize className="h-3 w-3" />
-            </Button>
-          </div>
 
-          {/* Player Controls with Chat Icon */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Button
-              onClick={onChatToggle}
-              className="w-8 h-8 rounded-full glass hover-glow p-0"
-              variant="outline"
-            >
-              <Bot className="h-4 w-4 text-primary" />
-            </Button>
-            <div className="w-4 h-4 rounded-full bg-primary glow"></div>
-            <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
-              <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
-            </div>
-            <div className="w-4 h-4 rounded-full bg-primary/50"></div>
-            <div className="w-4 h-4 rounded-full bg-muted/30"></div>
-          </div>
         </div>
       </div>
     </div>
