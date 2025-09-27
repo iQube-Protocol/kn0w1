@@ -95,8 +95,8 @@ export function ChatInterface({
     return (
       <>
         {/* Chat and Player Controls */}
-        <div className="fixed bottom-6 left-4 z-30">
-          <div className="flex flex-col items-start gap-6">
+        <div className="fixed bottom-4 left-4 z-30">
+          <div className="flex items-center gap-6">
             <Button
               onClick={onToggle}
               className="w-10 h-10 rounded-lg glass hover-glow p-0"
