@@ -45,8 +45,8 @@ export function MediaPlayer({
 
       {/* Content Overlay */}
       <div className="relative h-full flex flex-col justify-between p-6">
-        {/* Episode Badge - Left Side */}
-        <div className="flex justify-start items-start">
+        {/* Episode Badge - Right Side */}
+        <div className="flex justify-end items-start">
           <div className="glass rounded-lg px-3 py-1">
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
             <span className="text-xs text-muted-foreground ml-2">#1,212 Limited</span>
