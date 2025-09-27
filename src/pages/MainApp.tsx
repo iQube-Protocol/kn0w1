@@ -56,7 +56,7 @@ const sampleMediaItems = [
 
 export default function MainApp() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(true); // Start in fullscreen
+  const [isFullscreen, setIsFullscreen] = useState(false); // Start in 2/3rds view
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
 
   const handleContentSearch = (query: string) => {
