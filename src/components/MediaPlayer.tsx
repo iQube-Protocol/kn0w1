@@ -51,9 +51,6 @@ export function MediaPlayer({
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
             <span className="text-xs text-muted-foreground ml-2">#1,212 Limited</span>
           </div>
-          <Button variant="ghost" size="sm" className="glass hover-glow">
-            <Share2 className="h-4 w-4" />
-          </Button>
         </div>
 
         {/* Center Play Button */}

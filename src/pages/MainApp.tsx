@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Menu } from "lucide-react";
+import { Settings, Menu, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
@@ -78,6 +78,9 @@ export default function MainApp() {
         </Button>
         <Button variant="ghost" size="sm" className="glass hover-glow w-14 h-14 rounded-full backdrop-blur-md bg-background/20 border border-white/20">
           <Settings className="h-6 w-6" />
+        </Button>
+        <Button variant="ghost" size="sm" className="glass hover-glow w-14 h-14 rounded-full backdrop-blur-md bg-background/20 border border-white/20">
+          <Share className="h-6 w-6" />
         </Button>
       </div>
 
