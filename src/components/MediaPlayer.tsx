@@ -10,8 +10,10 @@ interface MediaPlayerProps {
   imageUrl?: string;
   isPlaying?: boolean;
   viewMode?: 'discovery' | 'fullscreen';
+  isContentPlaying?: boolean;
   onPlay?: () => void;
-  
+  onStartPlaying?: () => void;
+  onStopPlaying?: () => void;
 }
 
 export function MediaPlayer({
@@ -21,8 +23,10 @@ export function MediaPlayer({
   imageUrl,
   isPlaying = false,
   viewMode = 'discovery',
+  isContentPlaying = false,
   onPlay,
-  
+  onStartPlaying,
+  onStopPlaying,
 }: MediaPlayerProps) {
   const [playing, setPlaying] = useState(isPlaying);
 
@@ -31,8 +35,22 @@ export function MediaPlayer({
     onPlay?.();
   };
 
+  const handlePageClick = () => {
+    if (isContentPlaying && onStopPlaying) {
+      onStopPlaying();
+    }
+  };
+
+  const handleContentAction = (action: 'read' | 'watch') => {
+    console.log(`Starting ${action} for:`, title);
+    onStartPlaying?.();
+  };
+
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div 
+      className="relative w-full h-full overflow-hidden cursor-pointer"
+      onClick={handlePageClick}
+    >
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cosmic-gradient"
@@ -84,13 +102,29 @@ export function MediaPlayer({
           </div>
           
           {/* Action Buttons */}
-          {viewMode === 'discovery' && (
+          {viewMode === 'discovery' && !isContentPlaying && (
             <div className="flex gap-2 mt-6">
-              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="glass hover-glow text-xs px-2 py-1 h-7"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleContentAction('read');
+                }}
+              >
                 <BookOpen className="h-3 w-3 mr-1" />
                 Read
               </Button>
-              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="glass hover-glow text-xs px-2 py-1 h-7"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleContentAction('watch');
+                }}
+              >
                 <Play className="h-3 w-3 mr-1" />
                 Watch
               </Button>

@@ -137,6 +137,7 @@ export default function MainApp() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'fullscreen'>('discovery');
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
+  const [isContentPlaying, setIsContentPlaying] = useState(false);
 
   const handleContentSearch = (query: string) => {
     console.log("Searching for:", query);
@@ -149,10 +150,20 @@ export default function MainApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleStartPlaying = () => {
+    setIsContentPlaying(true);
+  };
+
+  const handleStopPlaying = () => {
+    setIsContentPlaying(false);
+  };
+
   return (
     <div className="min-h-screen cosmic-bg relative">
       {/* Floating Left Navigation */}
-      <div className="fixed left-4 top-4 z-50 flex flex-col gap-3">
+      <div className={`fixed left-4 top-4 z-50 flex flex-col gap-3 transition-all duration-300 ${
+        isContentPlaying ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}>
         <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
           <Menu className="h-4 w-4" />
         </Button>
@@ -186,12 +197,17 @@ export default function MainApp() {
           description={selectedContent.description}
           imageUrl={selectedContent.imageUrl}
           viewMode={viewMode}
+          isContentPlaying={isContentPlaying}
+          onStartPlaying={handleStartPlaying}
+          onStopPlaying={handleStopPlaying}
         />
       </section>
 
       {/* Discovery Content - Visible only in discovery mode */}
       {viewMode === 'discovery' && (
-        <div className="relative z-20 transition-all duration-500" style={{ marginTop: '65vh' }}>
+        <div className={`relative transition-all duration-500 ${
+          isContentPlaying ? 'z-5' : 'z-20'
+        }`} style={{ marginTop: '65vh' }}>
           <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
             <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
               {/* Content Sections */}
@@ -222,12 +238,16 @@ export default function MainApp() {
       )}
 
       {/* Chat Interface */}
-      <ChatInterface
-        isExpanded={isChatExpanded}
-        onToggle={() => setIsChatExpanded(!isChatExpanded)}
-        onTextSearch={handleContentSearch}
-        onVoiceSearch={handleContentSearch}
-      />
+      <div className={`transition-all duration-300 ${
+        isContentPlaying ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}>
+        <ChatInterface
+          isExpanded={isChatExpanded}
+          onToggle={() => setIsChatExpanded(!isChatExpanded)}
+          onTextSearch={handleContentSearch}
+          onVoiceSearch={handleContentSearch}
+        />
+      </div>
 
     </div>
   );
