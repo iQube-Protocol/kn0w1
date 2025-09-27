@@ -68,7 +68,7 @@ export function MediaPlayer({
         </div>
 
         {/* Bottom Content */}
-        <div className="space-y-4 mb-32">
+        <div className="space-y-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2 neon-text">
               {title}
@@ -78,7 +78,35 @@ export function MediaPlayer({
             </p>
           </div>
 
+          {/* Action Buttons */}
+          <div className="flex gap-2 justify-center mt-6">
+            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+              <BookOpen className="h-3 w-3 mr-1" />
+              Read
+            </Button>
+            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+              <Play className="h-3 w-3 mr-1" />
+              Watch
+            </Button>
+            <Button
+              variant="ghost" 
+              size="sm" 
+              className="glass hover-glow h-7 w-7 p-0"
+              onClick={onFullscreen}
+            >
+              <Maximize className="h-3 w-3" />
+            </Button>
+          </div>
 
+          {/* Player Controls */}
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <div className="w-4 h-4 rounded-full bg-primary glow"></div>
+            <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
+              <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
+            </div>
+            <div className="w-4 h-4 rounded-full bg-primary/50"></div>
+            <div className="w-4 h-4 rounded-full bg-muted/30"></div>
+          </div>
         </div>
       </div>
     </div>
