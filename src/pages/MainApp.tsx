@@ -19,6 +19,7 @@ const sampleMediaItems = [
     imageUrl: content1,
     type: "video" as const,
     category: "Episode",
+    description: "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
   },
   {
     id: "2", 
@@ -28,6 +29,7 @@ const sampleMediaItems = [
     imageUrl: content2,
     type: "article" as const,
     category: "Guide",
+    description: "Explore the mysteries of the cosmic nexus and unlock ancient secrets hidden in the digital archives."
   },
   {
     id: "3",
@@ -37,6 +39,7 @@ const sampleMediaItems = [
     imageUrl: content3,
     type: "video" as const,
     category: "Series",
+    description: "Follow the legendary MetaKnight on an epic journey through the digital realms of Terra."
   },
   {
     id: "4",
@@ -44,6 +47,7 @@ const sampleMediaItems = [
     imageUrl: content1,
     type: "article" as const,
     category: "Education",
+    description: "Master the foundational concepts of blockchain technology and decentralized systems."
   },
   {
     id: "5",
@@ -51,7 +55,72 @@ const sampleMediaItems = [
     imageUrl: content2,
     type: "video" as const,
     category: "Tutorial",
+    description: "Comprehensive guide to decentralized finance protocols and yield farming strategies."
   },
+  {
+    id: "6",
+    title: "Quantum Mining Expedition",
+    price: "$45",
+    rarity: "Legendary",
+    imageUrl: content3,
+    type: "video" as const,
+    category: "Episode",
+    description: "Join the most dangerous mining expedition into the quantum depths of Terra's digital underground."
+  },
+  {
+    id: "7",
+    title: "Crypto Trading Mastery",
+    price: "$22",
+    rarity: "Rare",
+    imageUrl: content1,
+    type: "article" as const,
+    category: "Guide",
+    description: "Advanced trading strategies for navigating volatile cryptocurrency markets with confidence."
+  },
+  {
+    id: "8",
+    title: "The Shadow Protocol",
+    price: "$35",
+    rarity: "Epic",
+    imageUrl: content2,
+    type: "video" as const,
+    category: "Series",
+    description: "Uncover the mysterious Shadow Protocol that threatens to reshape the digital landscape forever."
+  },
+  {
+    id: "9",
+    title: "Smart Contract Security",
+    imageUrl: content3,
+    type: "article" as const,
+    category: "Education",
+    description: "Essential security practices for developing and auditing smart contracts on various blockchain platforms."
+  },
+  {
+    id: "10",
+    title: "NFT Creation Workshop",
+    imageUrl: content1,
+    type: "video" as const,
+    category: "Tutorial",
+    description: "Step-by-step guide to creating, minting, and marketing your own NFT collections."
+  },
+  {
+    id: "11",
+    title: "Digital Rebellion",
+    price: "$28",
+    rarity: "Limited",
+    imageUrl: content2,
+    type: "video" as const,
+    category: "Episode",
+    description: "The resistance begins as digital citizens fight back against the oppressive Data Lords."
+  },
+  {
+    id: "12",
+    title: "DAO Governance Guide",
+    imageUrl: content3,
+    type: "article" as const,
+    category: "Education",
+    description: "Understanding decentralized autonomous organizations and participating in community governance."
+  }
 ];
 
 export default function MainApp() {
@@ -90,10 +159,10 @@ export default function MainApp() {
         viewMode === 'discovery' ? 'h-[65vh]' : 'h-screen'
       }`}>
         <MediaPlayer
-          title="THE GENESIS BLOCK"
-          episode="Episode 1.0"
-          description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-          imageUrl={heroImage}
+          title={selectedContent.title}
+          episode={selectedContent.category === "Episode" ? `Episode ${selectedContent.id}.0` : selectedContent.category}
+          description={selectedContent.description}
+          imageUrl={selectedContent.imageUrl}
           viewMode={viewMode}
           onToggleView={() => setViewMode(viewMode === 'discovery' ? 'fullscreen' : 'discovery')}
         />
