@@ -93,7 +93,7 @@ export function ChatInterface({
   if (!isExpanded) {
     // Collapsed view - just show a robot icon
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 left-6 z-50">
         <Button
           onClick={onToggle}
           className="w-12 h-12 rounded-full glass hover-glow p-0"
