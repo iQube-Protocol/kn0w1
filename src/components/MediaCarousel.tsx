@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -24,6 +24,7 @@ interface MediaCarouselProps {
 
 export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = false }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
     setCurrentIndex(Math.max(0, currentIndex - 1));
@@ -32,6 +33,33 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
   const scrollRight = () => {
     setCurrentIndex(Math.min(items.length - 3, currentIndex + 1));
   };
+
+  // Handle horizontal wheel scrolling
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent default vertical scrolling when inside carousel
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+        e.preventDefault();
+        
+        if (e.deltaX > 0 || e.deltaY > 0) {
+          // Scroll right
+          setCurrentIndex(prev => Math.min(items.length - 3, prev + 1));
+        } else {
+          // Scroll left
+          setCurrentIndex(prev => Math.max(0, prev - 1));
+        }
+      }
+    };
+
+    carousel.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      carousel.removeEventListener('wheel', handleWheel);
+    };
+  }, [items.length]);
 
   return (
     <div className="space-y-6">
@@ -74,7 +102,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
       </div>
 
       {/* Carousel */}
-      <div className="relative overflow-hidden">
+      <div ref={carouselRef} className="relative overflow-hidden">
         <div 
           className="flex gap-6 transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${currentIndex * (100 / 3)}%)` }}
