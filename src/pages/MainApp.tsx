@@ -85,19 +85,20 @@ export default function MainApp() {
         </Button>
       </div>
 
-      {/* Fixed Hero Section - Smaller Modal */}
-      <section className="fixed top-0 left-0 right-0 h-2/3 z-30 flex items-center justify-center">
+      {/* Fixed Hero Section - 60% height */}
+      <section className="fixed top-0 left-0 right-0 h-[60vh] z-30 flex items-center justify-center">
         <MediaPlayer
           title="THE GENESIS BLOCK"
           episode="Episode 1.0"
           description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
           imageUrl={heroImage}
           onFullscreen={() => setIsFullscreen(!isFullscreen)}
+          onChatToggle={() => setIsChatExpanded(!isChatExpanded)}
         />
       </section>
 
       {/* Scrollable Content Overlay */}
-      <div className="relative z-10" style={{ marginTop: '66.666vh' }}>
+      <div className="relative z-10" style={{ marginTop: '60vh' }}>
         <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
           <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
             {/* Content Sections */}
@@ -146,6 +147,7 @@ export default function MainApp() {
                 description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery."
                 imageUrl={heroImage}
                 onFullscreen={() => setIsFullscreen(false)}
+                onChatToggle={() => setIsChatExpanded(!isChatExpanded)}
               />
             </div>
           </div>

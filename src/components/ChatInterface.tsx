@@ -91,18 +91,8 @@ export function ChatInterface({
   };
 
   if (!isExpanded) {
-    // Collapsed view - show only robot icon
-    return (
-      <div className="fixed bottom-6 left-6 z-30">
-        <Button
-          onClick={onToggle}
-          className="w-12 h-12 rounded-full glass hover-glow p-0"
-          variant="outline"
-        >
-          <Bot className="h-6 w-6 text-primary" />
-        </Button>
-      </div>
-    );
+    // Collapsed view - no visible UI since chat icon is now in MediaPlayer
+    return null;
   }
 
   return (
