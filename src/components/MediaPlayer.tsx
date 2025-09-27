@@ -99,7 +99,7 @@ export function MediaPlayer({
           
           {/* Action Buttons - Only visible in discovery mode */}
           {viewMode === 'discovery' && (
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2 justify-center mt-4">
               <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
                 <BookOpen className="h-3 w-3 mr-1" />
                 Read
