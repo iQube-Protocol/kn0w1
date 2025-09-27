@@ -85,8 +85,8 @@ export default function MainApp() {
         </Button>
       </div>
 
-      {/* Fixed Hero Section - Full Screen */}
-      <section className="fixed top-0 left-0 right-0 h-screen z-10 flex items-center justify-center">
+      {/* Fixed Hero Section - Smaller Modal */}
+      <section className="fixed top-0 left-0 right-0 h-2/3 z-30 flex items-center justify-center">
         <MediaPlayer
           title="THE GENESIS BLOCK"
           episode="Episode 1.0"
@@ -97,7 +97,7 @@ export default function MainApp() {
       </section>
 
       {/* Scrollable Content Overlay */}
-      <div className="relative z-20" style={{ marginTop: '100vh' }}>
+      <div className="relative z-10" style={{ marginTop: '66.666vh' }}>
         <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
           <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
             {/* Content Sections */}
