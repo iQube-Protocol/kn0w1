@@ -48,7 +48,7 @@ export function MediaPlayer({
       {/* Content Overlay */}
       <div className="relative h-full flex flex-col justify-between p-6">
         {/* Top Controls */}
-        <div className="flex justify-between items-start">
+        <div className="flex justify-end items-start">
           {/* Episode Badge */}
           <div className="glass rounded-lg px-3 py-1">
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
