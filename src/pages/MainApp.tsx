@@ -56,7 +56,7 @@ const sampleMediaItems = [
 
 export default function MainApp() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false); // Start in 2/3rds view
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
 
   const handleContentSearch = (query: string) => {
@@ -85,67 +85,47 @@ export default function MainApp() {
         </Button>
       </div>
 
-      {isFullscreen ? (
-        /* Full Screen View */
-        <div className="fixed inset-0 z-20 bg-background cosmic-bg">
-          <div className="h-full flex flex-col">
-            <div className="flex-1 flex items-center justify-center p-4">
-              <MediaPlayer
-                title="THE GENESIS BLOCK"
-                episode="Episode 1.0"
-                description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-                imageUrl={heroImage}
-                onFullscreen={() => setIsFullscreen(!isFullscreen)}
+      {/* Fixed Hero Section - Full Screen */}
+      <section className="fixed top-0 left-0 right-0 h-screen z-10 flex items-center justify-center">
+        <MediaPlayer
+          title="THE GENESIS BLOCK"
+          episode="Episode 1.0"
+          description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
+          imageUrl={heroImage}
+          onFullscreen={() => setIsFullscreen(!isFullscreen)}
+        />
+      </section>
+
+      {/* Scrollable Content Overlay */}
+      <div className="relative z-20" style={{ marginTop: '100vh' }}>
+        <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
+          <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
+            {/* Content Sections */}
+            <section className="space-y-8 px-4 pt-8">
+
+              {/* Media Carousels */}
+              <MediaCarousel
+                title="KnytBooks"
+                items={sampleMediaItems.filter(item => item.type === 'article')}
+                onItemClick={handleContentSelect}
+                showOwnedToggle={true}
               />
-            </div>
-          </div>
+
+              <MediaCarousel
+                title="Learn to Earn"
+                items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
+                onItemClick={handleContentSelect}
+              />
+
+              <MediaCarousel
+                title="Featured Content"
+                items={sampleMediaItems}
+                onItemClick={handleContentSelect}
+              />
+            </section>
+          </main>
         </div>
-      ) : (
-        /* 2/3rds View with Fixed Hero and Scrollable Content */
-        <div className="min-h-screen">
-          {/* Fixed Hero Section - 2/3rds height */}
-          <section className="fixed top-0 left-0 right-0 h-[67vh] flex items-center justify-center z-10">
-            <MediaPlayer
-              title="THE GENESIS BLOCK"
-              episode="Episode 1.0"
-              description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-              imageUrl={heroImage}
-              onFullscreen={() => setIsFullscreen(!isFullscreen)}
-            />
-          </section>
-
-          {/* Scrollable Content Container - starts at 2/3rds height */}
-          <div className="relative" style={{ paddingTop: '67vh' }}>
-            {/* KnytBooks Content - scrollable */}
-            <div className="relative z-20 min-h-screen cosmic-bg/95 backdrop-blur-sm">
-              <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
-                {/* Content Sections */}
-                <section className="space-y-8 px-4 pt-8">
-                  {/* Media Carousels */}
-                  <MediaCarousel
-                    title="KnytBooks"
-                    items={sampleMediaItems.filter(item => item.type === 'article')}
-                    onItemClick={handleContentSelect}
-                    showOwnedToggle={true}
-                  />
-
-                  <MediaCarousel
-                    title="Learn to Earn"
-                    items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
-                    onItemClick={handleContentSelect}
-                  />
-
-                  <MediaCarousel
-                    title="Featured Content"
-                    items={sampleMediaItems}
-                    onItemClick={handleContentSelect}
-                  />
-                </section>
-              </main>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Chat Interface */}
       <ChatInterface
@@ -153,9 +133,24 @@ export default function MainApp() {
         onToggle={() => setIsChatExpanded(!isChatExpanded)}
         onTextSearch={handleContentSearch}
         onVoiceSearch={handleContentSearch}
-        onScreenToggle={() => setIsFullscreen(!isFullscreen)}
-        isFullscreen={isFullscreen}
       />
+
+      {/* Fullscreen Overlay */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-background cosmic-bg">
+          <div className="h-full flex flex-col">
+            <div className="flex-1 flex items-center justify-center p-4">
+              <MediaPlayer
+                title="THE GENESIS BLOCK"
+                episode="Episode 1.0"
+                description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery."
+                imageUrl={heroImage}
+                onFullscreen={() => setIsFullscreen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

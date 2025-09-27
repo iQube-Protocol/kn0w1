@@ -17,17 +17,13 @@ interface ChatInterfaceProps {
   onToggle: () => void;
   onVoiceSearch?: (query: string) => void;
   onTextSearch?: (query: string) => void;
-  onScreenToggle?: () => void;
-  isFullscreen?: boolean;
 }
 
 export function ChatInterface({ 
   isExpanded, 
   onToggle, 
   onVoiceSearch, 
-  onTextSearch,
-  onScreenToggle,
-  isFullscreen = false
+  onTextSearch 
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -110,7 +106,6 @@ export function ChatInterface({
               Watch
             </Button>
             <Button
-              onClick={onScreenToggle}
               variant="ghost" 
               size="sm" 
               className="glass hover-glow h-7 w-7 p-0"
