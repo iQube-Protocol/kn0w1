@@ -108,13 +108,6 @@ export function MediaPlayer({
                 <Play className="h-3 w-3 mr-1" />
                 Watch
               </Button>
-              <Button
-                variant="ghost" 
-                size="sm" 
-                className="glass hover-glow h-7 w-7 p-0"
-              >
-                <Maximize className="h-3 w-3" />
-              </Button>
             </div>
           )}
         </div>
