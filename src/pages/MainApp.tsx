@@ -85,8 +85,8 @@ export default function MainApp() {
         </Button>
       </div>
 
-      {/* Fixed Hero Section - 60% height */}
-      <section className="fixed top-0 left-0 right-0 h-[60vh] z-30 flex items-center justify-center">
+      {/* Fixed Hero Section - Optimized for discovery */}
+      <section className="fixed top-0 left-0 right-0 h-[45vh] z-30 flex items-center justify-center">
         <MediaPlayer
           title="THE GENESIS BLOCK"
           episode="Episode 1.0"
@@ -97,12 +97,12 @@ export default function MainApp() {
         />
       </section>
 
-      {/* Scrollable Content Overlay */}
-      <div className="relative z-10" style={{ marginTop: '60vh' }}>
+      {/* Scrollable Content Overlay - Discovery Mode */}
+      <div className="relative z-10" style={{ marginTop: '45vh' }}>
         <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
-          <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
-            {/* Content Sections */}
-            <section className="space-y-8 px-4 pt-8">
+          <main className={`${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
+            {/* Content Sections - Each takes roughly 55vh for complete visibility */}
+            <section className="space-y-4 px-4">
 
               {/* Media Carousels */}
               <MediaCarousel
