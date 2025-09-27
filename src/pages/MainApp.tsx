@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Menu } from "lucide-react";
+import { Settings, Menu, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
@@ -73,16 +73,19 @@ export default function MainApp() {
     <div className="min-h-screen cosmic-bg relative">
       {/* Floating Left Navigation */}
       <div className="fixed left-4 top-4 z-50 flex flex-col gap-3">
-        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
-          <Menu className="h-5 w-5" />
+        <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
+          <Menu className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
-          <Settings className="h-5 w-5" />
+        <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
+          <Settings className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
+          <Share2 className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Fixed Hero Section */}
-      <section className="fixed top-0 left-0 right-0 h-screen z-10 p-4 flex items-center justify-center">
+      {/* Fixed Hero Section - Full Screen */}
+      <section className="fixed top-0 left-0 right-0 h-screen z-10 flex items-center justify-center">
         <MediaPlayer
           title="THE GENESIS BLOCK"
           episode="Episode 1.0"

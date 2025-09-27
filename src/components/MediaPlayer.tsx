@@ -30,7 +30,7 @@ export function MediaPlayer({
   };
 
   return (
-    <div className="relative w-full h-[60vh] min-h-[400px] overflow-hidden rounded-2xl glass-card">
+    <div className="relative w-full h-screen overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cosmic-gradient"
@@ -45,15 +45,12 @@ export function MediaPlayer({
 
       {/* Content Overlay */}
       <div className="relative h-full flex flex-col justify-between p-6">
-        {/* Top Bar */}
-        <div className="flex justify-between items-start">
+        {/* Episode Badge - Left Side */}
+        <div className="flex justify-start items-start">
           <div className="glass rounded-lg px-3 py-1">
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
             <span className="text-xs text-muted-foreground ml-2">#1,212 Limited</span>
           </div>
-          <Button variant="ghost" size="sm" className="glass hover-glow">
-            <Share2 className="h-4 w-4" />
-          </Button>
         </div>
 
         {/* Center Play Button */}
