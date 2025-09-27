@@ -90,11 +90,26 @@ export function ChatInterface({
     }
   };
 
+  if (!isExpanded) {
+    // Collapsed view - just show a robot icon
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={onToggle}
+          className="w-12 h-12 rounded-full glass hover-glow p-0"
+          variant="outline"
+        >
+          <Bot className="h-6 w-6 text-primary" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div 
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50 transition-all duration-300 ease-out",
-        isExpanded ? "h-[60vh]" : "h-20"
+        "h-[60vh]"
       )}
     >
       <Card className="h-full glass-card border-t-2 border-primary/20 rounded-t-3xl">
@@ -121,14 +136,12 @@ export function ChatInterface({
         </div>
 
         {/* Messages */}
-        {isExpanded && (
-          <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4 max-h-[40vh]">
-            {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+        <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4 max-h-[40vh]">
+          {messages.map((message) => (
+            <MessageBubble key={message.id} message={message} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
 
         {/* Input */}
         <div className="p-4 border-t border-border/20">
