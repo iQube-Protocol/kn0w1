@@ -71,13 +71,13 @@ export default function MainApp() {
 
   return (
     <div className="min-h-screen cosmic-bg relative">
-      {/* Floating Left Navigation */}
-      <div className="fixed left-4 top-4 z-50 flex flex-col gap-3">
-        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
-          <Menu className="h-5 w-5" />
+      {/* Floating Left Navigation - Overlay on Hero */}
+      <div className="fixed left-6 top-6 z-50 flex flex-col gap-3">
+        <Button variant="ghost" size="sm" className="glass hover-glow w-14 h-14 rounded-full backdrop-blur-md bg-background/20 border border-white/20">
+          <Menu className="h-6 w-6" />
         </Button>
-        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
-          <Settings className="h-5 w-5" />
+        <Button variant="ghost" size="sm" className="glass hover-glow w-14 h-14 rounded-full backdrop-blur-md bg-background/20 border border-white/20">
+          <Settings className="h-6 w-6" />
         </Button>
       </div>
 
