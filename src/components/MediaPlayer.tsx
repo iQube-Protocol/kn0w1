@@ -101,8 +101,8 @@ export function MediaPlayer({
             </p>
           </div>
           
-          {/* Action Buttons */}
-          {viewMode === 'discovery' && !isContentPlaying && (
+          {/* Action Buttons - Show in both modes when not playing */}
+          {!isContentPlaying && (
             <div className="flex gap-2 mt-6">
               <Button 
                 variant="outline" 
