@@ -94,27 +94,6 @@ export function ChatInterface({
     // Collapsed view - show robot icon with player controls
     return (
       <>
-        {/* Action Buttons - Centered above player bar */}
-        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-30">
-          <div className="flex gap-2 justify-center">
-            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-              <BookOpen className="h-3 w-3 mr-1" />
-              Read
-            </Button>
-            <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-              <Play className="h-3 w-3 mr-1" />
-              Watch
-            </Button>
-            <Button
-              variant="ghost" 
-              size="sm" 
-              className="glass hover-glow h-7 w-7 p-0"
-            >
-              <Maximize className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-
         {/* Chat and Player Controls */}
         <div className="fixed bottom-6 left-6 z-30">
           <div className="flex items-center gap-6">

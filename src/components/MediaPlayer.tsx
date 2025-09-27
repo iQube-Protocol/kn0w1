@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Pause, Maximize, Minimize } from "lucide-react";
+import { Play, Pause, Maximize, Minimize, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -96,6 +96,27 @@ export function MediaPlayer({
               {description}
             </p>
           </div>
+          
+          {/* Action Buttons - Only visible in discovery mode */}
+          {viewMode === 'discovery' && (
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                <BookOpen className="h-3 w-3 mr-1" />
+                Read
+              </Button>
+              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                <Play className="h-3 w-3 mr-1" />
+                Watch
+              </Button>
+              <Button
+                variant="ghost" 
+                size="sm" 
+                className="glass hover-glow h-7 w-7 p-0"
+              >
+                <Maximize className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
