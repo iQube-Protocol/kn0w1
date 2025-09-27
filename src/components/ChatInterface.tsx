@@ -95,14 +95,15 @@ export function ChatInterface({
     return (
       <>
         {/* Chat and Player Controls */}
-        <div className="fixed bottom-6 left-6 z-30">
-          <div className="flex items-center gap-6">
+        <div className="fixed bottom-6 left-4 z-30">
+          <div className="flex flex-col items-center gap-6">
             <Button
               onClick={onToggle}
-              className="w-12 h-12 rounded-full glass hover-glow p-0"
-              variant="outline"
+              className="w-10 h-10 rounded-lg glass hover-glow p-0"
+              variant="ghost"
+              size="sm"
             >
-              <Bot className="h-6 w-6 text-primary" />
+              <Bot className="h-4 w-4 text-primary" />
             </Button>
             
             {/* Player Controls */}
