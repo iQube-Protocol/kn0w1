@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, Bot, User, Search } from "lucide-react";
+import { Send, Mic, MicOff, Bot, User, Search, BookOpen, Play, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -91,25 +91,47 @@ export function ChatInterface({
   };
 
   if (!isExpanded) {
-    // Collapsed view - show robot icon with player controls beside it
+    // Collapsed view - show robot icon with action buttons and player controls
     return (
-      <div className="fixed bottom-6 left-6 z-50 flex items-center gap-6">
-        <Button
-          onClick={onToggle}
-          className="w-12 h-12 rounded-full glass hover-glow p-0"
-          variant="outline"
-        >
-          <Bot className="h-6 w-6 text-primary" />
-        </Button>
+      <div className="fixed bottom-6 left-6 z-50">
+        {/* Action Buttons */}
+        <div className="flex gap-3 mb-4">
+          <Button variant="outline" className="glass hover-glow">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Read
+          </Button>
+          <Button variant="outline" className="glass hover-glow">
+            <Play className="h-4 w-4 mr-2" />
+            Watch
+          </Button>
+          <Button
+            variant="ghost" 
+            size="sm" 
+            className="glass hover-glow"
+          >
+            <Maximize className="h-4 w-4" />
+          </Button>
+        </div>
         
-        {/* Player Controls */}
-        <div className="flex items-center gap-4">
-          <div className="w-4 h-4 rounded-full bg-primary glow"></div>
-          <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
-            <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
+        {/* Chat and Player Controls Row */}
+        <div className="flex items-center gap-6">
+          <Button
+            onClick={onToggle}
+            className="w-12 h-12 rounded-full glass hover-glow p-0"
+            variant="outline"
+          >
+            <Bot className="h-6 w-6 text-primary" />
+          </Button>
+          
+          {/* Player Controls */}
+          <div className="flex items-center gap-4">
+            <div className="w-4 h-4 rounded-full bg-primary glow"></div>
+            <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
+              <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
+            </div>
+            <div className="w-4 h-4 rounded-full bg-primary/50"></div>
+            <div className="w-4 h-4 rounded-full bg-muted/30"></div>
           </div>
-          <div className="w-4 h-4 rounded-full bg-primary/50"></div>
-          <div className="w-4 h-4 rounded-full bg-muted/30"></div>
         </div>
       </div>
     );

@@ -78,25 +78,6 @@ export function MediaPlayer({
             </p>
           </div>
 
-          {/* Action Buttons - Positioned higher to be above chat */}
-          <div className="flex gap-3">
-            <Button variant="outline" className="glass hover-glow">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Read
-            </Button>
-            <Button variant="outline" className="glass hover-glow">
-              <Play className="h-4 w-4 mr-2" />
-              Watch
-            </Button>
-            <Button
-              onClick={onFullscreen}
-              variant="ghost" 
-              size="sm" 
-              className="glass hover-glow"
-            >
-              <Maximize className="h-4 w-4" />
-            </Button>
-          </div>
 
         </div>
       </div>
