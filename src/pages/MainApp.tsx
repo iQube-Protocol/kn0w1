@@ -56,7 +56,7 @@ const sampleMediaItems = [
 
 export default function MainApp() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewMode, setViewMode] = useState<'discovery' | 'fullscreen'>('discovery');
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
 
   const handleContentSearch = (query: string) => {
@@ -85,47 +85,51 @@ export default function MainApp() {
         </Button>
       </div>
 
-      {/* Fixed Hero Section - Full Screen */}
-      <section className="fixed top-0 left-0 right-0 h-screen z-10 flex items-center justify-center">
+      {/* Hero Section - Responsive Height */}
+      <section className={`fixed top-0 left-0 right-0 z-10 flex items-center justify-center transition-all duration-500 ${
+        viewMode === 'discovery' ? 'h-[65vh]' : 'h-screen'
+      }`}>
         <MediaPlayer
           title="THE GENESIS BLOCK"
           episode="Episode 1.0"
           description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
           imageUrl={heroImage}
-          onFullscreen={() => setIsFullscreen(!isFullscreen)}
+          viewMode={viewMode}
+          onToggleView={() => setViewMode(viewMode === 'discovery' ? 'fullscreen' : 'discovery')}
         />
       </section>
 
-      {/* Scrollable Content Overlay */}
-      <div className="relative z-20" style={{ marginTop: '100vh' }}>
-        <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
-          <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
-            {/* Content Sections */}
-            <section className="space-y-8 px-4 pt-8">
+      {/* Discovery Content - Visible only in discovery mode */}
+      {viewMode === 'discovery' && (
+        <div className="relative z-20 transition-all duration-500" style={{ marginTop: '65vh' }}>
+          <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
+            <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
+              {/* Content Sections */}
+              <section className="space-y-12 px-4 pt-8">
+                {/* Media Carousels */}
+                <MediaCarousel
+                  title="KnytBooks"
+                  items={sampleMediaItems.filter(item => item.type === 'article')}
+                  onItemClick={handleContentSelect}
+                  showOwnedToggle={true}
+                />
 
-              {/* Media Carousels */}
-              <MediaCarousel
-                title="KnytBooks"
-                items={sampleMediaItems.filter(item => item.type === 'article')}
-                onItemClick={handleContentSelect}
-                showOwnedToggle={true}
-              />
+                <MediaCarousel
+                  title="Learn to Earn"
+                  items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
+                  onItemClick={handleContentSelect}
+                />
 
-              <MediaCarousel
-                title="Learn to Earn"
-                items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
-                onItemClick={handleContentSelect}
-              />
-
-              <MediaCarousel
-                title="Featured Content"
-                items={sampleMediaItems}
-                onItemClick={handleContentSelect}
-              />
-            </section>
-          </main>
+                <MediaCarousel
+                  title="Featured Content"
+                  items={sampleMediaItems}
+                  onItemClick={handleContentSelect}
+                />
+              </section>
+            </main>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Chat Interface */}
       <ChatInterface
@@ -135,22 +139,6 @@ export default function MainApp() {
         onVoiceSearch={handleContentSearch}
       />
 
-      {/* Fullscreen Overlay */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-background cosmic-bg">
-          <div className="h-full flex flex-col">
-            <div className="flex-1 flex items-center justify-center p-4">
-              <MediaPlayer
-                title="THE GENESIS BLOCK"
-                episode="Episode 1.0"
-                description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery."
-                imageUrl={heroImage}
-                onFullscreen={() => setIsFullscreen(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

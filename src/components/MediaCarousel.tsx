@@ -34,7 +34,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="grid grid-cols-3 items-center">
         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
@@ -76,7 +76,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
       {/* Carousel */}
       <div className="relative overflow-hidden">
         <div 
-          className="flex gap-4 transition-transform duration-300 ease-out"
+          className="flex gap-6 transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${currentIndex * (100 / 3)}%)` }}
         >
           {items.map((item) => (
@@ -98,7 +98,7 @@ function MediaCard({ item, onClick }: { item: MediaItem; onClick?: () => void })
   return (
     <Card 
       className={cn(
-        "flex-shrink-0 w-[calc(33.333%-0.75rem)] aspect-[3/4] relative overflow-hidden cursor-pointer",
+        "flex-shrink-0 w-[calc(33.333%-1rem)] aspect-[4/5] relative overflow-hidden cursor-pointer",
         "glass-card hover-float transition-all duration-300",
         isHovered && "scale-105"
       )}

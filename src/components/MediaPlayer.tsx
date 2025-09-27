@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Pause, Maximize, Share2, BookOpen, Volume2 } from "lucide-react";
+import { Play, Pause, Maximize, Minimize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -9,8 +9,9 @@ interface MediaPlayerProps {
   description?: string;
   imageUrl?: string;
   isPlaying?: boolean;
+  viewMode?: 'discovery' | 'fullscreen';
   onPlay?: () => void;
-  onFullscreen?: () => void;
+  onToggleView?: () => void;
 }
 
 export function MediaPlayer({
@@ -19,8 +20,9 @@ export function MediaPlayer({
   description = "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery.",
   imageUrl,
   isPlaying = false,
+  viewMode = 'discovery',
   onPlay,
-  onFullscreen,
+  onToggleView,
 }: MediaPlayerProps) {
   const [playing, setPlaying] = useState(isPlaying);
 
@@ -30,7 +32,7 @@ export function MediaPlayer({
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cosmic-gradient"
@@ -45,12 +47,27 @@ export function MediaPlayer({
 
       {/* Content Overlay */}
       <div className="relative h-full flex flex-col justify-between p-6">
-        {/* Episode Badge - Right Side */}
-        <div className="flex justify-end items-start">
+        {/* Top Controls */}
+        <div className="flex justify-between items-start">
+          {/* Episode Badge */}
           <div className="glass rounded-lg px-3 py-1">
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
             <span className="text-xs text-muted-foreground ml-2">#1,212 Limited</span>
           </div>
+          
+          {/* View Toggle Button */}
+          <Button
+            onClick={onToggleView}
+            variant="ghost"
+            size="sm"
+            className="glass hover-glow w-10 h-10 rounded-lg"
+          >
+            {viewMode === 'discovery' ? (
+              <Maximize className="h-4 w-4" />
+            ) : (
+              <Minimize className="h-4 w-4" />
+            )}
+          </Button>
         </div>
 
         {/* Center Play Button */}
@@ -68,17 +85,17 @@ export function MediaPlayer({
         </div>
 
         {/* Bottom Content */}
-        <div className="space-y-4 mb-32">
+        <div className="space-y-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2 neon-text">
+            <h1 className={`font-bold text-foreground mb-2 neon-text ${
+              viewMode === 'discovery' ? 'text-2xl lg:text-3xl' : 'text-4xl'
+            }`}>
               {title}
             </h1>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
               {description}
             </p>
           </div>
-
-
         </div>
       </div>
     </div>
