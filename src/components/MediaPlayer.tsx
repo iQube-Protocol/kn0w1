@@ -83,35 +83,45 @@ export function MediaPlayer({
             </p>
           </div>
           
-          {/* Action Buttons - Only visible in discovery mode */}
+          {/* Action Buttons and View Toggle - Same row in discovery mode */}
           {viewMode === 'discovery' && (
-            <div className="flex gap-2 justify-center mt-6">
-              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-                <BookOpen className="h-3 w-3 mr-1" />
-                Read
-              </Button>
-              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-                <Play className="h-3 w-3 mr-1" />
-                Watch
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  Read
+                </Button>
+                <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                  <Play className="h-3 w-3 mr-1" />
+                  Watch
+                </Button>
+              </div>
+              
+              {/* View Toggle Button - Right aligned on same row */}
+              <Button
+                onClick={onToggleView}
+                variant="ghost"
+                size="sm"
+                className="glass hover-glow w-10 h-10 rounded-lg"
+              >
+                <Maximize className="h-4 w-4" />
               </Button>
             </div>
           )}
           
-          {/* View Toggle Button - Left aligned beneath action buttons */}
-          <div className="flex justify-start mt-4">
-            <Button
-              onClick={onToggleView}
-              variant="ghost"
-              size="sm"
-              className="glass hover-glow w-10 h-10 rounded-lg"
-            >
-              {viewMode === 'discovery' ? (
-                <Maximize className="h-4 w-4" />
-              ) : (
+          {/* View Toggle Button - Only visible in fullscreen mode */}
+          {viewMode === 'fullscreen' && (
+            <div className="flex justify-start mt-4">
+              <Button
+                onClick={onToggleView}
+                variant="ghost"
+                size="sm"
+                className="glass hover-glow w-10 h-10 rounded-lg"
+              >
                 <Minimize className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
