@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, Bot, User, Search, BookOpen, Play, Maximize, ChevronUp, ChevronDown } from "lucide-react";
+import { Send, Mic, MicOff, Bot, User, Search, BookOpen, Play, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -17,21 +17,14 @@ interface ChatInterfaceProps {
   onToggle: () => void;
   onVoiceSearch?: (query: string) => void;
   onTextSearch?: (query: string) => void;
-  currentTitle?: string;
-  currentDescription?: string;
-  viewMode?: 'discovery' | 'fullscreen';
 }
 
 export function ChatInterface({ 
   isExpanded, 
   onToggle, 
   onVoiceSearch, 
-  onTextSearch,
-  currentTitle,
-  currentDescription,
-  viewMode
+  onTextSearch 
 }: ChatInterfaceProps) {
-  const [isContentExpanded, setIsContentExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -98,45 +91,12 @@ export function ChatInterface({
   };
 
   if (!isExpanded) {
-    // Collapsed view - show content area, menu toggle, and chatbot icon
+    // Collapsed view - show robot icon with player controls
     return (
       <>
-        {/* Content Area and Navigation */}
+        {/* Chat and Player Controls */}
         <div className="fixed bottom-6 left-4 z-30">
-          <div className="flex flex-col items-start gap-4">
-            {/* Content Area */}
-            {currentTitle && isContentExpanded && (
-              <div className="glass-card p-4 rounded-lg max-w-xs mb-2">
-                <h1 className={`font-bold text-foreground mb-2 neon-text ${
-                  viewMode === 'discovery' ? 'text-lg' : 'text-xl'
-                }`}>
-                  {currentTitle}
-                </h1>
-                {currentDescription && (
-                  <p className="text-muted-foreground text-xs leading-relaxed">
-                    {currentDescription}
-                  </p>
-                )}
-              </div>
-            )}
-            
-            {/* Collapse/Expand Menu Item */}
-            {currentTitle && (
-              <Button
-                onClick={() => setIsContentExpanded(!isContentExpanded)}
-                className="w-10 h-10 rounded-lg glass hover-glow p-0"
-                variant="ghost"
-                size="sm"
-              >
-                {isContentExpanded ? (
-                  <ChevronDown className="h-4 w-4 text-primary" />
-                ) : (
-                  <ChevronUp className="h-4 w-4 text-primary" />
-                )}
-              </Button>
-            )}
-            
-            {/* Chat Bot Icon */}
+          <div className="flex flex-col items-start gap-6">
             <Button
               onClick={onToggle}
               className="w-10 h-10 rounded-lg glass hover-glow p-0"
@@ -147,7 +107,7 @@ export function ChatInterface({
             </Button>
             
             {/* Player Controls */}
-            <div className="flex items-center gap-4 mt-2">
+            <div className="flex items-center gap-4">
               <div className="w-4 h-4 rounded-full bg-primary glow"></div>
               <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
                 <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
