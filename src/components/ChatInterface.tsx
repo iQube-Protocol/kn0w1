@@ -91,9 +91,9 @@ export function ChatInterface({
   };
 
   if (!isExpanded) {
-    // Collapsed view - just show a robot icon
+    // Collapsed view - show robot icon with player controls beside it
     return (
-      <div className="fixed bottom-6 left-6 z-50">
+      <div className="fixed bottom-6 left-6 z-50 flex items-center gap-6">
         <Button
           onClick={onToggle}
           className="w-12 h-12 rounded-full glass hover-glow p-0"
@@ -101,6 +101,16 @@ export function ChatInterface({
         >
           <Bot className="h-6 w-6 text-primary" />
         </Button>
+        
+        {/* Player Controls */}
+        <div className="flex items-center gap-4">
+          <div className="w-4 h-4 rounded-full bg-primary glow"></div>
+          <div className="w-32 h-1 bg-muted/30 rounded-full overflow-hidden">
+            <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
+          </div>
+          <div className="w-4 h-4 rounded-full bg-primary/50"></div>
+          <div className="w-4 h-4 rounded-full bg-muted/30"></div>
+        </div>
       </div>
     );
   }

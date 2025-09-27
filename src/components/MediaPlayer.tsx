@@ -98,17 +98,6 @@ export function MediaPlayer({
             </Button>
           </div>
 
-          {/* Progress Bar */}
-          <div className="w-full">
-            <div className="flex items-center gap-4">
-              <div className="w-4 h-4 rounded-full bg-primary glow"></div>
-              <div className="flex-1 h-1 bg-muted/30 rounded-full overflow-hidden">
-                <div className="w-1/3 h-full bg-gradient-to-r from-primary to-accent"></div>
-              </div>
-              <div className="w-4 h-4 rounded-full bg-primary/50"></div>
-              <div className="w-4 h-4 rounded-full bg-muted/30"></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
