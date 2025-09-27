@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Search, Menu } from "lucide-react";
+import { Settings, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
@@ -70,86 +70,78 @@ export default function MainApp() {
   };
 
   return (
-    <div className="min-h-screen cosmic-bg">
-      {/* Header */}
-      <header className="sticky top-0 z-40 glass border-b border-border/20">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="hover-glow">
-              <Menu className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold neon-text tracking-wide">
-              M≡TAKNIGHTS
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="hover-glow">
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="sm" className="hover-glow">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen cosmic-bg relative">
+      {/* Floating Left Navigation */}
+      <div className="fixed left-4 top-4 z-50 flex flex-col gap-3">
+        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
+          <Menu className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" size="sm" className="glass hover-glow w-12 h-12 rounded-full">
+          <Settings className="h-5 w-5" />
+        </Button>
+      </div>
 
-      {/* Main Content */}
-      <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
-        {/* Hero Section */}
-        <section className="p-4">
-          <MediaPlayer
-            title="THE GENESIS BLOCK"
-            episode="Episode 1.0"
-            description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-            imageUrl={heroImage}
-            onFullscreen={() => setIsFullscreen(!isFullscreen)}
-          />
-        </section>
+      {/* Fixed Hero Section */}
+      <section className="fixed top-0 left-0 right-0 h-screen z-10 p-4 flex items-center justify-center">
+        <MediaPlayer
+          title="THE GENESIS BLOCK"
+          episode="Episode 1.0"
+          description="A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
+          imageUrl={heroImage}
+          onFullscreen={() => setIsFullscreen(!isFullscreen)}
+        />
+      </section>
 
-        {/* Content Sections */}
-        <section className="space-y-8 px-4">
-          {/* Season Filter */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Season</span>
-              <Button variant="ghost" size="sm" className="glass hover-glow">
-                All ▼
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">View</span>
-              <Button variant="ghost" size="sm" className="glass hover-glow">
-                All ▼
-              </Button>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Owned</span>
-              <div className="w-8 h-4 bg-muted/30 rounded-full relative">
-                <div className="w-3 h-3 bg-primary rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+      {/* Scrollable Content Overlay */}
+      <div className="relative z-20" style={{ marginTop: '100vh' }}>
+        <div className="min-h-screen cosmic-bg/95 backdrop-blur-sm">
+          <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
+            {/* Content Sections */}
+            <section className="space-y-8 px-4 pt-8">
+              {/* Season Filter */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Season</span>
+                  <Button variant="ghost" size="sm" className="glass hover-glow">
+                    All ▼
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">View</span>
+                  <Button variant="ghost" size="sm" className="glass hover-glow">
+                    All ▼
+                  </Button>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Owned</span>
+                  <div className="w-8 h-4 bg-muted/30 rounded-full relative">
+                    <div className="w-3 h-3 bg-primary rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Media Carousels */}
-          <MediaCarousel
-            title="KnytBooks"
-            items={sampleMediaItems.filter(item => item.type === 'article')}
-            onItemClick={handleContentSelect}
-          />
+              {/* Media Carousels */}
+              <MediaCarousel
+                title="KnytBooks"
+                items={sampleMediaItems.filter(item => item.type === 'article')}
+                onItemClick={handleContentSelect}
+              />
 
-          <MediaCarousel
-            title="Learn to Earn"
-            items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
-            onItemClick={handleContentSelect}
-          />
+              <MediaCarousel
+                title="Learn to Earn"
+                items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
+                onItemClick={handleContentSelect}
+              />
 
-          <MediaCarousel
-            title="Featured Content"
-            items={sampleMediaItems}
-            onItemClick={handleContentSelect}
-          />
-        </section>
-      </main>
+              <MediaCarousel
+                title="Featured Content"
+                items={sampleMediaItems}
+                onItemClick={handleContentSelect}
+              />
+            </section>
+          </main>
+        </div>
+      </div>
 
       {/* Chat Interface */}
       <ChatInterface

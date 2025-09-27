@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, Bot, User } from "lucide-react";
+import { Send, Mic, MicOff, Bot, User, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -138,9 +138,10 @@ export function ChatInterface({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ask me about content..."
+                placeholder="Search content with natural language..."
                 className="glass border-primary/20 focus:border-primary/40 pr-12"
               />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
             <Button
               onClick={handleVoiceToggle}
