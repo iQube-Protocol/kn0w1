@@ -68,7 +68,7 @@ export function MediaPlayer({
         </div>
 
         {/* Bottom Content */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-32">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2 neon-text">
               {title}
@@ -78,7 +78,7 @@ export function MediaPlayer({
             </p>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Positioned higher to be above chat */}
           <div className="flex gap-3">
             <Button variant="outline" className="glass hover-glow">
               <BookOpen className="h-4 w-4 mr-2" />
