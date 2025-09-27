@@ -54,20 +54,6 @@ export function MediaPlayer({
             <span className="text-sm text-neon-cyan font-medium">{episode}</span>
             <span className="text-xs text-muted-foreground ml-2">#1,212 Limited</span>
           </div>
-          
-          {/* View Toggle Button */}
-          <Button
-            onClick={onToggleView}
-            variant="ghost"
-            size="sm"
-            className="glass hover-glow w-10 h-10 rounded-lg"
-          >
-            {viewMode === 'discovery' ? (
-              <Maximize className="h-4 w-4" />
-            ) : (
-              <Minimize className="h-4 w-4" />
-            )}
-          </Button>
         </div>
 
         {/* Center Play Button */}
@@ -110,6 +96,22 @@ export function MediaPlayer({
               </Button>
             </div>
           )}
+          
+          {/* View Toggle Button - Left aligned beneath action buttons */}
+          <div className="flex justify-start mt-4">
+            <Button
+              onClick={onToggleView}
+              variant="ghost"
+              size="sm"
+              className="glass hover-glow w-10 h-10 rounded-lg"
+            >
+              {viewMode === 'discovery' ? (
+                <Maximize className="h-4 w-4" />
+              ) : (
+                <Minimize className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
