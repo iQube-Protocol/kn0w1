@@ -95,21 +95,21 @@ export function ChatInterface({
     return (
       <div className="fixed bottom-6 left-6 z-50">
         {/* Action Buttons */}
-        <div className="flex gap-3 mb-4">
-          <Button variant="outline" className="glass hover-glow">
-            <BookOpen className="h-4 w-4 mr-2" />
+        <div className="flex gap-2 mb-2">
+          <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+            <BookOpen className="h-3 w-3 mr-1" />
             Read
           </Button>
-          <Button variant="outline" className="glass hover-glow">
-            <Play className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+            <Play className="h-3 w-3 mr-1" />
             Watch
           </Button>
           <Button
             variant="ghost" 
             size="sm" 
-            className="glass hover-glow"
+            className="glass hover-glow h-7 w-7 p-0"
           >
-            <Maximize className="h-4 w-4" />
+            <Maximize className="h-3 w-3" />
           </Button>
         </div>
         
