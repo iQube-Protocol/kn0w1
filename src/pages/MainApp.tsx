@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Menu, Share2 } from "lucide-react";
+import { Settings, Menu, Share2, Maximize, Minimize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { MediaPlayer } from "@/components/MediaPlayer";
@@ -162,6 +162,18 @@ export default function MainApp() {
         <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
           <Share2 className="h-4 w-4" />
         </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="glass hover-glow w-10 h-10 rounded-lg"
+          onClick={() => setViewMode(viewMode === 'discovery' ? 'fullscreen' : 'discovery')}
+        >
+          {viewMode === 'discovery' ? (
+            <Maximize className="h-4 w-4" />
+          ) : (
+            <Minimize className="h-4 w-4" />
+          )}
+        </Button>
       </div>
 
       {/* Hero Section - Responsive Height */}
@@ -174,7 +186,6 @@ export default function MainApp() {
           description={selectedContent.description}
           imageUrl={selectedContent.imageUrl}
           viewMode={viewMode}
-          onToggleView={() => setViewMode(viewMode === 'discovery' ? 'fullscreen' : 'discovery')}
         />
       </section>
 

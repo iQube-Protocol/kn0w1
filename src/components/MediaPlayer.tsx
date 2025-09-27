@@ -11,7 +11,7 @@ interface MediaPlayerProps {
   isPlaying?: boolean;
   viewMode?: 'discovery' | 'fullscreen';
   onPlay?: () => void;
-  onToggleView?: () => void;
+  
 }
 
 export function MediaPlayer({
@@ -22,7 +22,7 @@ export function MediaPlayer({
   isPlaying = false,
   viewMode = 'discovery',
   onPlay,
-  onToggleView,
+  
 }: MediaPlayerProps) {
   const [playing, setPlaying] = useState(isPlaying);
 
@@ -83,42 +83,16 @@ export function MediaPlayer({
             </p>
           </div>
           
-          {/* Action Buttons and View Toggle - Same row in discovery mode */}
+          {/* Action Buttons */}
           {viewMode === 'discovery' && (
-            <div className="flex items-center justify-between mt-6">
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-                  <BookOpen className="h-3 w-3 mr-1" />
-                  Read
-                </Button>
-                <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
-                  <Play className="h-3 w-3 mr-1" />
-                  Watch
-                </Button>
-              </div>
-              
-              {/* View Toggle Button - Right aligned on same row */}
-              <Button
-                onClick={onToggleView}
-                variant="ghost"
-                size="sm"
-                className="glass hover-glow w-10 h-10 rounded-lg"
-              >
-                <Maximize className="h-4 w-4" />
+            <div className="flex gap-2 mt-6">
+              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                <BookOpen className="h-3 w-3 mr-1" />
+                Read
               </Button>
-            </div>
-          )}
-          
-          {/* View Toggle Button - Only visible in fullscreen mode */}
-          {viewMode === 'fullscreen' && (
-            <div className="flex justify-start mt-4">
-              <Button
-                onClick={onToggleView}
-                variant="ghost"
-                size="sm"
-                className="glass hover-glow w-10 h-10 rounded-lg"
-              >
-                <Minimize className="h-4 w-4" />
+              <Button variant="outline" size="sm" className="glass hover-glow text-xs px-2 py-1 h-7">
+                <Play className="h-3 w-3 mr-1" />
+                Watch
               </Button>
             </div>
           )}
