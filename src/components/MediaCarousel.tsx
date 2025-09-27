@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, ChevronRight, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +19,10 @@ interface MediaCarouselProps {
   title: string;
   items: MediaItem[];
   onItemClick?: (item: MediaItem) => void;
+  showOwnedToggle?: boolean;
 }
 
-export function MediaCarousel({ title, items, onItemClick }: MediaCarouselProps) {
+export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = false }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const scrollLeft = () => {
@@ -39,25 +41,33 @@ export function MediaCarousel({ title, items, onItemClick }: MediaCarouselProps)
           <Play className="h-5 w-5 text-neon-magenta" />
           {title}
         </h2>
-        <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={scrollLeft}
-            disabled={currentIndex === 0}
-            className="glass hover-glow"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={scrollRight}
-            disabled={currentIndex >= items.length - 3}
-            className="glass hover-glow"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-4">
+          {showOwnedToggle && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Owned</span>
+              <Switch />
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={scrollLeft}
+              disabled={currentIndex === 0}
+              className="glass hover-glow"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={scrollRight}
+              disabled={currentIndex >= items.length - 3}
+              className="glass hover-glow"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Settings, Menu, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -101,33 +102,13 @@ export default function MainApp() {
           <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
             {/* Content Sections */}
             <section className="space-y-8 px-4 pt-8">
-              {/* Season Filter */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Season</span>
-                  <Button variant="ghost" size="sm" className="glass hover-glow">
-                    All ▼
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">View</span>
-                  <Button variant="ghost" size="sm" className="glass hover-glow">
-                    All ▼
-                  </Button>
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Owned</span>
-                  <div className="w-8 h-4 bg-muted/30 rounded-full relative">
-                    <div className="w-3 h-3 bg-primary rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
-                  </div>
-                </div>
-              </div>
 
               {/* Media Carousels */}
               <MediaCarousel
                 title="KnytBooks"
                 items={sampleMediaItems.filter(item => item.type === 'article')}
                 onItemClick={handleContentSelect}
+                showOwnedToggle={true}
               />
 
               <MediaCarousel
