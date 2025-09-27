@@ -41,7 +41,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
           <Play className="h-5 w-5 text-neon-magenta" />
           {title}
         </h2>
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center">
           {showOwnedToggle && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Owned</span>
