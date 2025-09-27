@@ -13,6 +13,16 @@ import content3 from "@/assets/content-3.jpg";
 const sampleMediaItems = [
   {
     id: "1",
+    title: "THE GENESIS BLOCK",
+    price: "$25",
+    rarity: "Limited",
+    imageUrl: heroImage,
+    type: "article" as const,
+    category: "Episode",
+    description: "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
+  },
+  {
+    id: "2", 
     title: "Digital Genesis Protocol",
     price: "$25",
     rarity: "Limited",
@@ -22,7 +32,7 @@ const sampleMediaItems = [
     description: "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
   },
   {
-    id: "2", 
+    id: "3", 
     title: "Cosmic Nexus Archives",
     price: "$18",
     rarity: "Rare",
@@ -32,7 +42,7 @@ const sampleMediaItems = [
     description: "Explore the mysteries of the cosmic nexus and unlock ancient secrets hidden in the digital archives."
   },
   {
-    id: "3",
+    id: "4",
     title: "MetaKnight Chronicles",
     price: "$30",
     rarity: "Epic",
@@ -42,7 +52,7 @@ const sampleMediaItems = [
     description: "Follow the legendary MetaKnight on an epic journey through the digital realms of Terra."
   },
   {
-    id: "4",
+    id: "5",
     title: "Blockchain Fundamentals",
     imageUrl: content1,
     type: "article" as const,
@@ -50,7 +60,7 @@ const sampleMediaItems = [
     description: "Master the foundational concepts of blockchain technology and decentralized systems."
   },
   {
-    id: "5",
+    id: "6",
     title: "DeFi Deep Dive",
     imageUrl: content2,
     type: "video" as const,
@@ -58,7 +68,7 @@ const sampleMediaItems = [
     description: "Comprehensive guide to decentralized finance protocols and yield farming strategies."
   },
   {
-    id: "6",
+    id: "7",
     title: "Quantum Mining Expedition",
     price: "$45",
     rarity: "Legendary",
@@ -68,7 +78,7 @@ const sampleMediaItems = [
     description: "Join the most dangerous mining expedition into the quantum depths of Terra's digital underground."
   },
   {
-    id: "7",
+    id: "8",
     title: "Crypto Trading Mastery",
     price: "$22",
     rarity: "Rare",
@@ -78,7 +88,7 @@ const sampleMediaItems = [
     description: "Advanced trading strategies for navigating volatile cryptocurrency markets with confidence."
   },
   {
-    id: "8",
+    id: "9",
     title: "The Shadow Protocol",
     price: "$35",
     rarity: "Epic",
@@ -88,7 +98,7 @@ const sampleMediaItems = [
     description: "Uncover the mysterious Shadow Protocol that threatens to reshape the digital landscape forever."
   },
   {
-    id: "9",
+    id: "10",
     title: "Smart Contract Security",
     imageUrl: content3,
     type: "article" as const,
@@ -96,7 +106,7 @@ const sampleMediaItems = [
     description: "Essential security practices for developing and auditing smart contracts on various blockchain platforms."
   },
   {
-    id: "10",
+    id: "11",
     title: "NFT Creation Workshop",
     imageUrl: content1,
     type: "video" as const,
@@ -104,7 +114,7 @@ const sampleMediaItems = [
     description: "Step-by-step guide to creating, minting, and marketing your own NFT collections."
   },
   {
-    id: "11",
+    id: "12",
     title: "Digital Rebellion",
     price: "$28",
     rarity: "Limited",
@@ -114,7 +124,7 @@ const sampleMediaItems = [
     description: "The resistance begins as digital citizens fight back against the oppressive Data Lords."
   },
   {
-    id: "12",
+    id: "13",
     title: "DAO Governance Guide",
     imageUrl: content3,
     type: "article" as const,
