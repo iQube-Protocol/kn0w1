@@ -36,18 +36,20 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="grid grid-cols-3 items-center">
         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Play className="h-5 w-5 text-neon-magenta" />
           {title}
         </h2>
-        <div className="flex items-center gap-4">
+        <div className="flex justify-center">
           {showOwnedToggle && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Owned</span>
               <Switch />
             </div>
           )}
+        </div>
+        <div className="flex justify-end">
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
