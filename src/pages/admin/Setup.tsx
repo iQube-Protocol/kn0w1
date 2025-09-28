@@ -233,12 +233,13 @@ export function Setup() {
 
       if (utilitiesError) throw utilitiesError;
 
-      toast({
-        title: "Success!",
-        description: "Your agent site has been created successfully.",
-      });
+              toast({
+                title: "Success!",
+                description: "Your agent site has been created successfully.",
+              });
 
-      navigate('/admin/overview');
+              // Force refresh auth state to pick up new agent site
+              window.location.href = '/admin/overview';
     } catch (error) {
       console.error('Setup error:', error);
       toast({
@@ -269,6 +270,15 @@ export function Setup() {
               <p className="text-sm text-muted-foreground">
                 This should take about 8-10 minutes to complete.
               </p>
+            </div>
+            <div className="flex justify-center">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/admin/overview')}
+                className="text-sm"
+              >
+                Skip Setup (Use Defaults)
+              </Button>
             </div>
           </div>
         );

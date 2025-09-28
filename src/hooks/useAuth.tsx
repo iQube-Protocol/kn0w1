@@ -38,23 +38,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const uid = session.user.id;
           // Defer Supabase calls to avoid deadlocks inside the callback
           setTimeout(() => {
-            supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', uid)
-              .then(
-                ({ data: roles }) => {
-                  setUserRoles(roles?.map(r => r.role) || []);
-                  console.debug('[Auth] roles loaded (auth state change)', roles?.map(r => r.role) || []);
-                },
-                (err) => {
-                  console.debug('[Auth] roles load failed (auth state change)', err);
-                  setUserRoles([]);
-                }
-              );
+            Promise.all([
+              supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', uid),
+              supabase
+                .from('agent_sites')
+                .select('id')
+                .eq('owner_user_id', uid)
+                .limit(1)
+            ]).then(
+              ([rolesResult, sitesResult]) => {
+                setUserRoles(rolesResult.data?.map(r => r.role) || []);
+                setHasAgentSite((sitesResult.data?.length || 0) > 0);
+                console.debug('[Auth] roles and site loaded (auth state change)', {
+                  roles: rolesResult.data?.map(r => r.role) || [],
+                  hasAgentSite: (sitesResult.data?.length || 0) > 0
+                });
+              },
+              (err) => {
+                console.debug('[Auth] roles/site load failed (auth state change)', err);
+                setUserRoles([]);
+                setHasAgentSite(false);
+              }
+            );
           }, 0);
         } else {
           setUserRoles([]);
+          setHasAgentSite(false);
         }
 
         // Important: resolve loading synchronously here
@@ -75,22 +87,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session?.user) {
         const uid = session.user.id;
-        supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', uid)
-          .then(
-            ({ data: roles }) => {
-              setUserRoles(roles?.map(r => r.role) || []);
-              console.debug('[Auth] roles loaded (initial)', roles?.map(r => r.role) || []);
-            },
-            (err) => {
-              console.debug('[Auth] roles load failed (initial)', err);
-              setUserRoles([]);
-            }
-          );
+        Promise.all([
+          supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', uid),
+          supabase
+            .from('agent_sites')
+            .select('id')
+            .eq('owner_user_id', uid)
+            .limit(1)
+        ]).then(
+          ([rolesResult, sitesResult]) => {
+            setUserRoles(rolesResult.data?.map(r => r.role) || []);
+            setHasAgentSite((sitesResult.data?.length || 0) > 0);
+            console.debug('[Auth] roles and site loaded (initial)', {
+              roles: rolesResult.data?.map(r => r.role) || [],
+              hasAgentSite: (sitesResult.data?.length || 0) > 0
+            });
+          },
+          (err) => {
+            console.debug('[Auth] roles/site load failed (initial)', err);
+            setUserRoles([]);
+            setHasAgentSite(false);
+          }
+        );
       } else {
         setUserRoles([]);
+        setHasAgentSite(false);
       }
     }).finally(() => {
       setLoading(false);
