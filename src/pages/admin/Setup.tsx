@@ -101,6 +101,7 @@ export function Setup() {
   const [currentStep, setCurrentStep] = useState(0);
   const [state, setState] = useState<SetupState>(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
 
   const updateState = (updates: Partial<SetupState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -116,6 +117,72 @@ export function Setup() {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  // Load saved draft on component mount
+  React.useEffect(() => {
+    const loadSavedDraft = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('setup_drafts')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data) {
+          setState({ ...INITIAL_STATE, ...(data.setup_state as Partial<SetupState>) });
+          setCurrentStep(data.current_step);
+          toast({
+            title: "Draft Loaded",
+            description: "Your previous setup progress has been restored.",
+          });
+        }
+      } catch (error) {
+        console.error('Error loading setup draft:', error);
+      }
+    };
+
+    loadSavedDraft();
+  }, [user, toast]);
+
+  const saveDraft = async () => {
+    if (!user) return;
+    
+    setSavingDraft(true);
+    try {
+      const { error } = await supabase
+        .from('setup_drafts')
+        .upsert([{
+          user_id: user.id,
+          setup_state: JSON.parse(JSON.stringify(state)),
+          current_step: currentStep
+        }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Progress Saved",
+        description: "Your setup progress has been saved.",
+      });
+    } catch (error) {
+      console.error('Error saving setup draft:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save your progress. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  const skipSetupAndSave = async () => {
+    await saveDraft();
+    navigate('/admin/overview');
   };
 
   const handleCreateSite = async () => {
@@ -233,13 +300,19 @@ export function Setup() {
 
       if (utilitiesError) throw utilitiesError;
 
-              toast({
-                title: "Success!",
-                description: "Your agent site has been created successfully.",
-              });
+      // Clean up draft after successful creation
+      await supabase
+        .from('setup_drafts')
+        .delete()
+        .eq('user_id', user.id);
 
-              // Force refresh auth state to pick up new agent site
-              window.location.href = '/admin/overview';
+      toast({
+        title: "Success!",
+        description: "Your agent site has been created successfully.",
+      });
+
+      // Force refresh auth state to pick up new agent site
+      window.location.href = '/admin/overview';
     } catch (error) {
       console.error('Setup error:', error);
       toast({
@@ -271,9 +344,17 @@ export function Setup() {
                 This should take about 8-10 minutes to complete.
               </p>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
               <Button 
                 variant="outline" 
+                onClick={skipSetupAndSave}
+                className="text-sm"
+                disabled={savingDraft}
+              >
+                {savingDraft ? 'Saving...' : 'Save & Continue Later'}
+              </Button>
+              <Button 
+                variant="default" 
                 onClick={handleCreateSite}
                 className="text-sm"
                 disabled={loading}
@@ -732,24 +813,37 @@ export function Setup() {
             Previous
           </Button>
 
-          {currentStep === steps.length - 1 ? (
-            <Button
-              onClick={handleCreateSite}
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              {loading ? 'Creating...' : 'Create Site'}
-              <Sparkles className="w-4 h-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={nextStep}
-              className="flex items-center gap-2"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          )}
+          <div className="flex items-center gap-3">
+            {currentStep > 0 && (
+              <Button
+                variant="ghost"
+                onClick={saveDraft}
+                disabled={savingDraft}
+                className="text-sm"
+              >
+                {savingDraft ? 'Saving...' : 'Save Progress'}
+              </Button>
+            )}
+            
+            {currentStep === steps.length - 1 ? (
+              <Button
+                onClick={handleCreateSite}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                {loading ? 'Creating...' : 'Create Site'}
+                <Sparkles className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={nextStep}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
