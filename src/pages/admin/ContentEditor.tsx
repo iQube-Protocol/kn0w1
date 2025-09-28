@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileUpload } from '@/components/admin/FileUpload';
 
 interface ContentItem {
   id?: string;
@@ -353,8 +354,9 @@ export function ContentEditor() {
 
           {/* Content Type Specific Fields */}
           <Tabs value={content.type} onValueChange={(value: any) => setContent(prev => ({ ...prev, type: value }))}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="text">Text</TabsTrigger>
+              <TabsTrigger value="image">Image</TabsTrigger>
               <TabsTrigger value="video">Video</TabsTrigger>
               <TabsTrigger value="audio">Audio</TabsTrigger>
               <TabsTrigger value="social">Social</TabsTrigger>
@@ -372,6 +374,20 @@ export function ContentEditor() {
                     value={content.social_embed_html || ''}
                     onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
                   />
+                  
+                  {/* PDF Upload for Text Content */}
+                  <div className="space-y-4 border-t pt-4">
+                    <h4 className="text-sm font-medium">PDF Upload</h4>
+                    <FileUpload
+                      label="Upload PDF Document"
+                      description="Upload a PDF file to accompany this text content"
+                      accept=".pdf"
+                      maxSize={25}
+                      currentFile={content.social_url}
+                      onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                      onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
+                    />
+                  </div>
                   
                   {/* Learn to Earn Settings for Text Content */}
                   <div className="space-y-4 border-t pt-4">
@@ -423,32 +439,82 @@ export function ContentEditor() {
               </Card>
             </TabsContent>
 
+            <TabsContent value="image" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Image Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FileUpload
+                    label="Upload Image"
+                    description="Upload an image file (JPG, PNG, WebP, GIF)"
+                    accept="image/*"
+                    maxSize={10}
+                    currentFile={content.social_url}
+                    onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                    onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
+                  />
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="image_alt">Alt Text</Label>
+                    <Input
+                      id="image_alt"
+                      value={content.social_embed_html || ''}
+                      onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
+                      placeholder="Describe the image for accessibility..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="video" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Video Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="social_url">Video URL</Label>
-                    <Input
-                      id="social_url"
-                      value={content.social_url || ''}
-                      onChange={(e) => setContent(prev => ({ ...prev, social_url: e.target.value }))}
-                      placeholder="https://youtube.com/watch?v=..."
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="social_embed_html">Embed HTML (Optional)</Label>
-                    <Textarea
-                      id="social_embed_html"
-                      value={content.social_embed_html || ''}
-                      onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
-                      placeholder="<iframe>...</iframe>"
-                      rows={3}
-                    />
-                  </div>
+                  <Tabs defaultValue="upload" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="upload">Upload Video</TabsTrigger>
+                      <TabsTrigger value="url">Video URL/Embed</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="upload" className="space-y-4">
+                      <FileUpload
+                        label="Upload Video File"
+                        description="Upload a video file (MP4, MOV, AVI, etc.)"
+                        accept="video/*"
+                        maxSize={100}
+                        currentFile={content.social_url}
+                        onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                        onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="url" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="social_url">Video URL</Label>
+                        <Input
+                          id="social_url"
+                          value={content.social_url || ''}
+                          onChange={(e) => setContent(prev => ({ ...prev, social_url: e.target.value }))}
+                          placeholder="https://youtube.com/watch?v=..."
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="social_embed_html">Embed HTML (Optional)</Label>
+                        <Textarea
+                          id="social_embed_html"
+                          value={content.social_embed_html || ''}
+                          onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
+                          placeholder="<iframe>...</iframe>"
+                          rows={3}
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -459,15 +525,36 @@ export function ContentEditor() {
                   <CardTitle>Audio Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="audio_url">Audio URL</Label>
-                    <Input
-                      id="audio_url"
-                      value={content.social_url || ''}
-                      onChange={(e) => setContent(prev => ({ ...prev, social_url: e.target.value }))}
-                      placeholder="https://soundcloud.com/..."
-                    />
-                  </div>
+                  <Tabs defaultValue="upload" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="upload">Upload Audio</TabsTrigger>
+                      <TabsTrigger value="url">Audio URL</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="upload" className="space-y-4">
+                      <FileUpload
+                        label="Upload Audio File"
+                        description="Upload an audio file (MP3, WAV, M4A, etc.)"
+                        accept="audio/*"
+                        maxSize={50}
+                        currentFile={content.social_url}
+                        onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                        onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="url" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="audio_url">Audio URL</Label>
+                        <Input
+                          id="audio_url"
+                          value={content.social_url || ''}
+                          onChange={(e) => setContent(prev => ({ ...prev, social_url: e.target.value }))}
+                          placeholder="https://soundcloud.com/..."
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             </TabsContent>
