@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id: string
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blak_qubes: {
         Row: {
           Address: string | null
@@ -172,6 +205,152 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      content_categories: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          order_index: number | null
+          slug: string
+          strand: Database["public"]["Enums"]["content_strand"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          order_index?: number | null
+          slug: string
+          strand: Database["public"]["Enums"]["content_strand"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          order_index?: number | null
+          slug?: string
+          strand?: Database["public"]["Enums"]["content_strand"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      content_items: {
+        Row: {
+          category_id: string | null
+          completions_count: number | null
+          content_qube_id: string | null
+          cover_image_id: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          has_captions: boolean | null
+          has_transcript: boolean | null
+          id: string
+          iqube_policy_json: Json | null
+          l2e_cta_label: string | null
+          l2e_cta_url: string | null
+          l2e_points: number | null
+          l2e_quiz_url: string | null
+          og_json: Json | null
+          owner_id: string
+          pinned: boolean | null
+          publish_at: string | null
+          slug: string
+          social_embed_html: string | null
+          social_source: string | null
+          social_url: string | null
+          status: Database["public"]["Enums"]["content_status"] | null
+          strand: Database["public"]["Enums"]["content_strand"]
+          tags: string[] | null
+          title: string
+          token_qube_ref: string | null
+          type: Database["public"]["Enums"]["content_type"]
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          completions_count?: number | null
+          content_qube_id?: string | null
+          cover_image_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          has_captions?: boolean | null
+          has_transcript?: boolean | null
+          id?: string
+          iqube_policy_json?: Json | null
+          l2e_cta_label?: string | null
+          l2e_cta_url?: string | null
+          l2e_points?: number | null
+          l2e_quiz_url?: string | null
+          og_json?: Json | null
+          owner_id: string
+          pinned?: boolean | null
+          publish_at?: string | null
+          slug: string
+          social_embed_html?: string | null
+          social_source?: string | null
+          social_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"] | null
+          strand: Database["public"]["Enums"]["content_strand"]
+          tags?: string[] | null
+          title: string
+          token_qube_ref?: string | null
+          type: Database["public"]["Enums"]["content_type"]
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          completions_count?: number | null
+          content_qube_id?: string | null
+          cover_image_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          has_captions?: boolean | null
+          has_transcript?: boolean | null
+          id?: string
+          iqube_policy_json?: Json | null
+          l2e_cta_label?: string | null
+          l2e_cta_url?: string | null
+          l2e_points?: number | null
+          l2e_quiz_url?: string | null
+          og_json?: Json | null
+          owner_id?: string
+          pinned?: boolean | null
+          publish_at?: string | null
+          slug?: string
+          social_embed_html?: string | null
+          social_source?: string | null
+          social_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"] | null
+          strand?: Database["public"]["Enums"]["content_strand"]
+          tags?: string[] | null
+          title?: string
+          token_qube_ref?: string | null
+          type?: Database["public"]["Enums"]["content_type"]
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "content_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversation_summaries: {
         Row: {
@@ -464,6 +643,68 @@ export type Database = {
         }
         Relationships: []
       }
+      media_assets: {
+        Row: {
+          caption_path: string | null
+          checksum: string | null
+          content_item_id: string
+          created_at: string | null
+          duration_seconds: number | null
+          external_url: string | null
+          filesize_bytes: number | null
+          height: number | null
+          id: string
+          kind: Database["public"]["Enums"]["content_type"]
+          mime_type: string | null
+          oembed_html: string | null
+          storage_path: string | null
+          transcript_path: string | null
+          width: number | null
+        }
+        Insert: {
+          caption_path?: string | null
+          checksum?: string | null
+          content_item_id: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          external_url?: string | null
+          filesize_bytes?: number | null
+          height?: number | null
+          id?: string
+          kind: Database["public"]["Enums"]["content_type"]
+          mime_type?: string | null
+          oembed_html?: string | null
+          storage_path?: string | null
+          transcript_path?: string | null
+          width?: number | null
+        }
+        Update: {
+          caption_path?: string | null
+          checksum?: string | null
+          content_item_id?: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          external_url?: string | null
+          filesize_bytes?: number | null
+          height?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["content_type"]
+          mime_type?: string | null
+          oembed_html?: string | null
+          storage_path?: string | null
+          transcript_path?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_content: {
         Row: {
           category: string
@@ -683,6 +924,39 @@ export type Database = {
         }
         Relationships: []
       }
+      social_connections: {
+        Row: {
+          account_handle: string | null
+          connected: boolean | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          oauth_meta: Json | null
+          provider: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_handle?: string | null
+          connected?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          oauth_meta?: Json | null
+          provider: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_handle?: string | null
+          connected?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          oauth_meta?: Json | null
+          provider?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_connections: {
         Row: {
           connected_at: string
@@ -709,6 +983,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_content_progress: {
+        Row: {
+          completed_at: string | null
+          content_item_id: string
+          created_at: string | null
+          id: string
+          progress_percentage: number | null
+          score: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          content_item_id: string
+          created_at?: string | null
+          id?: string
+          progress_percentage?: number | null
+          score?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          content_item_id?: string
+          created_at?: string | null
+          id?: string
+          progress_percentage?: number | null
+          score?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_content_progress_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_interactions: {
         Row: {
@@ -832,6 +1150,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           active: boolean
@@ -912,12 +1254,23 @@ export type Database = {
           total_expired: number
         }[]
       }
+      has_admin_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["admin_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_send_attempts: {
         Args: { target_email: string }
         Returns: undefined
       }
       is_admin_user: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_any_admin: {
+        Args: { _user_id: string }
         Returns: boolean
       }
       recover_incomplete_invited_signups: {
@@ -932,7 +1285,22 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "content_admin" | "social_admin" | "moderator"
+      content_status:
+        | "draft"
+        | "in_review"
+        | "scheduled"
+        | "published"
+        | "archived"
+      content_strand: "civic_readiness" | "learn_to_earn"
+      content_type:
+        | "audio"
+        | "video"
+        | "text"
+        | "pdf"
+        | "image"
+        | "mixed"
+        | "social"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1059,6 +1427,25 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "content_admin", "social_admin", "moderator"],
+      content_status: [
+        "draft",
+        "in_review",
+        "scheduled",
+        "published",
+        "archived",
+      ],
+      content_strand: ["civic_readiness", "learn_to_earn"],
+      content_type: [
+        "audio",
+        "video",
+        "text",
+        "pdf",
+        "image",
+        "mixed",
+        "social",
+      ],
+    },
   },
 } as const
