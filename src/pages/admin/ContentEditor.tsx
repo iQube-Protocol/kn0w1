@@ -197,11 +197,23 @@ export function ContentEditor() {
   const handleSave = async (newStatus?: typeof content.status) => {
     setSaving(true);
     try {
+      // Get the current user's agent site
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
+      const { data: agentSiteData } = await supabase
+        .from('agent_sites')
+        .select('id')
+        .eq('owner_user_id', userData.user.id)
+        .maybeSingle();
+
+      if (!agentSiteData) throw new Error('No agent site found for user');
+
       const saveData = {
         ...content,
         status: newStatus || content.status,
-        agent_site_id: '00000000-0000-0000-0000-000000000000', // This should come from current agent site
-        owner_id: (await supabase.auth.getUser()).data.user?.id,
+        agent_site_id: agentSiteData.id,
+        owner_id: userData.user.id,
         publish_at: content.publish_at ? new Date(content.publish_at).toISOString() : null,
       };
 
@@ -351,13 +363,62 @@ export function ContentEditor() {
             <TabsContent value="text" className="space-y-4">
               <Card>
                 <CardHeader>
-                <CardTitle>Text Content</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  placeholder="Write your text content here..."
+                  <CardTitle>Text Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Write your text content here..."
                     rows={10}
+                    value={content.social_embed_html || ''}
+                    onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
                   />
+                  
+                  {/* Learn to Earn Settings for Text Content */}
+                  <div className="space-y-4 border-t pt-4">
+                    <h4 className="text-sm font-medium">Learn to Earn Settings</h4>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="l2e_points">Points Value</Label>
+                      <Input
+                        id="l2e_points"
+                        type="number"
+                        value={content.l2e_points}
+                        onChange={(e) => setContent(prev => ({ ...prev, l2e_points: Number(e.target.value) }))}
+                        placeholder="Points earned for completing this content"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="l2e_quiz_url">Quiz URL (Optional)</Label>
+                      <Input
+                        id="l2e_quiz_url"
+                        value={content.l2e_quiz_url || ''}
+                        onChange={(e) => setContent(prev => ({ ...prev, l2e_quiz_url: e.target.value }))}
+                        placeholder="https://quiz.example.com/..."
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="l2e_cta_label">CTA Label</Label>
+                        <Input
+                          id="l2e_cta_label"
+                          value={content.l2e_cta_label || ''}
+                          onChange={(e) => setContent(prev => ({ ...prev, l2e_cta_label: e.target.value }))}
+                          placeholder="Take Quiz"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="l2e_cta_url">CTA URL</Label>
+                        <Input
+                          id="l2e_cta_url"
+                          value={content.l2e_cta_url || ''}
+                          onChange={(e) => setContent(prev => ({ ...prev, l2e_cta_url: e.target.value }))}
+                          placeholder="https://action.example.com/..."
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
