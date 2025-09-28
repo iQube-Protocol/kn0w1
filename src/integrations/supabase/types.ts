@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_branches: {
+        Row: {
+          agent_site_id: string
+          audience: string | null
+          created_at: string
+          display_name: string
+          id: string
+          kind: Database["public"]["Enums"]["branch_kind"]
+          long_context_md: string | null
+          safety_notes_md: string | null
+          short_summary: string | null
+          system_prompt_template_md: string | null
+          tone: string | null
+          updated_at: string
+          values_json: Json
+        }
+        Insert: {
+          agent_site_id: string
+          audience?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          kind: Database["public"]["Enums"]["branch_kind"]
+          long_context_md?: string | null
+          safety_notes_md?: string | null
+          short_summary?: string | null
+          system_prompt_template_md?: string | null
+          tone?: string | null
+          updated_at?: string
+          values_json?: Json
+        }
+        Update: {
+          agent_site_id?: string
+          audience?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["branch_kind"]
+          long_context_md?: string | null
+          safety_notes_md?: string | null
+          short_summary?: string | null
+          system_prompt_template_md?: string | null
+          tone?: string | null
+          updated_at?: string
+          values_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_branches_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_sites: {
         Row: {
           branding_json: Json
@@ -46,6 +102,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      aigents: {
+        Row: {
+          agent_kind: Database["public"]["Enums"]["agent_kind"]
+          agent_site_id: string
+          created_at: string
+          id: string
+          is_mutable: boolean
+          is_system_agent: boolean
+          name: string
+          runtime_prefs_json: Json
+          system_prompt_md: string
+          updated_at: string
+        }
+        Insert: {
+          agent_kind?: Database["public"]["Enums"]["agent_kind"]
+          agent_site_id: string
+          created_at?: string
+          id?: string
+          is_mutable?: boolean
+          is_system_agent?: boolean
+          name: string
+          runtime_prefs_json?: Json
+          system_prompt_md?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_kind?: Database["public"]["Enums"]["agent_kind"]
+          agent_site_id?: string
+          created_at?: string
+          id?: string
+          is_mutable?: boolean
+          is_system_agent?: boolean
+          name?: string
+          runtime_prefs_json?: Json
+          system_prompt_md?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aigents_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -794,6 +897,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      mission_pillars: {
+        Row: {
+          agent_site_id: string
+          contentqube_id: string | null
+          created_at: string
+          default_utilities_json: Json
+          display_name: string
+          goals_json: Json
+          id: string
+          iqube_policy_json: Json | null
+          kpis_json: Json
+          long_context_md: string | null
+          short_summary: string | null
+          tokenqube_ref: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_site_id: string
+          contentqube_id?: string | null
+          created_at?: string
+          default_utilities_json?: Json
+          display_name: string
+          goals_json?: Json
+          id?: string
+          iqube_policy_json?: Json | null
+          kpis_json?: Json
+          long_context_md?: string | null
+          short_summary?: string | null
+          tokenqube_ref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_site_id?: string
+          contentqube_id?: string | null
+          created_at?: string
+          default_utilities_json?: Json
+          display_name?: string
+          goals_json?: Json
+          id?: string
+          iqube_policy_json?: Json | null
+          kpis_json?: Json
+          long_context_md?: string | null
+          short_summary?: string | null
+          tokenqube_ref?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_pillars_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mm_super_admins: {
         Row: {
