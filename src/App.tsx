@@ -41,6 +41,7 @@ const App = () => (
               <Route index element={<Overview />} />
               <Route path="overview" element={<Overview />} />
               <Route path="content" element={<ContentManagement />} />
+              <Route path="content/new" element={<ContentEditor />} />
               <Route path="content/:id" element={<ContentEditor />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="analytics" element={<Analytics />} />
