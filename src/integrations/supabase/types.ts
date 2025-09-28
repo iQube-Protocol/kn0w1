@@ -153,6 +153,7 @@ export type Database = {
       audit_logs: {
         Row: {
           action: string
+          agent_site_id: string | null
           created_at: string | null
           id: string
           new_values: Json | null
@@ -163,6 +164,7 @@ export type Database = {
         }
         Insert: {
           action: string
+          agent_site_id?: string | null
           created_at?: string | null
           id?: string
           new_values?: Json | null
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           action?: string
+          agent_site_id?: string | null
           created_at?: string | null
           id?: string
           new_values?: Json | null
@@ -344,34 +347,40 @@ export type Database = {
       }
       content_categories: {
         Row: {
+          agent_site_id: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
           id: string
           name: string
           order_index: number | null
+          pillar_id: string | null
           slug: string
           strand: Database["public"]["Enums"]["content_strand"]
           updated_at: string | null
         }
         Insert: {
+          agent_site_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           id?: string
           name: string
           order_index?: number | null
+          pillar_id?: string | null
           slug: string
           strand: Database["public"]["Enums"]["content_strand"]
           updated_at?: string | null
         }
         Update: {
+          agent_site_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           id?: string
           name?: string
           order_index?: number | null
+          pillar_id?: string | null
           slug?: string
           strand?: Database["public"]["Enums"]["content_strand"]
           updated_at?: string | null
@@ -380,9 +389,13 @@ export type Database = {
       }
       content_items: {
         Row: {
+          accessibility_json: Json
+          agent_site_id: string | null
+          analytics_json: Json
           category_id: string | null
           completions_count: number | null
           content_qube_id: string | null
+          contentqube_id: string | null
           cover_image_id: string | null
           created_at: string | null
           description: string | null
@@ -397,6 +410,7 @@ export type Database = {
           l2e_quiz_url: string | null
           og_json: Json | null
           owner_id: string
+          pillar_id: string | null
           pinned: boolean | null
           publish_at: string | null
           slug: string
@@ -408,14 +422,19 @@ export type Database = {
           tags: string[] | null
           title: string
           token_qube_ref: string | null
+          tokenqube_ref: string | null
           type: Database["public"]["Enums"]["content_type"]
           updated_at: string | null
           views_count: number | null
         }
         Insert: {
+          accessibility_json?: Json
+          agent_site_id?: string | null
+          analytics_json?: Json
           category_id?: string | null
           completions_count?: number | null
           content_qube_id?: string | null
+          contentqube_id?: string | null
           cover_image_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -430,6 +449,7 @@ export type Database = {
           l2e_quiz_url?: string | null
           og_json?: Json | null
           owner_id: string
+          pillar_id?: string | null
           pinned?: boolean | null
           publish_at?: string | null
           slug: string
@@ -441,14 +461,19 @@ export type Database = {
           tags?: string[] | null
           title: string
           token_qube_ref?: string | null
+          tokenqube_ref?: string | null
           type: Database["public"]["Enums"]["content_type"]
           updated_at?: string | null
           views_count?: number | null
         }
         Update: {
+          accessibility_json?: Json
+          agent_site_id?: string | null
+          analytics_json?: Json
           category_id?: string | null
           completions_count?: number | null
           content_qube_id?: string | null
+          contentqube_id?: string | null
           cover_image_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -463,6 +488,7 @@ export type Database = {
           l2e_quiz_url?: string | null
           og_json?: Json | null
           owner_id?: string
+          pillar_id?: string | null
           pinned?: boolean | null
           publish_at?: string | null
           slug?: string
@@ -474,6 +500,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           token_qube_ref?: string | null
+          tokenqube_ref?: string | null
           type?: Database["public"]["Enums"]["content_type"]
           updated_at?: string | null
           views_count?: number | null
@@ -517,6 +544,101 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      crm_interactions: {
+        Row: {
+          agent_site_id: string
+          data_json: Json
+          id: string
+          item_id: string | null
+          kind: string
+          occurred_at: string
+          pillar_id: string | null
+          profile_id: string | null
+          score_delta: number
+        }
+        Insert: {
+          agent_site_id: string
+          data_json?: Json
+          id?: string
+          item_id?: string | null
+          kind: string
+          occurred_at?: string
+          pillar_id?: string | null
+          profile_id?: string | null
+          score_delta?: number
+        }
+        Update: {
+          agent_site_id?: string
+          data_json?: Json
+          id?: string
+          item_id?: string | null
+          kind?: string
+          occurred_at?: string
+          pillar_id?: string | null
+          profile_id?: string | null
+          score_delta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_interactions_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_interactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "crm_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_profiles: {
+        Row: {
+          agent_site_id: string
+          consents_json: Json
+          created_at: string
+          email: string | null
+          handle: string | null
+          id: string
+          metadata_json: Json
+          segments: string[]
+          user_id: string | null
+        }
+        Insert: {
+          agent_site_id: string
+          consents_json?: Json
+          created_at?: string
+          email?: string | null
+          handle?: string | null
+          id?: string
+          metadata_json?: Json
+          segments?: string[]
+          user_id?: string | null
+        }
+        Update: {
+          agent_site_id?: string
+          consents_json?: Json
+          created_at?: string
+          email?: string | null
+          handle?: string | null
+          id?: string
+          metadata_json?: Json
+          segments?: string[]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_profiles_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_batches: {
         Row: {
@@ -1362,6 +1484,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          agent_site_id: string | null
           created_at: string | null
           created_by: string | null
           id: string
@@ -1369,6 +1492,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          agent_site_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -1376,6 +1500,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          agent_site_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -1410,6 +1535,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      utilities_config: {
+        Row: {
+          agent_site_id: string
+          commercial_on: boolean
+          commercial_opts_json: Json
+          content_creation_on: boolean
+          created_at: string
+          id: string
+          social_on: boolean
+          social_opts_json: Json
+          teaching_on: boolean
+          teaching_opts_json: Json
+          updated_at: string
+        }
+        Insert: {
+          agent_site_id: string
+          commercial_on?: boolean
+          commercial_opts_json?: Json
+          content_creation_on?: boolean
+          created_at?: string
+          id?: string
+          social_on?: boolean
+          social_opts_json?: Json
+          teaching_on?: boolean
+          teaching_opts_json?: Json
+          updated_at?: string
+        }
+        Update: {
+          agent_site_id?: string
+          commercial_on?: boolean
+          commercial_opts_json?: Json
+          content_creation_on?: boolean
+          created_at?: string
+          id?: string
+          social_on?: boolean
+          social_opts_json?: Json
+          teaching_on?: boolean
+          teaching_opts_json?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utilities_config_agent_site_id_fkey"
+            columns: ["agent_site_id"]
+            isOneToOne: true
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
