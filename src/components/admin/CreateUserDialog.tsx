@@ -43,44 +43,53 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
     setLoading(true);
 
     try {
-      // Create user using auth admin API
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Use regular signup instead of admin API
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          first_name: formData.firstName,
-          last_name: formData.lastName
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName
+          }
         }
       });
 
       if (authError) throw authError;
 
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: authData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName
+      if (authData.user) {
+        // Create profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: authData.user.id,
+            first_name: formData.firstName,
+            last_name: formData.lastName
+          });
+
+        if (profileError) throw profileError;
+
+        // Assign role
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: authData.user.id,
+            role: formData.role
+          });
+
+        if (roleError) throw roleError;
+
+        toast({
+          title: "Success",
+          description: `User invited successfully with ${formData.role.replace('_', ' ')} role. They need to confirm their email.`,
         });
-
-      if (profileError) throw profileError;
-
-      // Assign role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
-          role: formData.role
+      } else {
+        toast({
+          title: "Success", 
+          description: "User invitation sent. They need to confirm their email and set their password.",
         });
-
-      if (roleError) throw roleError;
-
-      toast({
-        title: "Success",
-        description: `User created successfully with ${formData.role.replace('_', ' ')} role.`,
-      });
+      }
 
       setOpen(false);
       setFormData({
