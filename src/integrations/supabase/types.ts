@@ -1646,6 +1646,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_min_role: {
+        Args: {
+          min_role: Database["public"]["Enums"]["admin_role"]
+          p_agent_site_id: string
+          uid?: string
+        }
+        Returns: boolean
+      }
       increment_send_attempts: {
         Args: { target_email: string }
         Returns: undefined
@@ -1658,6 +1666,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      is_mm_super_admin: {
+        Args: { uid: string }
+        Returns: boolean
+      }
       recover_incomplete_invited_signups: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1667,6 +1679,16 @@ export type Database = {
           user_email: string
           user_id: string
         }[]
+      }
+      role_rank: {
+        Args:
+          | { r: Database["public"]["Enums"]["admin_role"] }
+          | { r: Database["public"]["Enums"]["role_type"] }
+        Returns: number
+      }
+      user_role_rank: {
+        Args: { p_agent_site_id: string; uid?: string }
+        Returns: number
       }
     }
     Enums: {
