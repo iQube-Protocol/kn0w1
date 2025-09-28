@@ -92,8 +92,8 @@ export function AdminSidebar() {
 
   const getNavClasses = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary text-primary-foreground font-medium" 
-      : "hover:bg-accent hover:text-accent-foreground";
+      ? "bg-primary text-white font-medium" 
+      : "text-white hover:bg-accent hover:text-white";
 
   return (
     <Sidebar className="w-60">
