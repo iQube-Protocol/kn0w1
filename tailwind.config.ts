@@ -86,10 +86,12 @@ export default {
         },
         "pulse-neon": {
           "0%, 100%": { 
-            textShadow: "0 0 5px hsl(180 100% 50%), 0 0 10px hsl(180 100% 50%)"
+            textShadow: "0 0 8px hsl(180 100% 50%), 0 0 16px hsl(180 100% 50%)",
+            filter: "brightness(1)"
           },
           "50%": { 
-            textShadow: "0 0 10px hsl(180 100% 50%), 0 0 20px hsl(180 100% 50%), 0 0 30px hsl(180 100% 50%)"
+            textShadow: "0 0 20px hsl(180 100% 50%), 0 0 40px hsl(180 100% 50%), 0 0 60px hsl(180 100% 50%), 0 0 80px hsl(180 100% 50%)",
+            filter: "brightness(1.3)"
           },
         },
         "slide-up": {
@@ -107,7 +109,7 @@ export default {
         float: "float 3s ease-in-out infinite",
         glow: "glow 2s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
-        "pulse-neon": "pulse-neon 2s ease-in-out infinite",
+        "pulse-neon": "pulse-neon 3.5s ease-in-out infinite",
         "slide-up": "slide-up 0.3s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
       },
