@@ -36,6 +36,7 @@ import {
   UserX
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { CreateUserDialog } from '@/components/admin/CreateUserDialog';
 
 interface User {
   id: string;
@@ -226,9 +227,10 @@ export function UserManagement() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground">
-            Manage users, roles, and permissions
+            Manage users, roles, and permissions. <strong>Super Admin</strong> = Site owner, <strong>Platform Super Admin</strong> = Full platform access.
           </p>
         </div>
+        <CreateUserDialog onUserCreated={fetchUsers} />
       </div>
 
       {/* Stats */}
