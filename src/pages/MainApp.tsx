@@ -169,7 +169,13 @@ export default function MainApp() {
       <div className={`fixed left-4 top-4 z-50 flex flex-col gap-3 transition-all duration-300 ${
         isContentPlaying ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}>
-        <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="glass hover-glow w-10 h-10 rounded-lg"
+          onClick={() => navigate('/app')}
+          title="Back to Main App"
+        >
           <Menu className="h-4 w-4" />
         </Button>
         
