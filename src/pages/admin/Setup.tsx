@@ -274,10 +274,11 @@ export function Setup() {
             <div className="flex justify-center">
               <Button 
                 variant="outline" 
-                onClick={() => navigate('/admin/overview')}
+                onClick={handleCreateSite}
                 className="text-sm"
+                disabled={loading}
               >
-                Skip Setup (Use Defaults)
+                {loading ? 'Creating...' : 'Skip Setup (Use Defaults)'}
               </Button>
             </div>
           </div>
