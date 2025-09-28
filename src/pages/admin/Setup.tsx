@@ -190,6 +190,26 @@ export function Setup() {
     
     setLoading(true);
     try {
+      // If an agent site already exists, skip creation and go to overview
+      const { data: existingSite, error: existingErr } = await supabase
+        .from('agent_sites')
+        .select('id, site_slug')
+        .eq('owner_user_id', user.id)
+        .maybeSingle();
+
+      if (existingErr) throw existingErr;
+
+      if (existingSite) {
+        toast({
+          title: 'Agent site already exists',
+          description: 'Opening your dashboard.'
+        });
+        // Clean up draft so you start fresh next time (optional)
+        await supabase.from('setup_drafts').delete().eq('user_id', user.id);
+        window.location.href = '/admin/overview';
+        return;
+      }
+
       // Create agent site
       const { data: siteData, error: siteError } = await supabase
         .from('agent_sites')
@@ -355,11 +375,11 @@ export function Setup() {
               </Button>
               <Button 
                 variant="default" 
-                onClick={handleCreateSite}
+                onClick={skipSetupAndSave}
                 className="text-sm"
-                disabled={loading}
+                disabled={savingDraft}
               >
-                {loading ? 'Creating...' : 'Skip Setup (Use Defaults)'}
+                {savingDraft ? 'Saving...' : 'Skip Setup (Save Draft)'}
               </Button>
             </div>
           </div>
