@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Play, BookOpen, Users, Award, Mic, Search } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
-import metakyntLogo from "@/assets/metaknyt-logo.png";
+import metakyntLogo from "@/assets/metaknyt-script.png";
 const Index = () => {
   const navigate = useNavigate();
   const features = [{
@@ -39,7 +39,7 @@ const Index = () => {
             <img 
               src={metakyntLogo} 
               alt="METAKNYT" 
-              className="h-24 md:h-32 lg:h-40 w-auto mx-auto neon-text animate-pulse-neon"
+              className="h-16 md:h-24 lg:h-28 w-auto mx-auto neon-text animate-pulse-neon"
               style={{
                 filter: 'drop-shadow(0 0 20px hsl(var(--neon-cyan))) drop-shadow(0 0 40px hsl(var(--neon-cyan))) drop-shadow(0 0 60px hsl(var(--neon-cyan)))',
                 imageRendering: 'crisp-edges'
