@@ -92,6 +92,20 @@ export default {
             textShadow: "0 0 10px hsl(180 100% 50%), 0 0 20px hsl(180 100% 50%), 0 0 30px hsl(180 100% 50%)"
           },
         },
+        "electrify": {
+          "0%, 100%": { 
+            filter: "brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(106%) contrast(101%) drop-shadow(0 0 6px hsl(180 100% 50%)) drop-shadow(0 0 12px hsl(180 100% 50%))"
+          },
+          "25%": {
+            filter: "brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(130%) contrast(120%) drop-shadow(0 0 12px hsl(180 100% 50%)) drop-shadow(0 0 24px hsl(180 100% 50%)) drop-shadow(0 0 36px hsl(220 100% 60%))"
+          },
+          "50%": {
+            filter: "brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(160%) contrast(140%) drop-shadow(0 0 18px hsl(180 100% 50%)) drop-shadow(0 0 36px hsl(180 100% 50%)) drop-shadow(0 0 54px hsl(220 100% 60%)) drop-shadow(0 0 72px hsl(270 100% 70%))"
+          },
+          "75%": {
+            filter: "brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(130%) contrast(120%) drop-shadow(0 0 12px hsl(180 100% 50%)) drop-shadow(0 0 24px hsl(180 100% 50%)) drop-shadow(0 0 36px hsl(320 100% 60%))"
+          }
+        },
         "slide-up": {
           "0%": { transform: "translateY(100%)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
@@ -108,6 +122,7 @@ export default {
         glow: "glow 2s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
         "pulse-neon": "pulse-neon 2s ease-in-out infinite",
+        "electrify": "electrify 4s ease-in-out infinite",
         "slide-up": "slide-up 0.3s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
       },

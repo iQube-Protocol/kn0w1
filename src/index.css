@@ -94,6 +94,33 @@
   }
 }
 
+@keyframes electrify {
+  0%, 100% { 
+    filter: brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(106%) contrast(101%) 
+           drop-shadow(0 0 6px hsl(var(--neon-cyan))) 
+           drop-shadow(0 0 12px hsl(var(--neon-cyan)));
+  }
+  25% {
+    filter: brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(130%) contrast(120%)
+           drop-shadow(0 0 12px hsl(var(--neon-cyan))) 
+           drop-shadow(0 0 24px hsl(var(--neon-cyan)))
+           drop-shadow(0 0 36px hsl(var(--neon-blue)));
+  }
+  50% {
+    filter: brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(160%) contrast(140%)
+           drop-shadow(0 0 18px hsl(var(--neon-cyan))) 
+           drop-shadow(0 0 36px hsl(var(--neon-cyan)))
+           drop-shadow(0 0 54px hsl(var(--neon-blue)))
+           drop-shadow(0 0 72px hsl(var(--neon-purple)));
+  }
+  75% {
+    filter: brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(130%) contrast(120%)
+           drop-shadow(0 0 12px hsl(var(--neon-cyan))) 
+           drop-shadow(0 0 24px hsl(var(--neon-cyan)))
+           drop-shadow(0 0 36px hsl(var(--neon-magenta)));
+  }
+}
+
 /* Glass morphism utility */
 .glass {
   background: var(--glass-bg);

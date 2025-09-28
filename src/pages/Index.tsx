@@ -39,9 +39,8 @@ const Index = () => {
             <img 
               src={metakyntLogo} 
               alt="METAKNYT" 
-              className="h-16 md:h-24 lg:h-28 w-auto mx-auto animate-pulse-neon"
+              className="h-16 md:h-24 lg:h-28 w-auto mx-auto animate-electrify"
               style={{
-                filter: 'brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(106%) contrast(101%) drop-shadow(0 0 8px hsl(var(--neon-cyan))) drop-shadow(0 0 16px hsl(var(--neon-cyan)))',
                 imageRendering: 'crisp-edges'
               }}
             />
