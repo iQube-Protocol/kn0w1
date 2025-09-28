@@ -78,53 +78,7 @@ export function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      // Fetch users from auth.users (requires service role key in production)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Error fetching auth users:', authError);
-        // Fallback: just show profiles for existing users
-        await fetchProfilesOnly();
-        return;
-      }
-
-      // Fetch profiles
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*');
-
-      // Fetch user roles
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      // Combine data
-      const usersWithProfiles: UserWithProfile[] = authUsers.users.map(user => {
-        const profile = profiles?.find(p => p.user_id === user.id) || null;
-        const roles = userRoles?.filter(r => r.user_id === user.id).map(r => r.role) || [];
-        
-        return {
-          ...user,
-          profile,
-          roles
-        };
-      });
-
-      setUsers(usersWithProfiles);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch users. You may need admin privileges.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProfilesOnly = async () => {
-    try {
+      // Fetch profiles and roles directly without admin API
       const { data: profiles } = await supabase
         .from('profiles')
         .select('*');
@@ -136,18 +90,26 @@ export function UserManagement() {
       const usersFromProfiles: UserWithProfile[] = profiles?.map(profile => ({
         id: profile.user_id,
         email: 'Email not available',
-        created_at: '',
+        created_at: profile.created_at,
         last_sign_in_at: '',
-        email_confirmed_at: '',
+        email_confirmed_at: profile.created_at, // Assume confirmed if profile exists
         profile,
         roles: userRoles?.filter(r => r.user_id === profile.user_id).map(r => r.role) || []
       })) || [];
 
       setUsers(usersFromProfiles);
     } catch (error) {
-      console.error('Error fetching profiles:', error);
+      console.error('Error fetching users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch users.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
 
   const assignRole = async (userId: string, role: 'super_admin' | 'content_admin' | 'social_admin') => {
     try {
