@@ -8,17 +8,20 @@ import { LogOut, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export function AdminLayout() {
-  const { user, userRoles, isAdmin, signOut, loading } = useAuth();
+  const { user, userRoles, isAdmin, hasAgentSite, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect non-admin users
   React.useEffect(() => {
-    console.debug('[AdminLayout] guard', { loading, isAdmin, userEmail: user?.email, userRoles });
+    console.debug('[AdminLayout] guard', { loading, isAdmin, hasAgentSite, userEmail: user?.email, userRoles });
     if (!loading && !isAdmin) {
       console.debug('[AdminLayout] redirecting to /auth');
       navigate('/auth');
+    } else if (!loading && isAdmin && !hasAgentSite) {
+      console.debug('[AdminLayout] redirecting to /admin/setup');
+      navigate('/admin/setup');
     }
-  }, [loading, isAdmin, navigate]);
+  }, [loading, isAdmin, hasAgentSite, navigate]);
 
   if (loading) {
     console.debug('[AdminLayout] rendering loading spinner', { userEmail: user?.email, isAdmin, userRoles });

@@ -8,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   userRoles: string[];
   isAdmin: boolean;
+  hasAgentSite: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -18,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [hasAgentSite, setHasAgentSite] = useState<boolean>(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       userRoles,
       isAdmin,
+      hasAgentSite,
       signOut
     }}>
       {children}

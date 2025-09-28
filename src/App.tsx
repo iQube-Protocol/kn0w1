@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { AdminDashboard } from "@/pages/admin/AdminDashboard";
+import { Setup } from "@/pages/admin/Setup";
+import { Overview } from "@/pages/admin/Overview";
 import { ContentManagement } from "@/pages/admin/ContentManagement";
 import { UserManagement } from "@/pages/admin/UserManagement";
 import { Analytics } from "@/pages/admin/Analytics";
@@ -31,9 +32,13 @@ const App = () => (
             <Route path="/gotv" element={<MainApp />} />
             <Route path="/l2e" element={<MainApp />} />
             
+            {/* Setup Route (outside admin layout) */}
+            <Route path="/admin/setup" element={<Setup />} />
+            
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
+              <Route index element={<Overview />} />
+              <Route path="overview" element={<Overview />} />
               <Route path="content" element={<ContentManagement />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="analytics" element={<Analytics />} />
