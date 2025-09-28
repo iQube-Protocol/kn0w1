@@ -313,11 +313,14 @@ export function UserManagement() {
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Users ({filteredUsers.length})</CardTitle>
-          <CardDescription>
-            Manage user accounts and permissions
-          </CardDescription>
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div>
+            <CardTitle>Users ({filteredUsers.length})</CardTitle>
+            <CardDescription>
+              Manage user accounts and permissions
+            </CardDescription>
+          </div>
+          <CreateUserDialog onUserCreated={fetchUsers} />
         </CardHeader>
         <CardContent>
           <Table>
