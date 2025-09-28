@@ -1,12 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+// Validation schemas
+const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters")
+});
+
+const signUpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required")
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -14,13 +36,125 @@ export default function Auth() {
     firstName: "",
     lastName: ""
   });
+  
   const navigate = useNavigate();
-  const handleSubmit = (e: React.FormEvent) => {
+  const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/app");
+      }
+    }
+  }, [user, isAdmin, navigate]);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would handle authentication
-    console.log("Auth form submitted:", formData);
-    // For now, just navigate to main app
-    navigate("/app");
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        // Validate sign-up form
+        const validation = signUpSchema.safeParse(formData);
+        if (!validation.success) {
+          const error = validation.error.issues[0];
+          toast({
+            title: "Validation Error",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Sign up with Supabase
+        const { error, data } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              first_name: formData.firstName,
+              last_name: formData.lastName
+            }
+          }
+        });
+
+        if (error) {
+          toast({
+            title: "Sign Up Failed",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        if (data.user && !data.session) {
+          toast({
+            title: "Check Your Email",
+            description: "We've sent you a confirmation link. Please check your email to complete registration.",
+            variant: "default"
+          });
+        } else if (data.session) {
+          toast({
+            title: "Welcome!",
+            description: "Account created successfully.",
+            variant: "default"
+          });
+        }
+      } else {
+        // Validate sign-in form
+        const validation = signInSchema.safeParse(formData);
+        if (!validation.success) {
+          const error = validation.error.issues[0];
+          toast({
+            title: "Validation Error",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Sign in with Supabase
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              title: "Sign In Failed",
+              description: "Invalid email or password. Please try again.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Sign In Failed",
+              description: error.message,
+              variant: "destructive"
+            });
+          }
+          return;
+        }
+
+        toast({
+          title: "Welcome Back!",
+          description: "Successfully signed in.",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -96,8 +230,8 @@ export default function Auth() {
                 </div>
               </div>}
 
-            <Button type="submit" className="w-full hover-glow">
-              {isSignUp ? "Create Account" : "Sign In"}
+            <Button type="submit" className="w-full hover-glow" disabled={loading}>
+              {loading ? (isSignUp ? "Creating Account..." : "Signing In...") : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
           </form>
 
