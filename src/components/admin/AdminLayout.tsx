@@ -13,12 +13,15 @@ export function AdminLayout() {
 
   // Redirect non-admin users
   React.useEffect(() => {
+    console.debug('[AdminLayout] guard', { loading, isAdmin, userEmail: user?.email, userRoles });
     if (!loading && !isAdmin) {
+      console.debug('[AdminLayout] redirecting to /auth');
       navigate('/auth');
     }
   }, [loading, isAdmin, navigate]);
 
   if (loading) {
+    console.debug('[AdminLayout] rendering loading spinner', { userEmail: user?.email, isAdmin, userRoles });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

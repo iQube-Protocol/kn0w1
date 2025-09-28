@@ -25,6 +25,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        console.debug('[Auth] onAuthStateChange', {
+          event: _event,
+          hasSession: Boolean(session),
+          hasUser: Boolean(session?.user),
+          email: session?.user?.email,
+        });
 
         if (session?.user) {
           const uid = session.user.id;
@@ -37,8 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .then(
                 ({ data: roles }) => {
                   setUserRoles(roles?.map(r => r.role) || []);
+                  console.debug('[Auth] roles loaded (auth state change)', roles?.map(r => r.role) || []);
                 },
-                () => setUserRoles([])
+                (err) => {
+                  console.debug('[Auth] roles load failed (auth state change)', err);
+                  setUserRoles([]);
+                }
               );
           }, 0);
         } else {
@@ -47,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Important: resolve loading synchronously here
         setLoading(false);
+        console.debug('[Auth] loading=false (auth state change)');
       }
     );
 
@@ -54,6 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      console.debug('[Auth] getSession resolved', {
+        hasSession: Boolean(session),
+        hasUser: Boolean(session?.user),
+        email: session?.user?.email,
+      });
 
       if (session?.user) {
         const uid = session.user.id;
@@ -64,14 +80,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .then(
             ({ data: roles }) => {
               setUserRoles(roles?.map(r => r.role) || []);
+              console.debug('[Auth] roles loaded (initial)', roles?.map(r => r.role) || []);
             },
-            () => setUserRoles([])
+            (err) => {
+              console.debug('[Auth] roles load failed (initial)', err);
+              setUserRoles([]);
+            }
           );
       } else {
         setUserRoles([]);
       }
     }).finally(() => {
       setLoading(false);
+      console.debug('[Auth] loading=false (initial)');
     });
 
     return () => subscription.unsubscribe();
