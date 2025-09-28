@@ -41,7 +41,7 @@ const Index = () => {
               alt="METAKNYT" 
               className="h-16 md:h-24 lg:h-28 w-auto mx-auto animate-pulse-neon"
               style={{
-                filter: 'brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(106%) contrast(101%) drop-shadow(0 0 10px hsl(var(--neon-cyan))) drop-shadow(0 0 20px hsl(var(--neon-cyan))) drop-shadow(0 0 40px hsl(var(--neon-cyan))) drop-shadow(0 0 80px hsl(var(--neon-cyan)))',
+                filter: 'brightness(0) saturate(100%) invert(74%) sepia(89%) saturate(1919%) hue-rotate(155deg) brightness(106%) contrast(101%) drop-shadow(0 0 8px hsl(var(--neon-cyan))) drop-shadow(0 0 16px hsl(var(--neon-cyan)))',
                 imageRendering: 'crisp-edges'
               }}
             />
