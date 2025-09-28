@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_sites: {
+        Row: {
+          branding_json: Json
+          created_at: string
+          id: string
+          owner_user_id: string
+          site_slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          branding_json?: Json
+          created_at?: string
+          id?: string
+          owner_user_id: string
+          site_slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          branding_json?: Json
+          created_at?: string
+          id?: string
+          owner_user_id?: string
+          site_slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -762,6 +795,24 @@ export type Database = {
         }
         Relationships: []
       }
+      mm_super_admins: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1286,6 +1337,8 @@ export type Database = {
     }
     Enums: {
       admin_role: "super_admin" | "content_admin" | "social_admin" | "moderator"
+      agent_kind: "satoshi" | "knyt" | "custom"
+      branch_kind: "mythos" | "logos"
       content_status:
         | "draft"
         | "in_review"
@@ -1301,6 +1354,19 @@ export type Database = {
         | "image"
         | "mixed"
         | "social"
+      media_kind: "audio" | "video" | "text" | "pdf" | "image" | "mixed"
+      role_type:
+        | "super_admin"
+        | "content_admin"
+        | "social_admin"
+        | "moderator"
+        | "member"
+      status_type:
+        | "draft"
+        | "in_review"
+        | "scheduled"
+        | "published"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1429,6 +1495,8 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "content_admin", "social_admin", "moderator"],
+      agent_kind: ["satoshi", "knyt", "custom"],
+      branch_kind: ["mythos", "logos"],
       content_status: [
         "draft",
         "in_review",
@@ -1446,6 +1514,15 @@ export const Constants = {
         "mixed",
         "social",
       ],
+      media_kind: ["audio", "video", "text", "pdf", "image", "mixed"],
+      role_type: [
+        "super_admin",
+        "content_admin",
+        "social_admin",
+        "moderator",
+        "member",
+      ],
+      status_type: ["draft", "in_review", "scheduled", "published", "archived"],
     },
   },
 } as const
