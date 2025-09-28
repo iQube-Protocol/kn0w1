@@ -173,8 +173,8 @@ export default function MainApp() {
           variant="ghost" 
           size="sm" 
           className="glass hover-glow w-10 h-10 rounded-lg"
-          onClick={() => navigate('/app')}
-          title="Back to Main App"
+          onClick={() => navigate('/')}
+          title="Back to Home"
         >
           <Menu className="h-4 w-4" />
         </Button>
