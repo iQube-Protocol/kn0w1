@@ -8,6 +8,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Setup } from "@/pages/admin/Setup";
 import { Overview } from "@/pages/admin/Overview";
 import { ContentManagement } from "@/pages/admin/ContentManagement";
+import { ContentEditor } from "@/pages/admin/ContentEditor";
 import { UserManagement } from "@/pages/admin/UserManagement";
 import { Analytics } from "@/pages/admin/Analytics";
 import { Settings as AdminSettings } from "@/pages/admin/Settings";
@@ -40,6 +41,7 @@ const App = () => (
               <Route index element={<Overview />} />
               <Route path="overview" element={<Overview />} />
               <Route path="content" element={<ContentManagement />} />
+              <Route path="content/:id" element={<ContentEditor />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<AdminSettings />} />
