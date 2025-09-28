@@ -36,7 +36,7 @@ const Index = () => {
         <div className="relative text-center space-y-8 max-w-4xl mx-auto">
           <div className="space-y-4">
             <h1 className="text-6xl md:text-8xl font-bold neon-text animate-pulse-neon tracking-wide">METAKNYTS</h1>
-            <h2 className="text-2xl md:text-4xl font-semibold text-neon-magenta">Aigent Kn0w1</h2>
+            <h2 className="text-2xl md:text-4xl font-semibold text-neon-magenta">QRIPTOOPIA</h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               I'm Kn0w1—You're Guardian Aigent and QriptoMedia guide: you hold the keys, I do the heavy lifting, and your stuff goes with you, not the platform.
             </p>
