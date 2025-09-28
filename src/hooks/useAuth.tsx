@@ -22,22 +22,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
-          // Fetch user roles
-          const { data: roles } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id);
-          
-          setUserRoles(roles?.map(r => r.role) || []);
+          const uid = session.user.id;
+          // Defer Supabase calls to avoid deadlocks inside the callback
+          setTimeout(() => {
+            supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', uid)
+              .then(
+                ({ data: roles }) => {
+                  setUserRoles(roles?.map(r => r.role) || []);
+                },
+                () => setUserRoles([])
+              );
+          }, 0);
         } else {
           setUserRoles([]);
         }
-        
+
+        // Important: resolve loading synchronously here
         setLoading(false);
       }
     );
@@ -46,20 +54,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
-        // Fetch user roles
+        const uid = session.user.id;
         supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', session.user.id)
-          .then(({ data: roles }) => {
-            setUserRoles(roles?.map(r => r.role) || []);
-            setLoading(false);
-          });
+          .eq('user_id', uid)
+          .then(
+            ({ data: roles }) => {
+              setUserRoles(roles?.map(r => r.role) || []);
+            },
+            () => setUserRoles([])
+          );
       } else {
-        setLoading(false);
+        setUserRoles([]);
       }
+    }).finally(() => {
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
