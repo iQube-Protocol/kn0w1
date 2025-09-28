@@ -102,8 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
-  // Check if user is admin either by having admin roles OR by email containing 'admin' or 'nakamoto'
-  const isAdmin = userRoles.length > 0 || (user?.email && (user.email.includes('admin') || user.email.includes('nakamoto')));
+  // Check if user is admin either by having admin roles OR by email containing 'admin', 'nakamoto', or specific admin emails
+  const isAdmin = userRoles.length > 0 || (user?.email && (user.email.includes('admin') || user.email.includes('nakamoto') || user.email === 'dele@metame.com'));
 
   return (
     <AuthContext.Provider value={{
