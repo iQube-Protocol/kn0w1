@@ -7,6 +7,9 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminDashboard } from "@/pages/admin/AdminDashboard";
 import { ContentManagement } from "@/pages/admin/ContentManagement";
+import { UserManagement } from "@/pages/admin/UserManagement";
+import { Analytics } from "@/pages/admin/Analytics";
+import { Settings as AdminSettings } from "@/pages/admin/Settings";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MainApp from "./pages/MainApp";
@@ -32,6 +35,9 @@ const App = () => (
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="content" element={<ContentManagement />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

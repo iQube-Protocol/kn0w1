@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Settings, Menu, Share2, Maximize, Minimize } from "lucide-react";
+import { Settings, Menu, Share2, Maximize, Minimize, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
 import { ChatInterface } from "@/components/ChatInterface";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-image.jpg";
 import content1 from "@/assets/content-1.jpg";
 import content2 from "@/assets/content-2.jpg";
@@ -138,6 +140,9 @@ export default function MainApp() {
   const [viewMode, setViewMode] = useState<'discovery' | 'fullscreen'>('discovery');
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
   const [isContentPlaying, setIsContentPlaying] = useState(false);
+  
+  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const handleContentSearch = (query: string) => {
     console.log("Searching for:", query);
@@ -167,6 +172,20 @@ export default function MainApp() {
         <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
           <Menu className="h-4 w-4" />
         </Button>
+        
+        {/* Admin Access Button - Only show for admins */}
+        {isAdmin && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="glass hover-glow w-10 h-10 rounded-lg border border-primary/30"
+            onClick={() => navigate('/admin')}
+            title="Admin Panel"
+          >
+            <Shield className="h-4 w-4 text-primary" />
+          </Button>
+        )}
+        
         <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
           <Settings className="h-4 w-4" />
         </Button>
