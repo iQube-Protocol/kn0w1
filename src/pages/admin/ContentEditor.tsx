@@ -202,13 +202,28 @@ export function ContentEditor() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('User not authenticated');
 
-      const { data: agentSiteData } = await supabase
+      let { data: agentSiteData } = await supabase
         .from('agent_sites')
         .select('id')
         .eq('owner_user_id', userData.user.id)
         .maybeSingle();
 
-      if (!agentSiteData) throw new Error('No agent site found for user');
+      // Create agent site if it doesn't exist
+      if (!agentSiteData) {
+        const { data: newSite, error: createError } = await supabase
+          .from('agent_sites')
+          .insert({
+            owner_user_id: userData.user.id,
+            site_slug: `${userData.user.email?.replace('@', '-').replace('.', '-')}-site`,
+            title: `${userData.user.email} Agent Site`,
+            status: 'active'
+          })
+          .select('id')
+          .single();
+          
+        if (createError) throw createError;
+        agentSiteData = newSite;
+      }
 
       const saveData = {
         ...content,
