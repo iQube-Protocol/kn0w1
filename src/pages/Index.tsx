@@ -44,7 +44,7 @@ const Index = () => {
                 imageRendering: 'crisp-edges'
               }}
             />
-            <h2 className="text-4xl md:text-8xl text-neon-magenta font-bold">QRIPTOPIA</h2>
+            <h2 className="text-2xl md:text-4xl text-neon-magenta font-bold">QRIPTOPIA</h2>
             
             {/* Divider */}
             <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mt-6" />
