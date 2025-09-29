@@ -25,6 +25,8 @@ interface MediaCarouselProps {
 export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = false }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const scrollLeft = () => {
     setCurrentIndex(Math.max(0, currentIndex - 1));
@@ -32,6 +34,31 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
 
   const scrollRight = () => {
     setCurrentIndex(Math.min(items.length - 3, currentIndex + 1));
+  };
+
+  // Handle touch events for mobile swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && currentIndex < items.length - 3) {
+      scrollRight();
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      scrollLeft();
+    }
   };
 
   // Handle horizontal wheel scrolling
@@ -102,7 +129,13 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
       </div>
 
       {/* Carousel */}
-      <div ref={carouselRef} className="relative overflow-hidden">
+      <div 
+        ref={carouselRef} 
+        className="relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div 
           className="flex gap-6 transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${currentIndex * (100 / 3)}%)` }}
