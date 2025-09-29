@@ -96,7 +96,7 @@ export function MediaPlayer({
             }`}>
               {title}
             </h1>
-            {viewMode !== 'discovery' && (
+            {(viewMode !== 'discovery' || !isContentPlaying) && (
               <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
                 {description}
               </p>
