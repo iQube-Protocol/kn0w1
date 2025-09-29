@@ -46,7 +46,7 @@ const Index = () => {
             />
             <h2 className="text-3xl md:text-5xl text-neon-magenta font-bold">QRIPTOPIA</h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              I'm Kn0w1—You're Guardian Aigent and QriptoMedia guide: you hold the keys, I do the heavy lifting, and your stuff goes with you, not the platform.
+              Welcome to Qriptopia. Would you like to explore or get started?
             </p>
           </div>
 
