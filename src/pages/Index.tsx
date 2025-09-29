@@ -8,20 +8,20 @@ const Index = () => {
   const navigate = useNavigate();
   const features = [{
     icon: <Play className="h-6 w-6" />,
-    title: "Rich Media Experience",
-    description: "Immersive video and audio content with full-screen support"
+    title: "Qripto Media Experiences",
+    description: "Advanced multimedia content delivery with immersive playback technologies"
   }, {
     icon: <Mic className="h-6 w-6" />,
-    title: "Voice AI Assistant",
-    description: "Natural language search and voice interactions"
+    title: "Learning & Teaching Tools",
+    description: "Interactive educational resources and knowledge-sharing platforms"
   }, {
     icon: <BookOpen className="h-6 w-6" />,
-    title: "Learn to Earn",
-    description: "Educational content with reward mechanisms"
+    title: "Commercial Services",
+    description: "Business solutions and monetization opportunities for creators"
   }, {
     icon: <Users className="h-6 w-6" />,
-    title: "Social Features",
-    description: "Connect with community and share content"
+    title: "Social Utilities",
+    description: "Community engagement tools and collaborative features"
   }];
   return <div className="min-h-screen cosmic-bg overflow-hidden">
       {/* Fixed Hero Section */}
@@ -62,9 +62,9 @@ const Index = () => {
                 <Card className="glass-card p-6 hover-float cursor-pointer bg-background/20 backdrop-blur-sm" onClick={() => navigate("/gotv")}>
                   <div className="text-center space-y-2">
                     <Award className="h-8 w-8 text-neon-blue mx-auto" />
-                    <h3 className="text-xl font-semibold">Civic Readiness</h3>
+                    <h3 className="text-xl font-semibold">Lore of One</h3>
                     <p className="text-sm text-muted-foreground">
-                      Nonpartisan civic education and voter registration resources
+                      Personal narratives and individual storytelling experiences
                     </p>
                   </div>
                 </Card>
@@ -84,10 +84,10 @@ const Index = () => {
               <div className="max-w-6xl mx-auto">
                 <div className="text-center space-y-4 mb-12">
                   <h2 className="text-3xl font-bold text-foreground">
-                    Next-Generation Media Platform
+                    Platform Services
                   </h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    Experience the future of content discovery and learning with AI-powered interactions
+                    Comprehensive tools and services for content creation, education, and community engagement
                   </p>
                 </div>
 
