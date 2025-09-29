@@ -38,19 +38,22 @@ export default function Auth() {
   });
   
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - but wait for loading to complete
   useEffect(() => {
-    if (user) {
-      if (isAdmin) {
-        navigate("/admin");
-      } else {
-        navigate("/app");
-      }
+    if (user && !authLoading) {
+      // Small delay to ensure admin status is properly determined
+      setTimeout(() => {
+        if (isAdmin) {
+          navigate("/admin");
+        } else {
+          navigate("/app");
+        }
+      }, 100);
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, authLoading, navigate]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
