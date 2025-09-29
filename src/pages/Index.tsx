@@ -25,7 +25,7 @@ const Index = () => {
   }];
   return <div className="min-h-screen cosmic-bg overflow-hidden">
       {/* Fixed Hero Section */}
-      <section className="fixed inset-0 flex items-center justify-center p-4 z-10">
+      <section className="fixed inset-0 flex items-start justify-center pt-8 p-4 z-10">
         {/* Background */}
         <div className="absolute inset-0 opacity-30" style={{
           backgroundImage: `url(${heroImage})`,
@@ -34,30 +34,27 @@ const Index = () => {
         }} />
         
         {/* Fixed Hero Content */}
-        <div className="relative text-center space-y-8 max-w-4xl mx-auto">
+        <div className="relative text-center space-y-6 max-w-4xl mx-auto">
           <div className="space-y-4">
             <img 
               src={metakyntLogo} 
               alt="METAKNYT" 
-              className="h-16 md:h-24 lg:h-28 w-auto mx-auto animate-electrify"
+              className="h-14 md:h-20 lg:h-24 w-auto mx-auto animate-electrify"
               style={{
                 imageRendering: 'crisp-edges'
               }}
             />
-            <h2 className="text-3xl md:text-5xl text-neon-magenta font-bold">QRIPTOPIA</h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Welcome to Qriptopia. Would you like to explore or get started?
-            </p>
+            <h2 className="text-2xl md:text-4xl text-neon-magenta font-bold">QRIPTOPIA</h2>
             
             {/* Divider */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mt-8" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mt-6" />
           </div>
         </div>
       </section>
 
       {/* Scrollable Overlay */}
       <div className="fixed inset-0 z-20 pointer-events-none">
-        <div className="h-full overflow-y-auto pt-[60vh] pointer-events-auto">
+        <div className="h-full overflow-y-auto pt-[35vh] pointer-events-auto">
           <div className="bg-background/10 backdrop-blur-md border-t border-border/20 min-h-[60vh]">
             <div className="p-6 space-y-8">
               {/* Quick Access Paths */}
