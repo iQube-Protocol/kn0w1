@@ -56,22 +56,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   roles: rolesResult.data?.map(r => r.role) || [],
                   hasAgentSite: (sitesResult.data?.length || 0) > 0
                 });
+                setLoading(false);
               },
               (err) => {
                 console.debug('[Auth] roles/site load failed (auth state change)', err);
                 setUserRoles([]);
                 setHasAgentSite(false);
+                setLoading(false);
               }
             );
           }, 0);
         } else {
           setUserRoles([]);
           setHasAgentSite(false);
+          setLoading(false);
         }
-
-        // Important: resolve loading synchronously here
-        setLoading(false);
-        console.debug('[Auth] loading=false (auth state change)');
       }
     );
 
@@ -105,20 +104,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               roles: rolesResult.data?.map(r => r.role) || [],
               hasAgentSite: (sitesResult.data?.length || 0) > 0
             });
+            setLoading(false);
           },
           (err) => {
             console.debug('[Auth] roles/site load failed (initial)', err);
             setUserRoles([]);
             setHasAgentSite(false);
+            setLoading(false);
           }
         );
       } else {
         setUserRoles([]);
         setHasAgentSite(false);
+        setLoading(false);
       }
-    }).finally(() => {
-      setLoading(false);
-      console.debug('[Auth] loading=false (initial)');
     });
 
     return () => subscription.unsubscribe();
