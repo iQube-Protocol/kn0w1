@@ -92,16 +92,13 @@ export function MediaPlayer({
         <div className="space-y-4 mb-8">
           <div>
             <h1 className={`font-bold text-foreground mb-2 neon-text ${
-              viewMode === 'discovery' ? 'text-2xl lg:text-3xl' : 'text-4xl'
+              viewMode === 'discovery' ? 'text-2xl lg:text-3xl' : 'text-2xl lg:text-3xl'
             }`}>
               {title}
             </h1>
-            {(viewMode !== 'discovery' || !isContentPlaying) && (
+            {(viewMode !== 'discovery' || !isContentPlaying) && viewMode === 'discovery' && (
               <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-                {viewMode === 'fullscreen' 
-                  ? "Welcome to Qriptopia. Would you like to explore or get started?"
-                  : description
-                }
+                {description}
               </p>
             )}
           </div>
