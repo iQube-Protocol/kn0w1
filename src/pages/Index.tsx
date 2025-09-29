@@ -12,7 +12,7 @@ const Index = () => {
     description: "Advanced multimedia content delivery with immersive playback technologies"
   }, {
     icon: <Mic className="h-6 w-6" />,
-    title: "Learning & Teaching Tools",
+    title: "Learn to Earn",
     description: "Interactive educational resources and knowledge-sharing platforms"
   }, {
     icon: <BookOpen className="h-6 w-6" />,
