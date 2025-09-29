@@ -98,7 +98,10 @@ export function MediaPlayer({
             </h1>
             {(viewMode !== 'discovery' || !isContentPlaying) && (
               <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-                {description}
+                {viewMode === 'fullscreen' 
+                  ? "Welcome to Qriptopia. Would you like to explore or get started?"
+                  : description
+                }
               </p>
             )}
           </div>

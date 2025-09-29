@@ -61,30 +61,35 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
     }
   };
 
-  // Handle horizontal wheel scrolling
+  // Handle horizontal wheel scrolling - only within carousel container
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Prevent default vertical scrolling when inside carousel
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
-        e.preventDefault();
-        
-        if (e.deltaX > 0 || e.deltaY > 0) {
-          // Scroll right
-          setCurrentIndex(prev => Math.min(items.length - 3, prev + 1));
-        } else {
-          // Scroll left
-          setCurrentIndex(prev => Math.max(0, prev - 1));
+      // Only handle wheel events that occur within the carousel container
+      if (carousel.contains(e.target as Node)) {
+        // Prevent default vertical scrolling when inside carousel
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (e.deltaX > 0 || e.deltaY > 0) {
+            // Scroll right
+            setCurrentIndex(prev => Math.min(items.length - 3, prev + 1));
+          } else {
+            // Scroll left
+            setCurrentIndex(prev => Math.max(0, prev - 1));
+          }
         }
       }
     };
 
-    carousel.addEventListener('wheel', handleWheel, { passive: false });
+    // Add event listener to the document to capture all wheel events
+    document.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
-      carousel.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('wheel', handleWheel);
     };
   }, [items.length]);
 
