@@ -96,9 +96,11 @@ export function MediaPlayer({
             }`}>
               {title}
             </h1>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-              {description}
-            </p>
+            {viewMode !== 'discovery' && (
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
+                {description}
+              </p>
+            )}
           </div>
           
           {/* Action Buttons - Show in both modes when not playing */}
