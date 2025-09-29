@@ -11,17 +11,14 @@ export function AdminLayout() {
   const { user, userRoles, isAdmin, hasAgentSite, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect non-admin users
+  // TEMP: Allow any signed-in user to access admin during testing
   React.useEffect(() => {
-    console.debug('[AdminLayout] guard', { loading, isAdmin, hasAgentSite, userEmail: user?.email, userRoles });
-    if (!loading && !isAdmin) {
+    console.debug('[AdminLayout] guard (TEST MODE)', { loading, userEmail: user?.email, userRoles });
+    if (!loading && !user) {
       console.debug('[AdminLayout] redirecting to /auth');
       navigate('/auth');
-    } else if (!loading && isAdmin && !hasAgentSite) {
-      console.debug('[AdminLayout] redirecting to /admin/setup');
-      navigate('/admin/setup');
     }
-  }, [loading, isAdmin, hasAgentSite, navigate]);
+  }, [loading, user, navigate]);
 
   if (loading) {
     console.debug('[AdminLayout] rendering loading spinner', { userEmail: user?.email, isAdmin, userRoles });
@@ -32,9 +29,6 @@ export function AdminLayout() {
     );
   }
 
-  if (!isAdmin) {
-    return null;
-  }
 
   return (
     <SidebarProvider>

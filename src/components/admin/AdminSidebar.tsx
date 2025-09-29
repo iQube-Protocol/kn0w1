@@ -86,13 +86,8 @@ const publicMenuItems = [
 export function AdminSidebar() {
   const { userRoles, isAdmin, user } = useAuth();
 
-  const hasRole = (requiredRoles: string[]) => {
-    // If user is admin by email (like dele@metame.com), show all menu items
-    if (isAdmin && userRoles.length === 0) {
-      return true;
-    }
-    return requiredRoles.some(role => userRoles.includes(role));
-  };
+  // TEMP: allow all admin menu items during testing
+  const hasRole = (_requiredRoles: string[]) => true;
 
   const getNavClasses = ({ isActive }: { isActive: boolean }) =>
     isActive 

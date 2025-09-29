@@ -44,16 +44,11 @@ export default function Auth() {
   // Redirect if already authenticated - but wait for loading to complete
   useEffect(() => {
     if (user && !authLoading) {
-      // Small delay to ensure admin status is properly determined
       setTimeout(() => {
-        if (isAdmin) {
-          navigate("/admin");
-        } else {
-          navigate("/app");
-        }
-      }, 100);
+        navigate("/admin");
+      }, 50);
     }
-  }, [user, isAdmin, authLoading, navigate]);
+  }, [user, authLoading, navigate]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
