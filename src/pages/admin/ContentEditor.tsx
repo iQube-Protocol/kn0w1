@@ -223,6 +223,32 @@ export function ContentEditor() {
           
         if (createError) throw createError;
         agentSiteData = newSite;
+
+        // Clone master template content for new site
+        try {
+          const { error: templateError } = await supabase.functions.invoke('clone-master-template', {
+            body: { 
+              agentSiteId: agentSiteData.id,
+              userEmail: userData.user.email 
+            }
+          });
+          
+          if (templateError) {
+            console.error('Failed to clone master template:', templateError);
+            toast({
+              title: "Site Created",
+              description: "Site created but template cloning failed. You can add content manually.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Site Created",
+              description: "New site created with sample content from METAKNYT master template."
+            });
+          }
+        } catch (templateError) {
+          console.error('Template cloning error:', templateError);
+        }
       }
 
       const saveData = {
