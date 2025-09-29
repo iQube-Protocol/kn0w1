@@ -29,6 +29,33 @@ interface AgentBranch {
   short_summary: string;
 }
 
+interface ContentItem {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  category_id: string;
+  status: string;
+  slug: string;
+  featured: boolean;
+  views_count: number;
+  l2e_points: number;
+}
+
+interface ContentCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+}
+
+interface MissionPillar {
+  id: string;
+  display_name: string;
+  short_summary: string;
+  long_context_md: string;
+}
+
 export function Preview() {
   const { siteSlug } = useParams();
   const navigate = useNavigate();
@@ -36,6 +63,9 @@ export function Preview() {
   const [agentSite, setAgentSite] = useState<AgentSite | null>(null);
   const [aigents, setAigents] = useState<Aigent[]>([]);
   const [branches, setBranches] = useState<AgentBranch[]>([]);
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [categories, setCategories] = useState<ContentCategory[]>([]);
+  const [pillars, setPillars] = useState<MissionPillar[]>([]);
   const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
@@ -78,6 +108,39 @@ export function Preview() {
 
       if (branchesData) {
         setBranches(branchesData);
+      }
+
+      // Get content items for this site
+      const { data: contentData } = await supabase
+        .from('content_items')
+        .select('*')
+        .eq('agent_site_id', siteData.id)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (contentData) {
+        setContentItems(contentData);
+      }
+
+      // Get categories for this site
+      const { data: categoriesData } = await supabase
+        .from('content_categories')
+        .select('*')
+        .eq('agent_site_id', siteData.id)
+        .order('order_index');
+
+      if (categoriesData) {
+        setCategories(categoriesData);
+      }
+
+      // Get mission pillars for this site
+      const { data: pillarsData } = await supabase
+        .from('mission_pillars')
+        .select('*')
+        .eq('agent_site_id', siteData.id);
+
+      if (pillarsData) {
+        setPillars(pillarsData);
       }
 
     } catch (error) {
@@ -214,6 +277,79 @@ export function Preview() {
               </Card>
             ))}
           </div>
+
+          {/* Mission Pillars */}
+          {pillars.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-center">Mission Pillars</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {pillars.map((pillar) => (
+                  <Card key={pillar.id}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Star className="w-5 h-5" />
+                        {pillar.display_name}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        {pillar.short_summary}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Content Categories */}
+          {categories.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-center">Content Categories</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {categories.map((category) => (
+                  <Card key={category.id}>
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold mb-2">{category.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {category.description || 'Category description'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Featured Content */}
+          {contentItems.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-center">Featured Content</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {contentItems.slice(0, 6).map((item) => (
+                  <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="secondary">{item.type}</Badge>
+                        {item.featured && <Badge variant="default">Featured</Badge>}
+                      </div>
+                      <CardTitle className="text-lg">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {item.description?.slice(0, 120) || 'Content description'}
+                        {item.description && item.description.length > 120 && '...'}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{item.views_count} views</span>
+                        {item.l2e_points > 0 && <span>{item.l2e_points} points</span>}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* About Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
