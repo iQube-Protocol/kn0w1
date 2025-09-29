@@ -23,7 +23,7 @@ const Index = () => {
     title: "Social Features",
     description: "Connect with community and share content"
   }];
-  return <div className="min-h-screen cosmic-bg">
+  return <div className="min-h-screen cosmic-bg relative overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center p-4">
         {/* Background */}
@@ -45,45 +45,58 @@ const Index = () => {
               }}
             />
             <h2 className="text-3xl md:text-5xl text-neon-magenta font-bold">QRIPTOPIA</h2>
+            
+            {/* Divider */}
+            <div className="w-32 h-px bg-gradient-to-r from-transparent via-primary to-transparent mx-auto my-6"></div>
+            
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Welcome to Qriptopia. Would you like to explore or get started?
             </p>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate("/app")} className="hover-glow text-lg px-8 py-3">
-              <Play className="h-5 w-5 mr-2" />
-              Explore Content
-            </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate("/auth")} className="glass hover-glow text-lg px-8 py-3">
-              Get Started
-            </Button>
-          </div>
-
-          {/* Quick Access Paths */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
-            <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/gotv")}>
-              <div className="text-center space-y-2">
-                <Award className="h-8 w-8 text-neon-blue mx-auto" />
-                <h3 className="text-xl font-semibold">Civic Readiness</h3>
-                <p className="text-sm text-muted-foreground">
-                  Nonpartisan civic education and voter registration resources
-                </p>
-              </div>
-            </Card>
-            
-            <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/l2e")}>
-              <div className="text-center space-y-2">
-                <BookOpen className="h-8 w-8 text-neon-orange mx-auto" />
-                <h3 className="text-xl font-semibold">Learn to Earn</h3>
-                <p className="text-sm text-muted-foreground">
-                  Educational content with digital literacy and crypto rewards
-                </p>
-              </div>
-            </Card>
-          </div>
         </div>
       </section>
+
+      {/* Scrolling Overlay for Sub-links */}
+      <div className="fixed inset-x-0 bottom-24 top-1/2 z-10 pointer-events-none">
+        <div className="h-full overflow-y-auto pointer-events-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+              <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/gotv")}>
+                <div className="text-center space-y-2">
+                  <Award className="h-8 w-8 text-neon-blue mx-auto" />
+                  <h3 className="text-xl font-semibold">Civic Readiness</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Nonpartisan civic education and voter registration resources
+                  </p>
+                </div>
+              </Card>
+              
+              <Card className="glass-card p-6 hover-float cursor-pointer" onClick={() => navigate("/l2e")}>
+                <div className="text-center space-y-2">
+                  <BookOpen className="h-8 w-8 text-neon-orange mx-auto" />
+                  <h3 className="text-xl font-semibold">Learn to Earn</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Educational content with digital literacy and crypto rewards
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed Bottom Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 p-4 bg-background/80 backdrop-blur-sm border-t border-border/20">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          <Button size="lg" onClick={() => navigate("/app")} className="hover-glow text-lg px-8 py-3">
+            <Play className="h-5 w-5 mr-2" />
+            Explore Content
+          </Button>
+          <Button variant="outline" size="lg" onClick={() => navigate("/auth")} className="glass hover-glow text-lg px-8 py-3">
+            Get Started
+          </Button>
+        </div>
+      </div>
 
       {/* Features Section */}
       <section className="py-20 px-4">
