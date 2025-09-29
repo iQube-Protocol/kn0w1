@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Play, BookOpen, Users, Award, Mic, Search } from "lucide-react";
+import { Play, BookOpen, Users, Award, DollarSign, Search } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
 import metakyntLogo from "@/assets/metaknyt-script.png";
 const Index = () => {
@@ -11,11 +11,11 @@ const Index = () => {
     title: "Qripto Media Experiences",
     description: "Advanced multimedia content delivery with immersive playback technologies"
   }, {
-    icon: <Mic className="h-6 w-6" />,
+    icon: <BookOpen className="h-6 w-6" />,
     title: "Learn to Earn",
     description: "Interactive educational resources and knowledge-sharing platforms"
   }, {
-    icon: <BookOpen className="h-6 w-6" />,
+    icon: <DollarSign className="h-6 w-6" />,
     title: "Commercial Services",
     description: "Business solutions and monetization opportunities for creators"
   }, {
