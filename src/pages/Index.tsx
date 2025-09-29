@@ -134,18 +134,18 @@ const Index = () => {
       <div className="fixed bottom-6 left-0 right-0 z-30 px-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
           <Button 
+            variant="outline" 
             size="lg" 
             onClick={() => navigate("/app")} 
-            className="hover-glow text-lg px-8 py-3 bg-primary/90 backdrop-blur-sm"
+            className="hover-glow text-lg px-8 py-3 bg-background/40 backdrop-blur-sm border-border/30"
           >
             <Play className="h-5 w-5 mr-2" />
             Explore Content
           </Button>
           <Button 
-            variant="outline" 
             size="lg" 
             onClick={() => navigate("/auth")} 
-            className="glass hover-glow text-lg px-8 py-3 bg-background/20 backdrop-blur-sm border-border/30"
+            className="hover-glow text-lg px-8 py-3 bg-primary/90 backdrop-blur-sm"
           >
             Get Started
           </Button>
