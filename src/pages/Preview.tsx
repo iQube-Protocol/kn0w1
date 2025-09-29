@@ -178,6 +178,32 @@ export function Preview() {
   const logosData = branches.find(b => b.kind === 'logos');
   const primaryAigent = aigents.find(a => a.agent_kind === 'satoshi') || aigents[0];
 
+  const handlePopulateMasterContent = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const response = await supabase.functions.invoke('clone-master-template', {
+        body: { 
+          agentSiteId: agentSite?.id,
+          userEmail: user?.email 
+        }
+      });
+
+      if (response.error) {
+        console.error('Error populating content:', response.error);
+        return;
+      }
+
+      // Refresh the page data
+      await fetchSiteData();
+    } catch (error) {
+      console.error('Error calling clone function:', error);
+    }
+  };
+
+  // Check if site has no content and show populate button
+  const hasNoContent = contentItems.length === 0 && categories.length === 0 && pillars.length === 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
       {/* Header */}
@@ -224,21 +250,37 @@ export function Preview() {
               Welcome to {agentSite.title}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {mythosData?.short_summary || 'An intelligent agent ready to assist you with personalized guidance and expertise.'}
+              {hasNoContent ? 
+                'This site is ready to be populated with content from the master template.' :
+                mythosData?.short_summary || 'An intelligent agent ready to assist you with personalized guidance and expertise.'
+              }
             </p>
             <div className="flex justify-center gap-4 pt-4">
-              <Button 
-                size="lg" 
-                onClick={() => setShowChat(true)}
-                className="gap-2"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Start Conversation
-              </Button>
-              <Button variant="outline" size="lg" className="gap-2">
-                <Star className="w-5 h-5" />
-                Learn More
-              </Button>
+              {hasNoContent ? (
+                <Button 
+                  size="lg" 
+                  onClick={handlePopulateMasterContent}
+                  className="gap-2"
+                >
+                  <Star className="w-5 h-5" />
+                  Populate with Master Content
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    size="lg" 
+                    onClick={() => setShowChat(true)}
+                    className="gap-2"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Start Conversation
+                  </Button>
+                  <Button variant="outline" size="lg" className="gap-2">
+                    <Star className="w-5 h-5" />
+                    Learn More
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
