@@ -91,11 +91,13 @@ export function ContentEditor() {
   const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
-    fetchCategories();
-    fetchPillars();
-    if (!isNew && id) {
-      fetchContent();
-    }
+    const initializeData = async () => {
+      await Promise.all([fetchCategories(), fetchPillars()]);
+      if (!isNew && id) {
+        await fetchContent();
+      }
+    };
+    initializeData();
   }, [id, isNew]);
 
   const fetchContent = async () => {
