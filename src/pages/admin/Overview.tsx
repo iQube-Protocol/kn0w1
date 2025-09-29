@@ -193,7 +193,11 @@ KPIs: ${Array.isArray(pillar.kpis_json) ? pillar.kpis_json.join(', ') : 'No KPIs
           <Badge variant={agentSite.status === 'active' ? 'default' : 'secondary'}>
             {agentSite.status}
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.open(`/preview/${agentSite.site_slug}`, '_blank')}
+          >
             <Eye className="w-4 h-4 mr-2" />
             Preview Site
           </Button>

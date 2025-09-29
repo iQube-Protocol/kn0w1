@@ -12,6 +12,7 @@ import { ContentEditor } from "@/pages/admin/ContentEditor";
 import { UserManagement } from "@/pages/admin/UserManagement";
 import { Analytics } from "@/pages/admin/Analytics";
 import { Settings as AdminSettings } from "@/pages/admin/Settings";
+import { Preview } from "@/pages/Preview";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MainApp from "./pages/MainApp";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/app" element={<MainApp />} />
             <Route path="/gotv" element={<MainApp />} />
             <Route path="/l2e" element={<MainApp />} />
+            <Route path="/preview/:siteSlug" element={<Preview />} />
             
             {/* Setup Route (outside admin layout) */}
             <Route path="/admin/setup" element={<Setup />} />
