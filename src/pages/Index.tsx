@@ -84,7 +84,7 @@ const Index = () => {
               <div className="max-w-6xl mx-auto">
                 <div className="text-center space-y-4 mb-12">
                   <h2 className="text-3xl font-bold text-foreground">
-                    Platform Services
+                    AgentiQ Link
                   </h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                     Comprehensive tools and services for content creation, education, and community engagement
