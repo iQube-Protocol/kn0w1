@@ -84,9 +84,13 @@ const publicMenuItems = [
 ];
 
 export function AdminSidebar() {
-  const { userRoles } = useAuth();
+  const { userRoles, isAdmin, user } = useAuth();
 
   const hasRole = (requiredRoles: string[]) => {
+    // If user is admin by email (like dele@metame.com), show all menu items
+    if (isAdmin && userRoles.length === 0) {
+      return true;
+    }
     return requiredRoles.some(role => userRoles.includes(role));
   };
 
