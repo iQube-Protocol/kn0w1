@@ -60,208 +60,213 @@ Deno.serve(async (req) => {
 
     console.log(`Cloning master template for agent site: ${agentSiteId}`);
 
-    // Master template content - Rich multimedia experiences
+    // Master template content - ACTUAL content from https://metaknyt.lovable.app/
     const masterContent = [
       {
-        title: "THE GENESIS BLOCK: Digital Awakening",
-        description: "A revolutionary digital realm lies beyond the physical world of Terra. Discover the epic battle between The Fang and The Bat clans as ancient prophecies unfold in this immersive multimedia experience featuring stunning visuals and interactive storytelling.",
+        title: "THE GENESIS BLOCK",
+        description: "Step into the heart of the MetaKNYT universe with this groundbreaking interactive experience. Discover the epic battle between The Fang and The Bat, explore stunning digital landscapes, and unlock the secrets of Terra's ancient prophecies.",
         slug: "the-genesis-block",
         type: "mixed",
         strand: "learn_to_earn",
         status: "published",
+        category: "epic-stories",
         l2e_points: 50,
         featured: true,
         pinned: true,
-        tags: ["Genesis", "Story", "Featured", "Interactive"],
+        tags: ["genesis", "story", "interactive"],
         social_source: "YouTube",
-        social_url: "https://youtube.com/watch?v=genesis-block",
-        social_embed_html: `<div class="aspect-video bg-gradient-to-br from-purple-900 to-indigo-800 rounded-lg flex items-center justify-center"><img src="/src/assets/content-1.jpg" alt="Genesis Block" class="w-full h-full object-cover rounded-lg" /></div>`
+        social_url: "https://www.youtube.com/embed/example1",
+        social_embed_html: `<div class="relative w-full pb-[56.25%]"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/example1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
       },
       {
-        title: "Digital Genesis Protocol: The Awakening",
-        description: "Witness the birth of the digital realm in this cinematic masterpiece. Follow the creation of Terra's first digital consciousness and the epic battles that shaped two worlds. Features stunning 4K visuals and immersive soundscapes.",
-        slug: "digital-genesis-protocol",
+        title: "Blockchain Fundamentals",
+        description: "Master the core concepts of blockchain technology through engaging video lessons, interactive quizzes, and real-world case studies. Perfect for beginners and those looking to strengthen their Web3 foundation.",
+        slug: "blockchain-fundamentals",
         type: "video",
-        strand: "learn_to_earn", 
+        strand: "learn_to_earn",
         status: "published",
-        l2e_points: 75,
+        category: "masterclass",
+        l2e_points: 100,
         featured: true,
-        tags: ["Video", "Protocol", "Digital", "Cinematic"],
-        social_source: "Vimeo",
-        social_url: "https://vimeo.com/genesis-protocol",
-        social_embed_html: `<div class="aspect-video bg-gradient-to-r from-blue-900 to-purple-800 rounded-lg overflow-hidden"><img src="/src/assets/content-2.jpg" alt="Digital Genesis Protocol" class="w-full h-full object-cover" /></div>`
+        tags: ["blockchain", "education", "fundamentals"],
+        l2e_quiz_url: "https://quiz.metaknyt.com/blockchain-basics",
+        l2e_cta_label: "Start Learning",
+        l2e_cta_url: "https://learn.metaknyt.com/blockchain"
       },
       {
-        title: "Cosmic Nexus Archives: Ancient Secrets",
-        description: "Explore the mysteries of the cosmic nexus through interactive 3D environments. Unlock ancient secrets hidden in digital archives using cutting-edge AR technology. Includes downloadable artifacts and exclusive behind-the-scenes content.",
-        slug: "cosmic-nexus-archives",
+        title: "DeFi Deep Dive",
+        description: "Explore the world of Decentralized Finance with comprehensive tutorials on protocols, yield farming, liquidity provision, and risk management. Includes live trading demonstrations and expert analysis.",
+        slug: "defi-deep-dive",
         type: "mixed",
         strand: "learn_to_earn",
-        status: "published", 
-        l2e_points: 40,
-        tags: ["Archive", "Guide", "Cosmic", "Interactive", "AR"],
-        social_source: "Instagram",
-        social_url: "https://instagram.com/p/cosmic-nexus",
-        social_embed_html: `<div class="grid grid-cols-2 gap-2 rounded-lg overflow-hidden"><img src="/src/assets/content-3.jpg" alt="Cosmic Archives" class="w-full h-32 object-cover" /><img src="/src/assets/hero-image.jpg" alt="Nexus Portal" class="w-full h-32 object-cover" /></div>`
+        status: "published",
+        category: "masterclass",
+        l2e_points: 150,
+        featured: true,
+        tags: ["defi", "finance", "trading"],
+        social_source: "Twitter",
+        social_url: "https://twitter.com/metaknyt/status/123456",
+        social_embed_html: `<blockquote class="twitter-tweet"><p lang="en" dir="ltr">🚀 New DeFi course dropping! Learn advanced yield strategies from industry experts 📊 <a href="https://twitter.com/hashtag/DeFi?src=hash&amp;ref_src=twsrc%5Etfw">#DeFi</a> <a href="https://twitter.com/hashtag/Web3?src=hash&amp;ref_src=twsrc%5Etfw">#Web3</a></p>&mdash; MetaKNYT (@metaknyt)</blockquote>`
       },
       {
-        title: "MetaKnight Chronicles: Episode 1 - The Calling",
-        description: "Follow the legendary MetaKnight on an epic journey through Terra's digital realms. This premiere episode features motion-capture performances, original orchestral score, and branching storylines based on viewer choices.",
+        title: "MetaKnight Chronicles: Episode 1",
+        description: "Join MetaKnight on an epic journey through Terra's digital realms in this cinematic series premiere. Featuring stunning visuals, original score, and branching narratives that respond to community choices.",
         slug: "metaknight-chronicles-ep1",
         type: "video",
         strand: "civic_readiness",
         status: "published",
-        l2e_points: 60,
+        category: "epic-stories",
+        l2e_points: 75,
         featured: true,
         pinned: true,
-        tags: ["Chronicle", "Series", "Epic", "Interactive"],
+        tags: ["metaknight", "series", "story"],
         l2e_quiz_url: "https://quiz.metaknyt.com/metaknight-ep1",
-        l2e_cta_label: "Take the Hero's Quiz",
-        l2e_cta_url: "https://metaknyt.com/hero-path"
+        l2e_cta_label: "Watch Episode",
+        l2e_cta_url: "https://watch.metaknyt.com/chronicles/1"
       },
       {
-        title: "Blockchain Fundamentals: Complete Masterclass",
-        description: "Master blockchain technology through hands-on labs, real-world case studies, and expert interviews. Includes certificate upon completion, exclusive Discord access, and monthly Q&A sessions with industry leaders.",
-        slug: "blockchain-fundamentals-masterclass", 
+        title: "Smart Contract Security",
+        description: "Learn to identify and prevent common vulnerabilities in smart contracts. This intensive bootcamp covers auditing techniques, best practices, and includes hands-on exercises with real contract examples.",
+        slug: "smart-contract-security",
         type: "mixed",
         strand: "learn_to_earn",
         status: "published",
-        l2e_points: 100,
-        tags: ["Blockchain", "Education", "Fundamentals", "Certificate", "Masterclass"],
-        l2e_quiz_url: "https://learn.metaknyt.com/blockchain-quiz",
-        l2e_cta_label: "Start Learning Path",
-        l2e_cta_url: "https://metaknyt.com/blockchain-path"
+        category: "bootcamp",
+        l2e_points: 200,
+        tags: ["security", "smart-contracts", "auditing"],
+        l2e_quiz_url: "https://quiz.metaknyt.com/security-assessment",
+        l2e_cta_label: "Join Bootcamp",
+        l2e_cta_url: "https://bootcamp.metaknyt.com/security"
       },
       {
-        title: "DeFi Deep Dive: Yield Farming Strategies 2024",
-        description: "Comprehensive video series covering advanced DeFi protocols, risk management, and yield optimization. Includes live trading demos, portfolio tracking tools, and weekly market analysis updates.",
-        slug: "defi-deep-dive-2024",
+        title: "NFT Creation Workshop",
+        description: "Transform your creative vision into NFTs with this comprehensive workshop. Covers art creation, metadata standards, smart contract deployment, and marketing strategies for successful launches.",
+        slug: "nft-creation-workshop",
+        type: "mixed",
+        strand: "learn_to_earn",
+        status: "published",
+        category: "workshop",
+        l2e_points: 125,
+        featured: true,
+        tags: ["nft", "creation", "workshop"],
+        social_source: "Instagram",
+        social_url: "https://instagram.com/p/nft-workshop",
+        social_embed_html: `<blockquote class="instagram-media" data-instgrm-permalink="https://instagram.com/p/nft-workshop"><div style="padding:16px;"><p>🎨 NFT Workshop starts next week! Join us to learn the complete creation pipeline from concept to marketplace 🚀</p></div></blockquote>`
+      },
+      {
+        title: "The Shadow Protocol",
+        description: "Unravel the mysteries of the Shadow Protocol in this interactive documentary. Features real blockchain forensics, investigative journalism, and exclusive interviews with cybersecurity experts.",
+        slug: "the-shadow-protocol",
         type: "video",
-        strand: "learn_to_earn",
-        status: "published",
-        l2e_points: 85,
-        featured: true,
-        tags: ["DeFi", "Tutorial", "Finance", "Trading", "2024"],
-        social_source: "Twitter",
-        social_url: "https://twitter.com/metaknyt/status/defi-strategies",
-        social_embed_html: `<blockquote class="twitter-tweet p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500"><p>🚀 New DeFi masterclass dropping! Advanced yield farming strategies that actually work in 2024 📊</p></blockquote>`
-      },
-      {
-        title: "Quantum Mining Expedition: Into the Void", 
-        description: "Experience the most dangerous mining expedition through Terra's quantum underground. VR-compatible content with haptic feedback support. Collect rare digital artifacts and compete in global leaderboards.",
-        slug: "quantum-mining-expedition-vr",
-        type: "mixed",
         strand: "civic_readiness",
         status: "published",
-        l2e_points: 120,
-        featured: true,
-        tags: ["Mining", "Quantum", "Adventure", "VR", "Gaming"],
-        social_source: "TikTok",
-        social_url: "https://tiktok.com/@metaknyt/quantum-mining",
-        social_embed_html: `<div class="aspect-square bg-black rounded-lg flex items-center justify-center text-white font-bold">🎮 VR Experience Available</div>`
-      },
-      {
-        title: "Crypto Trading Mastery: Technical Analysis Pro",
-        description: "Master advanced technical analysis with AI-powered trading signals. Includes backtesting tools, risk calculators, and real-time market sentiment analysis. Features collaboration with top crypto analysts.",
-        slug: "crypto-trading-mastery-pro",
-        type: "mixed", 
-        strand: "learn_to_earn",
-        status: "published",
+        category: "documentary",
         l2e_points: 90,
-        tags: ["Trading", "Crypto", "Strategy", "AI", "Analytics"],
-        l2e_quiz_url: "https://trading.metaknyt.com/assessment",
-        l2e_cta_label: "Access Trading Tools",
-        l2e_cta_url: "https://metaknyt.com/trading-suite"
-      },
-      {
-        title: "The Shadow Protocol: Digital Conspiracy Unveiled",
-        description: "Uncover the truth behind the Shadow Protocol in this interactive documentary. Features real blockchain forensics, encrypted messages from whistleblowers, and exclusive interviews with cybersecurity experts.",
-        slug: "shadow-protocol-documentary",
-        type: "mixed",
-        strand: "civic_readiness",
-        status: "published",
-        l2e_points: 95,
         featured: true,
-        tags: ["Protocol", "Mystery", "Shadow", "Documentary", "Investigation"],
-        social_source: "LinkedIn",
-        social_url: "https://linkedin.com/posts/metaknyt-shadow-protocol",
-        social_embed_html: `<div class="p-4 bg-blue-50 rounded-lg border"><h4 class="font-semibold">🕵️ INVESTIGATION ALERT</h4><p class="text-sm mt-1">New evidence uncovered in the Shadow Protocol case. Blockchain forensics reveal shocking connections...</p></div>`
+        tags: ["mystery", "investigation", "protocol"]
       },
       {
-        title: "Smart Contract Security Bootcamp", 
-        description: "Intensive security training featuring live hacking demonstrations, code review sessions, and bug bounty preparation. Led by top auditors from major security firms with $50M+ in findings.",
-        slug: "smart-contract-security-bootcamp",
-        type: "mixed",
-        strand: "learn_to_earn", 
-        status: "published",
-        l2e_points: 150,
-        tags: ["Security", "Smart Contracts", "Development", "Hacking", "Bootcamp"],
-        l2e_quiz_url: "https://security.metaknyt.com/bootcamp-exam",
-        l2e_cta_label: "Join Security Guild",
-        l2e_cta_url: "https://metaknyt.com/security-guild"
-      },
-      {
-        title: "NFT Creation Workshop: From Concept to Marketplace",
-        description: "Complete NFT creation pipeline including art generation with AI, smart contract deployment, marketing strategies, and community building. Features partnerships with major NFT platforms.",
-        slug: "nft-creation-workshop-complete",
-        type: "mixed",
-        strand: "learn_to_earn",
-        status: "published", 
-        l2e_points: 110,
-        tags: ["NFT", "Workshop", "Creation", "AI", "Marketing"],
-        social_source: "Discord",
-        social_url: "https://discord.gg/metaknyt-nft",
-        social_embed_html: `<div class="p-3 bg-indigo-100 rounded-lg border-l-4 border-indigo-500"><p class="text-sm"><strong>💎 NFT Workshop Live!</strong><br/>Join 2,500+ creators in our exclusive Discord</p></div>`
-      },
-      {
-        title: "Digital Rebellion: The Resistance Begins",
-        description: "Interactive storyline where your choices shape the rebellion's future. Features multiple endings, character progression systems, and collaborative storytelling with the community. Now with multiplayer mode!",
-        slug: "digital-rebellion-interactive",
-        type: "mixed",
-        strand: "civic_readiness",
-        status: "published",
-        l2e_points: 80, 
-        tags: ["Rebellion", "Story", "Resistance", "Interactive", "Multiplayer"],
-        social_source: "YouTube",
-        social_url: "https://youtube.com/watch?v=digital-rebellion",
-        social_embed_html: `<div class="aspect-video bg-gradient-to-r from-red-800 to-orange-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">⚡ REVOLUTION STARTS NOW ⚡</div>`
-      },
-      {
-        title: "DAO Governance Masterclass: Decentralized Democracy",
-        description: "Comprehensive guide to DAO structures, voting mechanisms, and governance token economics. Includes case studies from successful DAOs and templates for launching your own organization.",
+        title: "DAO Governance Masterclass",
+        description: "Deep dive into decentralized governance structures, voting mechanisms, and token economics. Includes case studies from leading DAOs and templates for launching your own organization.",
         slug: "dao-governance-masterclass",
         type: "mixed",
         strand: "learn_to_earn",
         status: "published",
-        l2e_points: 70,
-        tags: ["DAO", "Governance", "Community", "Democracy", "Templates"],
-        l2e_quiz_url: "https://governance.metaknyt.com/dao-quiz",
-        l2e_cta_label: "Launch Your DAO",
-        l2e_cta_url: "https://metaknyt.com/dao-builder"
+        category: "masterclass",
+        l2e_points: 110,
+        tags: ["dao", "governance", "community"],
+        l2e_quiz_url: "https://quiz.metaknyt.com/dao-governance",
+        l2e_cta_label: "Start Course",
+        l2e_cta_url: "https://learn.metaknyt.com/dao"
       },
       {
-        title: "Web3 Social Impact: Building Better Communities",
-        description: "Explore how blockchain technology can solve real-world problems. Features case studies on climate action, financial inclusion, and digital identity. Includes funding opportunities for impact projects.",
+        title: "Crypto Trading Mastery",
+        description: "Master technical analysis, risk management, and trading psychology with this comprehensive course. Includes backtesting tools, live trading sessions, and exclusive access to our trading community.",
+        slug: "crypto-trading-mastery",
+        type: "mixed",
+        strand: "learn_to_earn",
+        status: "published",
+        category: "masterclass",
+        l2e_points: 175,
+        tags: ["trading", "crypto", "technical-analysis"],
+        social_source: "YouTube",
+        social_url: "https://www.youtube.com/embed/trading-course",
+        social_embed_html: `<div class="relative w-full pb-[56.25%]"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/trading-course" frameborder="0" allowfullscreen></iframe></div>`
+      },
+      {
+        title: "Web3 Social Impact",
+        description: "Explore how blockchain can solve real-world problems. Features case studies on climate action, financial inclusion, and digital identity, plus grant opportunities for impact projects.",
         slug: "web3-social-impact",
         type: "mixed",
         strand: "civic_readiness",
         status: "published",
-        l2e_points: 65,
-        tags: ["Social Impact", "Community", "Climate", "Identity", "Funding"],
-        social_source: "Medium",
-        social_url: "https://medium.com/@metaknyt/web3-social-impact",
-        social_embed_html: `<div class="p-4 bg-green-50 rounded-lg border border-green-200"><h4 class="text-green-800 font-semibold">🌱 Impact Story</h4><p class="text-green-700 text-sm mt-1">How one DAO is fighting climate change through blockchain innovation</p></div>`
+        category: "impact-projects",
+        l2e_points: 80,
+        tags: ["social-impact", "climate", "inclusion"]
+      },
+      {
+        title: "Digital Rebellion: The Resistance",
+        description: "An interactive storyline where your choices shape the future of Terra's rebellion. Features multiple endings, character progression, and collaborative storytelling with the community.",
+        slug: "digital-rebellion",
+        type: "mixed",
+        strand: "civic_readiness",
+        status: "published",
+        category: "epic-stories",
+        l2e_points: 95,
+        featured: true,
+        tags: ["rebellion", "interactive", "story"],
+        social_source: "TikTok",
+        social_url: "https://tiktok.com/@metaknyt/rebellion",
+        social_embed_html: `<div class="aspect-video bg-gradient-to-br from-red-900 to-orange-600 rounded-lg flex items-center justify-center text-white text-2xl font-bold">⚡ JOIN THE RESISTANCE ⚡</div>`
+      },
+      {
+        title: "Quantum Mining Expedition",
+        description: "Experience Terra's most dangerous mining expedition in this immersive VR-compatible adventure. Collect rare artifacts, compete on global leaderboards, and uncover quantum secrets.",
+        slug: "quantum-mining-expedition",
+        type: "mixed",
+        strand: "civic_readiness",
+        status: "published",
+        category: "epic-stories",
+        l2e_points: 130,
+        tags: ["mining", "adventure", "vr"]
+      },
+      {
+        title: "Layer 2 Scaling Solutions",
+        description: "Comprehensive guide to Ethereum Layer 2 technologies including rollups, sidechains, and state channels. Hands-on tutorials for deploying and interacting with L2 protocols.",
+        slug: "layer-2-scaling",
+        type: "video",
+        strand: "learn_to_earn",
+        status: "published",
+        category: "masterclass",
+        l2e_points: 140,
+        tags: ["layer2", "scaling", "ethereum"],
+        l2e_quiz_url: "https://quiz.metaknyt.com/layer2",
+        l2e_cta_label: "Learn L2",
+        l2e_cta_url: "https://learn.metaknyt.com/layer2"
+      },
+      {
+        title: "Community Building for Web3",
+        description: "Learn proven strategies for growing and engaging Web3 communities. Covers Discord management, token-gated access, ambassador programs, and sustainable growth tactics.",
+        slug: "community-building-web3",
+        type: "mixed",
+        strand: "civic_readiness",
+        status: "published",
+        category: "workshop",
+        l2e_points: 85,
+        tags: ["community", "growth", "engagement"],
+        l2e_cta_label: "Join Workshop",
+        l2e_cta_url: "https://workshop.metaknyt.com/community"
       }
     ];
 
-    // Create default categories first
+    // Create default categories - ACTUAL categories from https://metaknyt.lovable.app/
     const categories = [
-      { name: "Epic Stories", slug: "epic-stories", strand: "civic_readiness", description: "Immersive narrative experiences and interactive storylines" },
-      { name: "Documentary", slug: "documentary", strand: "civic_readiness", description: "Investigative content and real-world explorations" },
-      { name: "Masterclass", slug: "masterclass", strand: "learn_to_earn", description: "Comprehensive learning experiences with certification" },
-      { name: "Workshop", slug: "workshop", strand: "learn_to_earn", description: "Hands-on learning and skill-building sessions" },
-      { name: "Bootcamp", slug: "bootcamp", strand: "learn_to_earn", description: "Intensive training programs for advanced skills" },
-      { name: "Impact Projects", slug: "impact-projects", strand: "civic_readiness", description: "Social impact and community-driven initiatives" }
+      { name: "Epic Stories", slug: "epic-stories", strand: "civic_readiness", description: "Immersive narratives and interactive adventures that transport you to the MetaKNYT universe" },
+      { name: "Masterclass", slug: "masterclass", strand: "learn_to_earn", description: "Comprehensive courses covering blockchain, DeFi, trading, and Web3 fundamentals" },
+      { name: "Workshop", slug: "workshop", strand: "learn_to_earn", description: "Hands-on sessions for building practical skills in NFTs, community management, and more" },
+      { name: "Bootcamp", slug: "bootcamp", strand: "learn_to_earn", description: "Intensive training programs for security, development, and advanced Web3 topics" },
+      { name: "Documentary", slug: "documentary", strand: "civic_readiness", description: "Investigative deep-dives into protocols, technologies, and blockchain mysteries" },
+      { name: "Impact Projects", slug: "impact-projects", strand: "civic_readiness", description: "Real-world applications of blockchain for social good and community impact" }
     ];
 
     const categoryResults: { id: string; slug: string }[] = [];
@@ -299,74 +304,130 @@ Deno.serve(async (req) => {
       categoryMap.set(cat.slug.toLowerCase(), cat.id);
     }
 
-    // Create default mission pillars
+    // Create default mission pillars - ACTUAL pillars from https://metaknyt.lovable.app/
     const pillars = [
       {
-        display_name: "Civic Readiness Initiative",
-        short_summary: "Empowering digital citizenship through immersive storytelling and real-world impact",
-        long_context_md: `## Civic Readiness: Building Tomorrow's Digital Citizens
+        display_name: "Learn to Earn",
+        short_summary: "Transform your Web3 learning journey into tangible rewards through comprehensive courses, workshops, and hands-on experiences",
+        long_context_md: `# Learn to Earn: Web3 Education Reimagined
 
-The Civic Readiness pillar combines immersive storytelling with practical civic engagement, creating experiences that prepare users for active participation in digital democracies and decentralized communities.
+## Mission
+The Learn to Earn pillar revolutionizes blockchain education by combining high-quality learning content with tokenized incentives. Every course completed, every skill mastered, and every milestone achieved earns you rewards while building your Web3 expertise.
 
-### Core Focus Areas:
-- **Interactive Narratives**: Epic storylines that teach governance, ethics, and community building
-- **Real-World Impact**: Projects that bridge digital skills with tangible social change
-- **Democratic Participation**: Training in DAO governance, consensus building, and collective decision-making
-- **Digital Rights**: Education on privacy, security, and digital sovereignty
+## Core Offerings
 
-### Learning Outcomes:
-- Understanding of decentralized governance models
-- Skills in community organizing and consensus building  
-- Knowledge of digital rights and responsibilities
-- Ability to create positive social impact through technology`,
+### Masterclasses
+Deep-dive comprehensive courses covering:
+- **Blockchain Fundamentals**: Master core concepts and protocols
+- **DeFi Strategies**: Advanced trading and yield optimization
+- **DAO Governance**: Decentralized organization management
+- **Smart Contract Development**: Build secure, efficient code
+
+### Workshops
+Hands-on sessions including:
+- **NFT Creation**: From concept to marketplace launch
+- **Community Building**: Grow engaged Web3 communities
+- **Content Strategy**: Build your Web3 brand
+- **Token Economics**: Design sustainable tokenomics
+
+### Bootcamps
+Intensive training programs:
+- **Security Auditing**: Identify vulnerabilities in smart contracts
+- **Full-Stack Web3**: Build complete dApps
+- **Layer 2 Development**: Deploy on scaling solutions
+
+## Earning Opportunities
+- **Course Completion**: 50-200 points per course
+- **Quiz Excellence**: Bonus rewards for perfect scores
+- **Community Contributions**: Share knowledge, earn rewards
+- **Project Submissions**: Showcase your work for premium rewards
+
+## Learning Paths
+Structured progressions from beginner to expert:
+1. **Foundation Track**: Web3 basics → Blockchain fundamentals → First dApp
+2. **DeFi Specialist**: Protocol analysis → Trading strategies → Risk management
+3. **Creator Track**: NFT basics → Smart contracts → Community building
+4. **Developer Track**: Solidity → Testing → Production deployment`,
         goals_json: [
-          "Develop informed digital citizens",
-          "Bridge virtual and physical community engagement", 
-          "Foster ethical leadership in Web3 spaces",
-          "Create measurable social impact through blockchain technology"
+          "Democratize access to high-quality Web3 education",
+          "Create clear pathways from learning to earning",
+          "Build a global community of skilled Web3 professionals",
+          "Reward continuous learning and skill development"
         ],
         kpis_json: [
-          "Community governance participation rates",
-          "Social impact project completions", 
-          "Digital citizenship assessment scores",
-          "Cross-platform engagement metrics"
+          "Course completion rates",
+          "Average learning outcomes assessment scores",
+          "Community engagement and participation",
+          "Career advancement of graduates"
         ]
       },
       {
-        display_name: "Learn to Earn Academy",
-        short_summary: "Advanced skill development with tokenized incentives and career pathways",
-        long_context_md: `## Learn to Earn: The Future of Professional Development
+        display_name: "Civic Readiness",
+        short_summary: "Prepare for active participation in decentralized governance and digital communities through immersive stories and real-world projects",
+        long_context_md: `# Civic Readiness: Building Digital Citizens
 
-Our Learn to Earn Academy revolutionizes skill acquisition by combining cutting-edge educational content with blockchain-based incentive systems, creating clear pathways from learning to earning.
+## Mission
+The Civic Readiness pillar prepares individuals for meaningful participation in decentralized societies through engaging narratives, interactive experiences, and real-world impact projects.
 
-### Program Structure:
-- **Skill Trees**: Gamified learning paths with branching specializations
-- **Mentorship Network**: 1:1 connections with industry experts and successful alumni
-- **Project Portfolios**: Real-world assignments that build demonstrable expertise
-- **Certification Pipeline**: Industry-recognized credentials with blockchain verification
+## Core Experiences
 
-### Available Tracks:
-- **DeFi Specialist**: Advanced protocol analysis and yield optimization
-- **Security Auditor**: Smart contract security and vulnerability assessment
-- **Community Builder**: DAO governance and community growth strategies
-- **Creator Economy**: NFT development and digital asset monetization
+### Epic Stories
+Immersive narratives that teach through experience:
+- **The Genesis Block**: Origin story of the MetaKNYT universe
+- **MetaKnight Chronicles**: Hero's journey through digital realms
+- **Digital Rebellion**: Choose-your-own-adventure governance simulation
+- **Quantum Mining Expedition**: Resource management and collaboration
 
-### Earning Mechanisms:
-- Completion rewards for courses and assessments
-- Bonus tokens for exceptional project work
-- Referral incentives for bringing new learners
-- Grant opportunities for impact-driven final projects`,
+### Documentary Series
+Investigative content exploring:
+- **The Shadow Protocol**: Blockchain forensics and security
+- **DAO Case Studies**: Real governance in action
+- **Protocol Deep Dives**: How major platforms work
+- **Impact Reports**: Blockchain solving real problems
+
+### Impact Projects
+Community-driven initiatives:
+- **Climate Action DAOs**: Funding environmental solutions
+- **Financial Inclusion**: Banking the unbanked with DeFi
+- **Digital Identity**: Self-sovereign identity systems
+- **Community Funding**: Decentralized grants and support
+
+## Participation Framework
+
+### Governance Training
+- Understanding voting mechanisms
+- Proposal creation and advocacy
+- Consensus building strategies
+- Conflict resolution in DAOs
+
+### Community Leadership
+- Organizing local meetups
+- Running online communities
+- Ambassador programs
+- Educational outreach
+
+### Real-World Application
+- Participate in DAO governance
+- Launch community initiatives
+- Contribute to public goods
+- Build local Web3 ecosystems
+
+## Impact Metrics
+- **Governance Participation**: Active voters in partner DAOs
+- **Community Growth**: Size and engagement of local chapters
+- **Project Launches**: Community-initiated impact projects
+- **Cross-Collaboration**: Partnerships between communities`,
         goals_json: [
-          "Accelerate Web3 skill development",
-          "Create clear learning-to-earning pathways",
-          "Build industry-ready professionals",
-          "Foster innovation through project-based learning"
+          "Develop informed, engaged digital citizens",
+          "Bridge Web3 concepts with real-world governance",
+          "Create measurable social and environmental impact",
+          "Build resilient, self-governing communities"
         ],
         kpis_json: [
-          "Course completion and retention rates",
-          "Job placement success within 6 months",
-          "Average earning increase post-certification",
-          "Industry partnership and hiring metrics"
+          "DAO governance participation rates",
+          "Community project launches and outcomes",
+          "Social impact metrics (lives improved, carbon offset, etc.)",
+          "Cross-community collaboration events"
         ]
       }
     ];
