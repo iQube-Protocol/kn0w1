@@ -508,6 +508,51 @@ Community-driven initiatives:
         console.error('Error creating content:', error);
         continue;
       }
+      
+      // Create media_assets for thumbnails
+      if (newContent && content.social_url) {
+        const mediaAsset: any = {
+          item_id: newContent.id,
+          agent_site_id: agentSiteId
+        };
+        
+        // Determine media asset type based on URL
+        if (content.social_url.includes('youtube.com') || content.social_url.includes('youtu.be')) {
+          mediaAsset.kind = 'video';
+          mediaAsset.external_url = content.social_url;
+          
+          // Extract video ID for thumbnail
+          const videoId = content.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1];
+          if (videoId) {
+            mediaAsset.metadata_json = {
+              video_id: videoId,
+              platform: 'youtube',
+              thumbnail_url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+            };
+          }
+        } else {
+          // Check if it's an image URL
+          const extension = content.social_url.split('.').pop()?.toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+            mediaAsset.kind = 'image';
+            mediaAsset.external_url = content.social_url;
+          } else {
+            // Generic media asset
+            mediaAsset.kind = 'mixed';
+            mediaAsset.external_url = content.social_url;
+          }
+        }
+        
+        // Insert media asset
+        const { error: assetError } = await supabaseClient
+          .from('media_assets')
+          .insert(mediaAsset);
+        
+        if (assetError) {
+          console.error('Error creating media asset:', assetError);
+        }
+      }
+      
       if (newContent) contentResults.push(newContent);
     }
 
