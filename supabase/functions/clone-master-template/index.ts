@@ -512,24 +512,16 @@ Community-driven initiatives:
       // Create media_assets for thumbnails
       if (newContent && content.social_url) {
         const mediaAsset: any = {
-          item_id: newContent.id,
-          agent_site_id: agentSiteId
+          content_item_id: newContent.id,
         };
         
         // Determine media asset type based on URL
         if (content.social_url.includes('youtube.com') || content.social_url.includes('youtu.be')) {
           mediaAsset.kind = 'video';
           mediaAsset.external_url = content.social_url;
-          
-          // Extract video ID for thumbnail
-          const videoId = content.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1];
-          if (videoId) {
-            mediaAsset.metadata_json = {
-              video_id: videoId,
-              platform: 'youtube',
-              thumbnail_url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-            };
-          }
+        } else if (content.social_url.includes('vimeo.com')) {
+          mediaAsset.kind = 'video';
+          mediaAsset.external_url = content.social_url;
         } else {
           // Check if it's an image URL
           const extension = content.social_url.split('.').pop()?.toLowerCase();

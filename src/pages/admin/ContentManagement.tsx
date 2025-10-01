@@ -86,8 +86,9 @@ export function ContentManagement() {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setContent(data || []);
+if (error) throw error;
+console.debug('fetchContent loaded', data?.length || 0, data?.slice(0,2));
+setContent(data || []);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {

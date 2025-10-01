@@ -146,6 +146,7 @@ const getMediaThumbnail = (item: ContentItem) => {
 export function ContentCard({ item, navigate, fetchContent }: ContentCardProps) {
   const TypeIcon = typeIcons[item.type as keyof typeof typeIcons] || FileText;
   const thumbnail = getMediaThumbnail(item);
+  console.debug('ContentCard thumbnail', { id: item.id, title: item.title, type: item.type, social_url: item.social_url, hasEmbed: !!item.social_embed_html, mediaCount: item.media_assets?.length || 0, thumbnail });
 
   const toggleFeature = async (field: 'featured' | 'pinned', currentValue: boolean) => {
     try {
