@@ -74,16 +74,21 @@ export function Overview() {
         .from('agent_sites')
         .select('*')
         .eq('owner_user_id', user?.id)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (siteError) {
         console.error('No agent site found:', siteError);
         return;
       }
 
-      setAgentSite(siteData);
+      if (!siteData) {
+        setAgentSite(null);
+        return;
+      }
 
-      // Get aigents for this site
+      setAgentSite(siteData);
       const { data: aigentsData, error: aigentsError } = await supabase
         .from('aigents')
         .select('*')

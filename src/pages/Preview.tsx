@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Bot, MessageCircle, Star, Users } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { ChatInterface } from '@/components/ChatInterface';
 
 interface AgentSite {
@@ -67,6 +68,8 @@ export function Preview() {
   const [categories, setCategories] = useState<ContentCategory[]>([]);
   const [pillars, setPillars] = useState<MissionPillar[]>([]);
   const [showChat, setShowChat] = useState(false);
+  const [populating, setPopulating] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (siteSlug) {
@@ -180,24 +183,48 @@ export function Preview() {
 
   const handlePopulateMasterContent = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const response = await supabase.functions.invoke('clone-master-template', {
-        body: { 
+      setPopulating(true);
+      const { data: auth } = await supabase.auth.getUser();
+      const { data, error } = await supabase.functions.invoke('clone-master-template', {
+        body: {
           agentSiteId: agentSite?.id,
-          userEmail: user?.email 
+          userEmail: auth?.user?.email
         }
       });
 
-      if (response.error) {
-        console.error('Error populating content:', response.error);
+      if (error) {
+        console.error('Error populating content:', error);
+        toast({
+          title: 'Populate failed',
+          description: error.message || 'Please try again.',
+          variant: 'destructive'
+        });
         return;
       }
 
-      // Refresh the page data
+      if (data?.success) {
+        const created = data.created || {};
+        toast({
+          title: 'Master content cloned',
+          description: `Pillars: ${created.pillars ?? 0}, Categories: ${created.categories ?? 0}, Items: ${created.content_items ?? 0}`
+        });
+      } else {
+        toast({
+          title: 'Clone completed',
+          description: 'Template cloning finished.'
+        });
+      }
+
       await fetchSiteData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error calling clone function:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Unexpected error occurred.',
+        variant: 'destructive'
+      });
+    } finally {
+      setPopulating(false);
     }
   };
 
@@ -261,9 +288,10 @@ export function Preview() {
                   size="lg" 
                   onClick={handlePopulateMasterContent}
                   className="gap-2"
+                  disabled={populating}
                 >
                   <Star className="w-5 h-5" />
-                  Populate with Master Content
+                  {populating ? 'Populating...' : 'Populate with Master Content'}
                 </Button>
               ) : (
                 <>
