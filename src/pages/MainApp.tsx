@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Menu, Share2, Maximize, Minimize, Shield } from "lucide-react";
+import { Settings, Menu, Share2, Maximize, Minimize, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { MediaPlayer } from "@/components/MediaPlayer";
@@ -7,6 +7,8 @@ import { MediaCarousel } from "@/components/MediaCarousel";
 import { ChatInterface } from "@/components/ChatInterface";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-image.jpg";
 import content1 from "@/assets/content-1.jpg";
 import content2 from "@/assets/content-2.jpg";
@@ -143,6 +145,27 @@ export default function MainApp() {
   
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+      
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign out",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleContentSearch = (query: string) => {
     console.log("Searching for:", query);
@@ -209,6 +232,17 @@ export default function MainApp() {
           ) : (
             <Minimize className="h-4 w-4" />
           )}
+        </Button>
+        
+        {/* Sign Out Button */}
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="glass hover-glow w-10 h-10 rounded-lg border border-red-500/30"
+          onClick={handleSignOut}
+          title="Sign Out"
+        >
+          <LogOut className="h-4 w-4 text-red-400" />
         </Button>
       </div>
 
