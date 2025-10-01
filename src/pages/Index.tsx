@@ -44,7 +44,10 @@ const Index = () => {
                 imageRendering: 'crisp-edges'
               }}
             />
-            <h2 className="text-3xl md:text-5xl text-neon-magenta font-bold">QRIPTOPIA</h2>
+            <div className="space-y-1">
+              <p className="text-sm md:text-base text-neon-magenta tracking-wider">#WEBFREE REPUBLIC OF</p>
+              <h2 className="text-3xl md:text-5xl text-neon-magenta font-bold">QRIPTOPIA</h2>
+            </div>
             
             {/* Divider */}
             <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mt-6" />
