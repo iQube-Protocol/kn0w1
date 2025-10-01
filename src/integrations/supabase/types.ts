@@ -1725,7 +1725,12 @@ export type Database = {
       }
     }
     Enums: {
-      admin_role: "super_admin" | "content_admin" | "social_admin" | "moderator"
+      admin_role:
+        | "super_admin"
+        | "content_admin"
+        | "social_admin"
+        | "moderator"
+        | "uber_admin"
       agent_kind: "satoshi" | "knyt" | "custom"
       branch_kind: "mythos" | "logos"
       content_status:
@@ -1883,7 +1888,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      admin_role: ["super_admin", "content_admin", "social_admin", "moderator"],
+      admin_role: [
+        "super_admin",
+        "content_admin",
+        "social_admin",
+        "moderator",
+        "uber_admin",
+      ],
       agent_kind: ["satoshi", "knyt", "custom"],
       branch_kind: ["mythos", "logos"],
       content_status: [
