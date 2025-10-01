@@ -9,8 +9,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Sparkles, Target, Users, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Target, Users, Settings, X } from 'lucide-react';
 import { AISetupAssistant } from '@/components/admin/AISetupAssistant';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface SetupState {
   // Step 0: Site Identity
@@ -116,6 +126,7 @@ export function Setup() {
   const [savingDraft, setSavingDraft] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editingSiteId, setEditingSiteId] = useState<string | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   const updateState = (updates: Partial<SetupState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -269,11 +280,13 @@ export function Setup() {
     try {
       const { error } = await supabase
         .from('setup_drafts')
-        .upsert([{
+        .upsert({
           user_id: user.id,
           setup_state: JSON.parse(JSON.stringify(state)),
           current_step: currentStep
-        }]);
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
       
@@ -295,6 +308,19 @@ export function Setup() {
 
   const skipSetupAndSave = async () => {
     await saveDraft();
+    navigate('/admin/overview');
+  };
+
+  const handleExit = () => {
+    setShowExitDialog(true);
+  };
+
+  const handleExitWithSave = async () => {
+    await saveDraft();
+    navigate('/admin/overview');
+  };
+
+  const handleExitWithoutSave = () => {
     navigate('/admin/overview');
   };
 
@@ -1240,9 +1266,20 @@ export function Setup() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold">Agent Site Setup</h1>
-            <span className="text-sm text-muted-foreground">
-              Step {currentStep + 1} of {steps.length}
-            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Step {currentStep + 1} of {steps.length}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleExit}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" />
+                Exit
+              </Button>
+            </div>
           </div>
           <Progress value={(currentStep + 1) / steps.length * 100} className="h-2" />
         </div>
@@ -1299,6 +1336,32 @@ export function Setup() {
           </div>
         </div>
       </div>
+
+      {/* Exit Confirmation Dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exit Setup?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Would you like to save your progress before exiting?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowExitDialog(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={handleExitWithoutSave}
+            >
+              Exit Without Saving
+            </Button>
+            <AlertDialogAction onClick={handleExitWithSave}>
+              Save & Exit
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
