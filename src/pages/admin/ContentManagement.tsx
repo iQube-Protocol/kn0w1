@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ContentCard } from '@/components/admin/ContentCard';
+import { useToast } from '@/hooks/use-toast';
 
 interface ContentItem {
   id: string;
@@ -70,6 +71,7 @@ export function ContentManagement() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchContent();
@@ -81,7 +83,7 @@ export function ContentManagement() {
         .from('content_items')
         .select(`
           *,
-          category:content_categories(name),
+          category:content_categories(name, slug),
           media_assets(id, kind, storage_path, external_url, oembed_html)
         `)
         .order('created_at', { ascending: false });
@@ -155,6 +157,32 @@ setContent(data || []);
     }
   };
 
+  const handleRegenerateThumbnails = async () => {
+    try {
+      toast({
+        title: "Regenerating thumbnails",
+        description: "This may take a moment...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('backfill-media-assets');
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Created ${data.created} thumbnails (${data.generatedImages} AI-generated)`,
+      });
+
+      fetchContent();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -174,6 +202,13 @@ setContent(data || []);
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRegenerateThumbnails}
+          >
+            Regenerate Thumbnails
+          </Button>
           <div className="flex items-center gap-1 border rounded-md p-1">
             <Button 
               variant={viewMode === 'grid' ? 'default' : 'ghost'} 

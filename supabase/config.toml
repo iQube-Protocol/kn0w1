@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.generate-content]
 verify_jwt = true
+
+[functions.backfill-media-assets]
+verify_jwt = true

@@ -29,6 +29,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileUpload } from '@/components/admin/FileUpload';
 import { AIContentGenerator } from '@/components/admin/AIContentGenerator';
+import content1 from '@/assets/content-1.jpg';
+import content2 from '@/assets/content-2.jpg';
+import content3 from '@/assets/content-3.jpg';
+import heroImage from '@/assets/hero-image.jpg';
 
 interface ContentItem {
   id?: string;
@@ -184,6 +188,17 @@ export function ContentEditor() {
         if (!thumbnail && data.cover_image_id) {
           const { data: urlData } = supabase.storage.from('content-files').getPublicUrl(data.cover_image_id);
           thumbnail = urlData.publicUrl;
+        }
+        
+        // Priority 4: Category default fallback
+        if (!thumbnail) {
+          const categoryDefaults: Record<string, string> = {
+            'epic-stories': content1,
+            'masterclass': content2,
+            'documentary': content3,
+            'impact-projects': content3,
+          };
+          thumbnail = categoryDefaults[data.category_id] || heroImage;
         }
         
         setThumbnailUrl(thumbnail);

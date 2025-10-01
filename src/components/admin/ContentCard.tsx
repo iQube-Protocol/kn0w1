@@ -46,11 +46,11 @@ interface ContentItem {
   views_count: number;
   created_at: string;
   publish_at: string | null;
-  category: { name: string } | null;
   social_url?: string;
   social_embed_html?: string;
   cover_image_id?: string;
   media_assets?: MediaAsset[];
+  category?: { name: string; slug?: string } | null;
 }
 
 interface ContentCardProps {
@@ -140,7 +140,16 @@ const getMediaThumbnail = (item: ContentItem) => {
     return data.publicUrl;
   }
   
-  return null;
+  // Priority 5: Category-based default fallbacks
+  const categorySlug = item.category?.slug || '';
+  const categoryDefaults: Record<string, string> = {
+    'epic-stories': content1,
+    'masterclass': content2,
+    'documentary': content3,
+    'impact-projects': content3,
+  };
+  
+  return categoryDefaults[categorySlug] || heroImage;
 };
 
 export function ContentCard({ item, navigate, fetchContent }: ContentCardProps) {
@@ -218,15 +227,14 @@ export function ContentCard({ item, navigate, fetchContent }: ContentCardProps) 
       <CardContent className="p-0">
         {/* Thumbnail */}
         <div className="aspect-video relative bg-muted flex items-center justify-center overflow-hidden">
-          {thumbnail ? (
-            <img 
-              src={thumbnail} 
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <TypeIcon className="h-12 w-12 text-muted-foreground" />
-          )}
+          <img 
+            src={thumbnail} 
+            alt={item.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = heroImage;
+            }}
+          />
           
           {/* Overlay Icons */}
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
