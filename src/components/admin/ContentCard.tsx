@@ -21,6 +21,10 @@ import {
   Pin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import content1 from '@/assets/content-1.jpg';
+import content2 from '@/assets/content-2.jpg';
+import content3 from '@/assets/content-3.jpg';
+import heroImage from '@/assets/hero-image.jpg';
 
 interface MediaAsset {
   id: string;
@@ -81,31 +85,52 @@ const getMediaThumbnail = (item: ContentItem) => {
       // If it's a video with thumbnail
       if (asset.kind === 'video' && asset.external_url) {
         if (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be')) {
-          const videoId = asset.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+          const videoId = asset.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1];
           if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        }
+        if (asset.external_url.includes('vimeo.com')) {
+          const vimeoId = asset.external_url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+          if (vimeoId) return `https://vumbnail.com/${vimeoId}.jpg`;
         }
       }
     }
   }
   
-  // Priority 2: If social URL exists and is an image, use it
+  // Priority 2: If social URL exists, try to derive a thumbnail regardless of type
   if (item.social_url) {
     const extension = item.social_url.split('.').pop()?.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
       return item.social_url;
     }
-    // For video URLs, try to get thumbnail from common video platforms
+    // YouTube
     if (item.social_url.includes('youtube.com') || item.social_url.includes('youtu.be')) {
-      const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+      const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/)?.[1];
       if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    }
+    // Vimeo
+    if (item.social_url.includes('vimeo.com')) {
+      const vimeoId = item.social_url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+      if (vimeoId) return `https://vumbnail.com/${vimeoId}.jpg`;
     }
   }
   
   // Priority 3: For social embeds, try to extract thumbnail from embed HTML
-  if (item.type === 'social' && item.social_embed_html) {
+  if (item.social_embed_html) {
     const thumbnailMatch = item.social_embed_html.match(/poster="([^"]+)"|src="([^"]+\.(jpg|jpeg|png|webp|gif))"/i);
-    if (thumbnailMatch) {
-      return thumbnailMatch[1] || thumbnailMatch[2];
+    const raw = (thumbnailMatch && (thumbnailMatch[1] || thumbnailMatch[2])) || '';
+    if (raw) {
+      // Map local dev paths to bundled assets
+      if (raw.includes('/src/assets/')) {
+        const file = raw.split('/').pop();
+        const map: Record<string, string> = {
+          'content-1.jpg': content1,
+          'content-2.jpg': content2,
+          'content-3.jpg': content3,
+          'hero-image.jpg': heroImage,
+        };
+        if (file && map[file]) return map[file];
+      }
+      return raw;
     }
   }
   
