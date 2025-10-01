@@ -28,7 +28,14 @@ import {
   Calendar,
   MoreHorizontal,
   Star,
-  Pin
+  Pin,
+  Grid3x3,
+  List,
+  Play,
+  FileText,
+  Image as ImageIcon,
+  Music,
+  Share2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -37,6 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ContentCard } from '@/components/admin/ContentCard';
 
 interface ContentItem {
   id: string;
@@ -59,6 +67,7 @@ export function ContentManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -160,10 +169,28 @@ export function ContentManagement() {
             Create, edit, and manage your content library
           </p>
         </div>
-        <Button onClick={() => navigate('/admin/content/new')} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Content
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 border rounded-md p-1">
+            <Button 
+              variant={viewMode === 'grid' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={viewMode === 'table' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('table')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={() => navigate('/admin/content/new')} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Content
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -211,7 +238,7 @@ export function ContentManagement() {
         </CardContent>
       </Card>
 
-      {/* Content Table */}
+      {/* Content Display */}
       <Card>
         <CardHeader>
           <CardTitle>Content Items ({filteredContent.length})</CardTitle>
@@ -220,6 +247,13 @@ export function ContentManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredContent.map((item) => (
+                <ContentCard key={item.id} item={item} navigate={navigate} fetchContent={fetchContent} />
+              ))}
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -316,6 +350,7 @@ export function ContentManagement() {
               ))}
             </TableBody>
           </Table>
+          )}
           
           {filteredContent.length === 0 && (
             <div className="text-center py-8">

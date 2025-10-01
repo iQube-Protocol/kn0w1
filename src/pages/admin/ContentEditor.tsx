@@ -28,6 +28,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileUpload } from '@/components/admin/FileUpload';
+import { AIContentGenerator } from '@/components/admin/AIContentGenerator';
 
 interface ContentItem {
   id?: string;
@@ -89,10 +90,26 @@ export function ContentEditor() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const [agentSiteId, setAgentSiteId] = useState<string>('');
 
   useEffect(() => {
     const initializeData = async () => {
       await Promise.all([fetchCategories(), fetchPillars()]);
+      
+      // Get agent site ID
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        const { data: agentSite } = await supabase
+          .from('agent_sites')
+          .select('id')
+          .eq('owner_user_id', userData.user.id)
+          .single();
+        
+        if (agentSite) {
+          setAgentSiteId(agentSite.id);
+        }
+      }
+      
       if (!isNew && id) {
         await fetchContent();
       }
@@ -363,7 +380,15 @@ export function ContentEditor() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="title">Title</Label>
+                  <AIContentGenerator 
+                    type="title"
+                    currentValue={content.title}
+                    agentSiteId={agentSiteId}
+                    onGenerated={(title) => handleTitleChange(title)}
+                  />
+                </div>
                 <Input
                   id="title"
                   value={content.title}
@@ -383,7 +408,15 @@ export function ContentEditor() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">Description</Label>
+                  <AIContentGenerator 
+                    type="description"
+                    currentValue={content.description}
+                    agentSiteId={agentSiteId}
+                    onGenerated={(desc) => setContent(prev => ({ ...prev, description: desc }))}
+                  />
+                </div>
                 <Textarea
                   id="description"
                   value={content.description}
@@ -408,11 +441,19 @@ export function ContentEditor() {
             <TabsContent value="text" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Text Content</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Text Content</CardTitle>
+                    <AIContentGenerator 
+                      type="content"
+                      currentValue={content.social_embed_html || ''}
+                      agentSiteId={agentSiteId}
+                      onGenerated={(text) => setContent(prev => ({ ...prev, social_embed_html: text }))}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
-                    placeholder="Write your text content here..."
+                    placeholder="Write your text content here or generate with AI..."
                     rows={10}
                     value={content.social_embed_html || ''}
                     onChange={(e) => setContent(prev => ({ ...prev, social_embed_html: e.target.value }))}
