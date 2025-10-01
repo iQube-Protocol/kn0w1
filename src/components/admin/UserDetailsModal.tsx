@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User, 
   Mail, 
@@ -22,6 +23,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RoleHierarchyManager } from './RoleHierarchyManager';
+import { RoleAuditLog } from './RoleAuditLog';
 
 interface UserDetailsModalProps {
   user: {
@@ -136,18 +139,25 @@ export function UserDetailsModal({ user, open, onOpenChange, onUserUpdated }: Us
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            User Details
+            User Details & Role Management
           </DialogTitle>
           <DialogDescription>
-            View and manage user information and roles
+            View user information and manage roles with hierarchy-aware controls
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <Tabs defaultValue="info" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="info">User Info</TabsTrigger>
+            <TabsTrigger value="roles">Role Management</TabsTrigger>
+            <TabsTrigger value="audit">Audit Log</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="info" className="space-y-4 mt-4">
           {/* User Info */}
           <Card>
             <CardHeader>
@@ -217,100 +227,20 @@ export function UserDetailsModal({ user, open, onOpenChange, onUserUpdated }: Us
               )}
             </CardContent>
           </Card>
+          </TabsContent>
 
-          {/* Current Roles */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Current Roles
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userRoles.length > 0 ? (
-                <div className="space-y-3">
-                  {userRoles.map((role) => {
-                    const roleInfo = ROLE_DESCRIPTIONS[role as keyof typeof ROLE_DESCRIPTIONS];
-                    return (
-                      <div key={role} className="flex items-start justify-between p-3 border rounded-lg">
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge>{roleInfo?.title || role}</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {roleInfo?.description}
-                          </p>
-                          <ul className="text-xs text-muted-foreground space-y-1 mt-2">
-                            {roleInfo?.permissions.map((perm) => (
-                              <li key={perm}>• {perm}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeRole(role)}
-                          disabled={loading}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No administrative roles assigned</p>
-              )}
-            </CardContent>
-          </Card>
+          <TabsContent value="roles" className="space-y-4 mt-4">
+            <RoleHierarchyManager
+              targetUserId={user.id}
+              currentRoles={userRoles}
+              onRoleUpdated={onUserUpdated}
+            />
+          </TabsContent>
 
-          {/* Available Roles */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                Assign New Role
-              </CardTitle>
-              <CardDescription>
-                Add administrative roles to grant additional permissions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
-                {Object.entries(ROLE_DESCRIPTIONS).map(([roleKey, roleInfo]) => {
-                  const hasRole = userRoles.includes(roleKey);
-                  return (
-                    <div key={roleKey} className="flex items-start justify-between p-3 border rounded-lg">
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{roleInfo.title}</p>
-                          {hasRole && <Badge variant="secondary">Assigned</Badge>}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {roleInfo.description}
-                        </p>
-                        <ul className="text-xs text-muted-foreground space-y-1 mt-2">
-                          {roleInfo.permissions.map((perm) => (
-                            <li key={perm}>• {perm}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <Button
-                        variant={hasRole ? "secondary" : "default"}
-                        size="sm"
-                        onClick={() => assignRole(roleKey)}
-                        disabled={loading || hasRole}
-                      >
-                        {hasRole ? 'Assigned' : 'Assign'}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="audit" className="mt-4">
+            <RoleAuditLog targetUserId={user.id} />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

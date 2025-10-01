@@ -1297,6 +1297,39 @@ export type Database = {
         }
         Relationships: []
       }
+      role_audit_log: {
+        Row: {
+          action: string
+          agent_site_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          role: string
+          target_user_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          agent_site_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          role: string
+          target_user_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          agent_site_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          role?: string
+          target_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string
