@@ -60,7 +60,11 @@ Deno.serve(async (req) => {
 
     console.log(`Cloning master template for agent site: ${agentSiteId}`);
 
-    // Master template content - ACTUAL content from https://metaknyt.lovable.app/
+    // Mark seeding as pending at start
+    await supabaseClient
+      .from('agent_sites')
+      .update({ seed_status: 'pending' })
+      .eq('id', agentSiteId);
     const masterContent = [
       {
         title: "THE GENESIS BLOCK",
@@ -453,7 +457,7 @@ Community-driven initiatives:
     // Get the site owner for content ownership
     const { data: agentSite } = await supabaseClient
       .from('agent_sites')
-      .select('owner_user_id')
+      .select('id, owner_user_id')
       .eq('id', agentSiteId)
       .single();
 
@@ -461,19 +465,36 @@ Community-driven initiatives:
       throw new Error('Agent site not found');
     }
 
+    // Ensure owner has super_admin role for this site (idempotent)
+    const { data: existingRole } = await supabaseClient
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', agentSite.owner_user_id)
+      .eq('agent_site_id', agentSiteId)
+      .eq('role', 'super_admin')
+      .maybeSingle();
+
+    if (!existingRole) {
+      await supabaseClient
+        .from('user_roles')
+        .insert({ user_id: agentSite.owner_user_id, role: 'super_admin', agent_site_id: agentSiteId });
+    }
+
     // Create content items  
     const contentResults: { id: string; title: string }[] = [];
     for (const content of masterContent) {
-      // Map content to appropriate category based on content type and strand
-      let categorySlug = 'masterclass'; // default
-      if (content.type === 'mixed' && content.strand === 'civic_readiness') {
-        categorySlug = content.tags.includes('Documentary') ? 'documentary' : 'epic-stories';
-      } else if (content.strand === 'learn_to_earn') {
-        if (content.tags.includes('Bootcamp')) categorySlug = 'bootcamp';
-        else if (content.tags.includes('Workshop')) categorySlug = 'workshop';
-        else categorySlug = 'masterclass';
-      } else if (content.strand === 'civic_readiness') {
-        categorySlug = content.tags.includes('Impact') ? 'impact-projects' : 'epic-stories';
+      // Prefer explicit category from template; fallback to simple mapping
+      let categorySlug = (content as any).category?.toLowerCase?.() || 'masterclass';
+      if (!categoryMap.has(categorySlug)) {
+        if (content.type === 'mixed' && content.strand === 'civic_readiness') {
+          categorySlug = 'epic-stories';
+        } else if (content.strand === 'learn_to_earn') {
+          if ((content.tags || []).includes('bootcamp')) categorySlug = 'bootcamp';
+          else if ((content.tags || []).includes('workshop')) categorySlug = 'workshop';
+          else categorySlug = 'masterclass';
+        } else if (content.strand === 'civic_readiness') {
+          categorySlug = 'epic-stories';
+        }
       }
       
       const categoryId = categoryMap.get(categorySlug);
@@ -508,14 +529,20 @@ Community-driven initiatives:
       if (newContent) contentResults.push(newContent);
     }
 
-    console.log(`Successfully cloned master template: ${contentResults.length} content items, ${categoryResults.length} categories, ${pillarResults.length} pillars`);
+    console.log(`Successfully cloned master template: ${contentResults.length} content items, ${(upsertedCats || []).length} categories, ${pillarResults.length} pillars`);
+
+    // Mark seeding as complete
+    await supabaseClient
+      .from('agent_sites')
+      .update({ seed_status: 'complete', seeded_at: new Date().toISOString() })
+      .eq('id', agentSiteId);
 
     return new Response(
       JSON.stringify({
         success: true,
         created: {
           content_items: contentResults.length,
-          categories: categoryResults.length,
+          categories: (upsertedCats || []).length,
           pillars: pillarResults.length
         }
       }),
@@ -527,6 +554,14 @@ Community-driven initiatives:
 
   } catch (error) {
     console.error('Error in clone-master-template:', error);
+    // Mark seeding as failed
+    try {
+      await supabaseClient
+        .from('agent_sites')
+        .update({ seed_status: 'failed' })
+        .eq('id', agentSiteId);
+    } catch (_) {}
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({ 

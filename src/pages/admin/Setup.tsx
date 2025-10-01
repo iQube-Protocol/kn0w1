@@ -320,7 +320,7 @@ export function Setup() {
         description: "Your agent site has been created with sample content.",
       });
 
-      window.location.href = '/admin/overview';
+      window.location.href = `/preview/${siteData.site_slug}`;
     } catch (error) {
       console.error('Error cloning from master template:', error);
       toast({

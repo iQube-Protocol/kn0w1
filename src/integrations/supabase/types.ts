@@ -76,6 +76,8 @@ export type Database = {
           created_at: string
           id: string
           owner_user_id: string
+          seed_status: string | null
+          seeded_at: string | null
           site_slug: string
           status: string
           title: string
@@ -86,6 +88,8 @@ export type Database = {
           created_at?: string
           id?: string
           owner_user_id: string
+          seed_status?: string | null
+          seeded_at?: string | null
           site_slug: string
           status?: string
           title: string
@@ -96,6 +100,8 @@ export type Database = {
           created_at?: string
           id?: string
           owner_user_id?: string
+          seed_status?: string | null
+          seeded_at?: string | null
           site_slug?: string
           status?: string
           title?: string

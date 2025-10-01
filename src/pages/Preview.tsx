@@ -14,6 +14,8 @@ interface AgentSite {
   site_slug: string;
   status: string;
   branding_json: any;
+  seed_status?: string;
+  seeded_at?: string;
 }
 
 interface Aigent {
@@ -278,21 +280,27 @@ export function Preview() {
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               {hasNoContent ? 
-                'This site is ready to be populated with content from the master template.' :
+                (agentSite.seed_status === 'complete' ? 'Content was cloned. If you still see this, try Refresh.' : 'This site is ready to be populated with content from the master template.') :
                 mythosData?.short_summary || 'An intelligent agent ready to assist you with personalized guidance and expertise.'
               }
             </p>
             <div className="flex justify-center gap-4 pt-4">
               {hasNoContent ? (
-                <Button 
-                  size="lg" 
-                  onClick={handlePopulateMasterContent}
-                  className="gap-2"
-                  disabled={populating}
-                >
-                  <Star className="w-5 h-5" />
-                  {populating ? 'Populating...' : 'Populate with Master Content'}
-                </Button>
+                agentSite.seed_status === 'complete' ? (
+                  <Button size="lg" onClick={fetchSiteData} className="gap-2" disabled={populating}>
+                    Refresh
+                  </Button>
+                ) : (
+                  <Button 
+                    size="lg" 
+                    onClick={handlePopulateMasterContent}
+                    className="gap-2"
+                    disabled={populating}
+                  >
+                    <Star className="w-5 h-5" />
+                    {populating ? 'Populating...' : 'Populate with Master Content'}
+                  </Button>
+                )
               ) : (
                 <>
                   <Button 
