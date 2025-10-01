@@ -601,15 +601,7 @@ export function Setup() {
                 This should take about 8-10 minutes to complete.
               </p>
             </div>
-            <div className="flex justify-center gap-3">
-              <Button 
-                variant="outline" 
-                onClick={skipSetupAndSave}
-                className="text-sm"
-                disabled={savingDraft || editMode}
-              >
-                {savingDraft ? 'Saving...' : 'Save & Continue Later'}
-              </Button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
               {!editMode && (
                 <Button 
                   onClick={cloneFromMasterTemplate}
@@ -620,6 +612,14 @@ export function Setup() {
                   {loading ? 'Cloning...' : 'Clone from Master Template'}
                 </Button>
               )}
+              <Button 
+                variant="outline" 
+                onClick={skipSetupAndSave}
+                className="text-sm"
+                disabled={savingDraft || editMode}
+              >
+                {savingDraft ? 'Saving...' : 'Save & Continue Later'}
+              </Button>
             </div>
           </div>
         );
