@@ -18,3 +18,6 @@ verify_jwt = true
 
 [functions.propagate-updates]
 verify_jwt = true
+
+[functions.setup-assistant]
+verify_jwt = true

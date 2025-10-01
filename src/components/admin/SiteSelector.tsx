@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Building2, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -21,8 +22,14 @@ interface AgentSite {
 
 export function SiteSelector() {
   const { isUberAdmin, currentSiteId, setCurrentSiteId } = useAuth();
+  const navigate = useNavigate();
   const [sites, setSites] = useState<AgentSite[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleSiteChange = (siteId: string) => {
+    setCurrentSiteId(siteId);
+    navigate('/admin/overview');
+  };
 
   useEffect(() => {
     if (!isUberAdmin) return;
@@ -62,7 +69,7 @@ export function SiteSelector() {
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4 text-muted-foreground" />
-      <Select value={currentSiteId || undefined} onValueChange={setCurrentSiteId}>
+      <Select value={currentSiteId || undefined} onValueChange={handleSiteChange}>
         <SelectTrigger className="w-[280px]">
           <SelectValue placeholder="Select a site to manage">
             {currentSite && (

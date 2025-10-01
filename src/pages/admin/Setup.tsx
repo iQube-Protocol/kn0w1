@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Sparkles, Target, Users, Settings } from 'lucide-react';
+import { AISetupAssistant } from '@/components/admin/AISetupAssistant';
 
 interface SetupState {
   // Step 0: Site Identity
@@ -678,6 +679,14 @@ export function Setup() {
                 />
               </div>
             </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={0} 
+                stepName="Site Identity" 
+                context={{ siteName: state.siteName, siteSlug: state.siteSlug, siteDescription: state.siteDescription }}
+              />
+            </div>
           </div>
         );
 
@@ -719,6 +728,14 @@ export function Setup() {
                 {savingDraft ? 'Saving...' : 'Save & Continue Later'}
               </Button>
             </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={1} 
+                stepName="Welcome" 
+                context={{}}
+              />
+            </div>
           </div>
         );
 
@@ -754,6 +771,14 @@ export function Setup() {
                 />
                 <p className="text-xs text-muted-foreground">Your real-world expertise</p>
               </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={2} 
+                stepName="Branches" 
+                context={{ mythosName: state.mythosName, logosName: state.logosName }}
+              />
             </div>
           </div>
         );
@@ -813,6 +838,18 @@ export function Setup() {
                 />
               </div>
             </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={3} 
+                stepName="Mythos" 
+                context={{ 
+                  mythosName: state.mythosName, 
+                  mythosOrigin: state.mythosOrigin, 
+                  mythosTone: state.mythosTone 
+                }}
+              />
+            </div>
           </div>
         );
 
@@ -868,6 +905,18 @@ export function Setup() {
                   rows={2}
                 />
               </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={4} 
+                stepName="Logos" 
+                context={{ 
+                  logosName: state.logosName, 
+                  logosDomain: state.logosDomain, 
+                  logosOutcomes: state.logosOutcomes 
+                }}
+              />
             </div>
           </div>
         );
@@ -949,6 +998,19 @@ export function Setup() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={5} 
+                stepName="Mission Pillars" 
+                context={{ 
+                  pillar1Name: state.pillar1Name, 
+                  pillar1Summary: state.pillar1Summary,
+                  pillar2Name: state.pillar2Name,
+                  pillar2Summary: state.pillar2Summary
+                }}
+              />
+            </div>
           </div>
         );
 
@@ -1015,6 +1077,21 @@ export function Setup() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={6} 
+                stepName="Goals & KPIs" 
+                context={{ 
+                  pillar1Name: state.pillar1Name, 
+                  pillar1Goals: state.pillar1Goals,
+                  pillar1KPIs: state.pillar1KPIs,
+                  pillar2Name: state.pillar2Name,
+                  pillar2Goals: state.pillar2Goals,
+                  pillar2KPIs: state.pillar2KPIs
+                }}
+              />
+            </div>
           </div>
         );
 
@@ -1076,6 +1153,19 @@ export function Setup() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={7} 
+                stepName="Utilities" 
+                context={{ 
+                  contentCreationOn: state.contentCreationOn,
+                  teachingOn: state.teachingOn,
+                  commercialOn: state.commercialOn,
+                  socialOn: state.socialOn
+                }}
+              />
             </div>
           </div>
         );
