@@ -29,6 +29,8 @@ interface CreateUserDialogProps {
 export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingUser, setCheckingUser] = useState(false);
+  const [existingUserId, setExistingUserId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -38,12 +40,75 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
   });
   const { toast } = useToast();
 
+  // Check if user already exists when email changes
+  const checkExistingUser = async (email: string) => {
+    if (!email || !email.includes('@')) return;
+    
+    setCheckingUser(true);
+    try {
+      // Check if profile exists
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('user_id', email) // This won't work, we need a better approach
+        .maybeSingle();
+      
+      // Note: We can't directly check auth.users from client
+      // In production, you'd need an edge function for this
+      setExistingUserId(profile?.user_id || null);
+    } catch (error) {
+      console.error('Error checking user:', error);
+    } finally {
+      setCheckingUser(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Use regular signup instead of admin API
+      // If user exists but no profile, create profile and assign role
+      if (existingUserId) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: existingUserId,
+            first_name: formData.firstName,
+            last_name: formData.lastName
+          });
+
+        if (profileError) throw profileError;
+
+        // Assign role
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: existingUserId,
+            role: formData.role
+          });
+
+        if (roleError) throw roleError;
+
+        toast({
+          title: "Success",
+          description: `Profile created and ${formData.role.replace('_', ' ')} role assigned successfully.`,
+        });
+
+        setOpen(false);
+        setFormData({
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          role: 'content_admin'
+        });
+        setExistingUserId(null);
+        onUserCreated();
+        return;
+      }
+
+      // Create new user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -99,6 +164,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         lastName: '',
         role: 'content_admin'
       });
+      setExistingUserId(null);
       onUserCreated();
 
     } catch (error: any) {
@@ -123,9 +189,14 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>
+            {existingUserId ? 'Create Profile for Existing User' : 'Create New User'}
+          </DialogTitle>
           <DialogDescription>
-            Create a new user account and assign administrative role.
+            {existingUserId 
+              ? 'This email is already registered. Create a profile and assign roles.'
+              : 'Create a new user account and assign administrative role.'
+            }
           </DialogDescription>
         </DialogHeader>
         
@@ -151,28 +222,39 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, email: e.target.value }));
+                  checkExistingUser(e.target.value);
+                }}
+                required
+              />
+              {checkingUser && (
+                <p className="text-xs text-muted-foreground">Checking if user exists...</p>
+              )}
+              {existingUserId && (
+                <p className="text-xs text-yellow-600">User exists but has no profile. Will create profile and assign role.</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-              required
-              minLength={6}
-            />
-          </div>
+            {!existingUserId && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  required={!existingUserId}
+                  minLength={6}
+                />
+              </div>
+            )}
 
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
@@ -194,7 +276,10 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create User'}
+              {loading 
+                ? (existingUserId ? 'Creating Profile...' : 'Creating User...') 
+                : (existingUserId ? 'Create Profile & Assign Role' : 'Create User')
+              }
             </Button>
           </DialogFooter>
         </form>

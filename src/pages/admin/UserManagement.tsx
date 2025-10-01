@@ -37,6 +37,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CreateUserDialog } from '@/components/admin/CreateUserDialog';
+import { UserSearchCard } from '@/components/admin/UserSearchCard';
+import { UserDetailsModal } from '@/components/admin/UserDetailsModal';
 
 interface User {
   id: string;
@@ -70,6 +72,8 @@ export function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -161,6 +165,19 @@ export function UserManagement() {
     }
   };
 
+  const handleUserFound = (user: any) => {
+    setSelectedUser(user);
+    setShowUserDetails(true);
+  };
+
+  const handleUserUpdated = () => {
+    fetchUsers();
+    if (selectedUser) {
+      // Refresh selected user details
+      handleUserFound(selectedUser);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.profile?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -184,6 +201,14 @@ export function UserManagement() {
 
   return (
     <div className="space-y-6">
+      {/* User Details Modal */}
+      <UserDetailsModal
+        user={selectedUser}
+        open={showUserDetails}
+        onOpenChange={setShowUserDetails}
+        onUserUpdated={handleUserUpdated}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -194,6 +219,9 @@ export function UserManagement() {
         </div>
         <CreateUserDialog onUserCreated={fetchUsers} />
       </div>
+
+      {/* User Search */}
+      <UserSearchCard onUserFound={handleUserFound} />
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
