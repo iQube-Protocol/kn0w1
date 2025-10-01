@@ -273,38 +273,20 @@ Deno.serve(async (req) => {
       { name: "Impact Projects", slug: "impact-projects", strand: "civic_readiness", description: "Real-world applications of blockchain for social good and community impact" }
     ];
 
-    const categoryResults: { id: string; slug: string }[] = [];
-    for (const category of categories) {
-      const { data: existingCategory } = await supabaseClient
-        .from('content_categories')
-        .select('id, slug')
-        .eq('agent_site_id', agentSiteId)
-        .eq('slug', category.slug)
-        .maybeSingle();
+    // Upsert categories for this site (idempotent)
+    const categoriesWithSite = categories.map((c) => ({ ...c, agent_site_id: agentSiteId }));
+    const { data: upsertedCats, error: catUpsertError } = await supabaseClient
+      .from('content_categories')
+      .upsert(categoriesWithSite, { onConflict: 'agent_site_id,strand,slug' })
+      .select('id, slug');
 
-      if (!existingCategory) {
-        const { data: newCategory, error } = await supabaseClient
-          .from('content_categories')
-          .insert({
-            ...category,
-            agent_site_id: agentSiteId
-          })
-          .select('id, slug')
-          .single();
-
-        if (error) {
-          console.error('Error creating category:', error);
-          continue;
-        }
-        if (newCategory) categoryResults.push(newCategory);
-      } else {
-        categoryResults.push(existingCategory);
-      }
+    if (catUpsertError) {
+      console.error('Error upserting categories:', catUpsertError);
     }
 
     // Create a category mapping
-    const categoryMap = new Map();
-    for (const cat of categoryResults) {
+    const categoryMap = new Map<string, string>();
+    for (const cat of upsertedCats || []) {
       categoryMap.set(cat.slug.toLowerCase(), cat.id);
     }
 
@@ -554,14 +536,7 @@ Community-driven initiatives:
 
   } catch (error) {
     console.error('Error in clone-master-template:', error);
-    // Mark seeding as failed
-    try {
-      await supabaseClient
-        .from('agent_sites')
-        .update({ seed_status: 'failed' })
-        .eq('id', agentSiteId);
-    } catch (_) {}
-
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({ 

@@ -302,6 +302,15 @@ export function Setup() {
 
       if (siteError) throw siteError;
 
+      // Assign owner super_admin role for this site
+      await supabase
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: 'super_admin',
+          agent_site_id: siteData.id
+        });
+
       // Call clone-master-template edge function
       const { error: cloneError } = await supabase.functions.invoke('clone-master-template', {
         body: {
@@ -469,6 +478,15 @@ export function Setup() {
       .single();
 
     if (siteError) throw siteError;
+
+    // Assign owner super_admin role for this site
+    await supabase
+      .from('user_roles')
+      .insert({
+        user_id: user!.id,
+        role: 'super_admin',
+        agent_site_id: siteData.id
+      });
 
     // Create Satoshi Agent (locked)
     const { error: satoshiError } = await supabase
