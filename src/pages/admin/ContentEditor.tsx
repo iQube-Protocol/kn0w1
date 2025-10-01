@@ -303,6 +303,7 @@ export function ContentEditor() {
             owner_user_id: userData.user.id,
             site_slug: `${userData.user.email?.replace('@', '-').replace('.', '-')}-site`,
             title: `${userData.user.email} Agent Site`,
+            display_name: `${userData.user.email} Agent Site`,
             status: 'active'
           })
           .select('id')

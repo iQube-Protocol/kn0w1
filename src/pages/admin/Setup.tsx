@@ -295,7 +295,8 @@ export function Setup() {
         .insert({
           owner_user_id: user.id,
           site_slug: siteSlug,
-          title: `${user.email?.split('@')[0]} Agent Site`
+          title: `${user.email?.split('@')[0]} Agent Site`,
+          display_name: `${user.email?.split('@')[0]} Agent Site`
         })
         .select()
         .single();
@@ -472,7 +473,8 @@ export function Setup() {
       .insert({
         owner_user_id: user!.id,
         site_slug: `${user!.email?.split('@')[0]}-site`,
-        title: `${user!.email?.split('@')[0]} Agent Site`
+        title: `${user!.email?.split('@')[0]} Agent Site`,
+        display_name: `${user!.email?.split('@')[0]} Agent Site`
       })
       .select()
       .single();

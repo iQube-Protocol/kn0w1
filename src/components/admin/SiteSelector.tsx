@@ -1,0 +1,98 @@
+import { useEffect, useState } from 'react';
+import { Building2, Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+interface AgentSite {
+  id: string;
+  display_name: string;
+  site_slug: string;
+  is_master: boolean;
+}
+
+export function SiteSelector() {
+  const { isUberAdmin, currentSiteId, setCurrentSiteId } = useAuth();
+  const [sites, setSites] = useState<AgentSite[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isUberAdmin) return;
+
+    const fetchSites = async () => {
+      const { data, error } = await supabase
+        .from('agent_sites')
+        .select('id, display_name, site_slug, is_master')
+        .order('is_master', { ascending: false })
+        .order('display_name');
+
+      if (error) {
+        console.error('Error fetching sites:', error);
+        return;
+      }
+
+      setSites(data || []);
+      
+      // Auto-select master site if no site is selected
+      if (!currentSiteId && data && data.length > 0) {
+        const masterSite = data.find(s => s.is_master);
+        setCurrentSiteId(masterSite?.id || data[0].id);
+      }
+      
+      setLoading(false);
+    };
+
+    fetchSites();
+  }, [isUberAdmin, currentSiteId, setCurrentSiteId]);
+
+  if (!isUberAdmin || loading) {
+    return null;
+  }
+
+  const currentSite = sites.find(s => s.id === currentSiteId);
+
+  return (
+    <div className="flex items-center gap-2">
+      <Building2 className="h-4 w-4 text-muted-foreground" />
+      <Select value={currentSiteId || undefined} onValueChange={setCurrentSiteId}>
+        <SelectTrigger className="w-[280px]">
+          <SelectValue placeholder="Select a site to manage">
+            {currentSite && (
+              <div className="flex items-center gap-2">
+                {currentSite.is_master && (
+                  <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                    MASTER
+                  </span>
+                )}
+                <span>{currentSite.display_name}</span>
+              </div>
+            )}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {sites.map((site) => (
+            <SelectItem key={site.id} value={site.id}>
+              <div className="flex items-center justify-between w-full gap-2">
+                <div className="flex items-center gap-2">
+                  {site.is_master && (
+                    <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                      MASTER
+                    </span>
+                  )}
+                  <span>{site.display_name}</span>
+                </div>
+                {site.id === currentSiteId && <Check className="h-4 w-4" />}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}

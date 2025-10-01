@@ -8,7 +8,10 @@ interface AuthContextType {
   loading: boolean;
   userRoles: string[];
   isAdmin: boolean;
+  isUberAdmin: boolean;
   hasAgentSite: boolean;
+  currentSiteId: string | null;
+  setCurrentSiteId: (siteId: string | null) => void;
   signOut: () => Promise<void>;
 }
 
@@ -20,6 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [hasAgentSite, setHasAgentSite] = useState<boolean>(false);
+  const [isUberAdmin, setIsUberAdmin] = useState<boolean>(false);
+  const [currentSiteId, setCurrentSiteId] = useState<string | null>(null);
 
   useEffect(() => {
     // Set up auth state listener
@@ -47,14 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .from('agent_sites')
                 .select('id')
                 .eq('owner_user_id', uid)
-                .limit(1)
+                .limit(1),
+              supabase
+                .from('mm_super_admins')
+                .select('user_id')
+                .eq('user_id', uid)
+                .maybeSingle()
             ]).then(
-              ([rolesResult, sitesResult]) => {
+              ([rolesResult, sitesResult, uberAdminResult]) => {
                 setUserRoles(rolesResult.data?.map(r => r.role) || []);
                 setHasAgentSite((sitesResult.data?.length || 0) > 0);
+                setIsUberAdmin(!!uberAdminResult.data);
                 console.debug('[Auth] roles and site loaded (auth state change)', {
                   roles: rolesResult.data?.map(r => r.role) || [],
-                  hasAgentSite: (sitesResult.data?.length || 0) > 0
+                  hasAgentSite: (sitesResult.data?.length || 0) > 0,
+                  isUberAdmin: !!uberAdminResult.data
                 });
                 setLoading(false);
               },
@@ -62,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.debug('[Auth] roles/site load failed (auth state change)', err);
                 setUserRoles([]);
                 setHasAgentSite(false);
+                setIsUberAdmin(false);
                 setLoading(false);
               }
             );
@@ -69,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setUserRoles([]);
           setHasAgentSite(false);
+          setIsUberAdmin(false);
           setLoading(false);
         }
       }
@@ -95,14 +109,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .from('agent_sites')
             .select('id')
             .eq('owner_user_id', uid)
-            .limit(1)
+            .limit(1),
+          supabase
+            .from('mm_super_admins')
+            .select('user_id')
+            .eq('user_id', uid)
+            .maybeSingle()
         ]).then(
-          ([rolesResult, sitesResult]) => {
+          ([rolesResult, sitesResult, uberAdminResult]) => {
             setUserRoles(rolesResult.data?.map(r => r.role) || []);
             setHasAgentSite((sitesResult.data?.length || 0) > 0);
+            setIsUberAdmin(!!uberAdminResult.data);
             console.debug('[Auth] roles and site loaded (initial)', {
               roles: rolesResult.data?.map(r => r.role) || [],
-              hasAgentSite: (sitesResult.data?.length || 0) > 0
+              hasAgentSite: (sitesResult.data?.length || 0) > 0,
+              isUberAdmin: !!uberAdminResult.data
             });
             setLoading(false);
           },
@@ -110,12 +131,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.debug('[Auth] roles/site load failed (initial)', err);
             setUserRoles([]);
             setHasAgentSite(false);
+            setIsUberAdmin(false);
             setLoading(false);
           }
         );
       } else {
         setUserRoles([]);
         setHasAgentSite(false);
+        setIsUberAdmin(false);
         setLoading(false);
       }
     });
@@ -137,7 +160,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       userRoles,
       isAdmin,
+      isUberAdmin,
       hasAgentSite,
+      currentSiteId,
+      setCurrentSiteId,
       signOut
     }}>
       {children}

@@ -72,9 +72,12 @@ export type Database = {
       }
       agent_sites: {
         Row: {
+          brand_identity: Json | null
           branding_json: Json
           created_at: string
+          display_name: string
           id: string
+          is_master: boolean | null
           owner_user_id: string
           seed_status: string | null
           seeded_at: string | null
@@ -84,9 +87,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          brand_identity?: Json | null
           branding_json?: Json
           created_at?: string
+          display_name: string
           id?: string
+          is_master?: boolean | null
           owner_user_id: string
           seed_status?: string | null
           seeded_at?: string | null
@@ -96,9 +102,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          brand_identity?: Json | null
           branding_json?: Json
           created_at?: string
+          display_name?: string
           id?: string
+          is_master?: boolean | null
           owner_user_id?: string
           seed_status?: string | null
           seeded_at?: string | null
@@ -907,6 +916,62 @@ export type Database = {
         }
         Relationships: []
       }
+      master_site_updates: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          entity_data: Json
+          entity_id: string
+          id: string
+          notes: string | null
+          pushed_at: string | null
+          source_site_id: string
+          status: string
+          target_sites: string[] | null
+          update_type: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          created_by: string
+          entity_data?: Json
+          entity_id: string
+          id?: string
+          notes?: string | null
+          pushed_at?: string | null
+          source_site_id: string
+          status?: string
+          target_sites?: string[] | null
+          update_type: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          entity_data?: Json
+          entity_id?: string
+          id?: string
+          notes?: string | null
+          pushed_at?: string | null
+          source_site_id?: string
+          status?: string
+          target_sites?: string[] | null
+          update_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_site_updates_source_site_id_fkey"
+            columns: ["source_site_id"]
+            isOneToOne: false
+            referencedRelation: "agent_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_assets: {
         Row: {
           caption_path: string | null
@@ -1700,6 +1765,10 @@ export type Database = {
         Returns: boolean
       }
       is_mm_super_admin: {
+        Args: { uid: string }
+        Returns: boolean
+      }
+      is_uber_admin: {
         Args: { uid: string }
         Returns: boolean
       }
