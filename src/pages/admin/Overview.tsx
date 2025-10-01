@@ -196,6 +196,14 @@ KPIs: ${Array.isArray(pillar.kpis_json) ? pillar.kpis_json.join(', ') : 'No KPIs
           <Button 
             variant="outline" 
             size="sm"
+            onClick={() => window.location.href = `/admin/setup?edit=${agentSite.id}`}
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Setup
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
             onClick={() => window.open(`/preview/${agentSite.site_slug}`, '_blank')}
           >
             <Eye className="w-4 h-4 mr-2" />

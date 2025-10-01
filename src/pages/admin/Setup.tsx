@@ -102,6 +102,8 @@ export function Setup() {
   const [state, setState] = useState<SetupState>(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingSiteId, setEditingSiteId] = useState<string | null>(null);
 
   const updateState = (updates: Partial<SetupState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -119,35 +121,130 @@ export function Setup() {
     }
   };
 
-  // Load saved draft on component mount
+  // Load saved draft or existing site on component mount
   React.useEffect(() => {
-    const loadSavedDraft = async () => {
-      if (!user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('setup_drafts')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-        
-        if (data) {
-          setState({ ...INITIAL_STATE, ...(data.setup_state as Partial<SetupState>) });
-          setCurrentStep(data.current_step);
-          toast({
-            title: "Draft Loaded",
-            description: "Your previous setup progress has been restored.",
-          });
-        }
-      } catch (error) {
-        console.error('Error loading setup draft:', error);
-      }
-    };
-
-    loadSavedDraft();
+    const params = new URLSearchParams(window.location.search);
+    const editSiteId = params.get('edit');
+    
+    if (editSiteId) {
+      // Load existing site for editing
+      setEditMode(true);
+      setEditingSiteId(editSiteId);
+      loadExistingSite(editSiteId);
+    } else {
+      // Load saved draft
+      loadSavedDraft();
+    }
   }, [user, toast]);
+
+  const loadExistingSite = async (siteId: string) => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      
+      // Get agent site
+      const { data: site, error: siteError } = await supabase
+        .from('agent_sites')
+        .select('*')
+        .eq('id', siteId)
+        .single();
+
+      if (siteError) throw siteError;
+
+      // Get branches
+      const { data: branches } = await supabase
+        .from('agent_branches')
+        .select('*')
+        .eq('agent_site_id', siteId);
+
+      const mythos = branches?.find(b => b.kind === 'mythos');
+      const logos = branches?.find(b => b.kind === 'logos');
+
+      // Get pillars
+      const { data: pillars } = await supabase
+        .from('mission_pillars')
+        .select('*')
+        .eq('agent_site_id', siteId);
+
+      // Get utilities
+      const { data: utilities } = await supabase
+        .from('utilities_config')
+        .select('*')
+        .eq('agent_site_id', siteId)
+        .maybeSingle();
+
+      // Populate state from existing data
+      setState({
+        mythosName: mythos?.display_name || 'Mythos',
+        logosName: logos?.display_name || 'Logos',
+        mythosOrigin: mythos?.long_context_md || '',
+        mythosValues: Array.isArray(mythos?.values_json) ? (mythos.values_json as string[]) : [],
+        mythosTone: mythos?.tone || '',
+        mythosAudience: mythos?.audience || '',
+        mythosSafety: mythos?.safety_notes_md || '',
+        logosDomain: logos?.long_context_md?.split('\n')[0]?.replace('Domain: ', '') || '',
+        logosOutcomes: logos?.long_context_md?.split('\n')[1]?.replace('Outcomes: ', '') || '',
+        logosCTAs: logos?.long_context_md?.split('\n')[2]?.replace('CTAs: ', '') || '',
+        logosConstraints: logos?.long_context_md?.split('\n')[3]?.replace('Constraints: ', '') || '',
+        pillar1Name: pillars?.[0]?.display_name || 'Pillar 1',
+        pillar1Summary: pillars?.[0]?.short_summary || '',
+        pillar1Context: pillars?.[0]?.long_context_md || '',
+        pillar1Goals: Array.isArray(pillars?.[0]?.goals_json) ? (pillars[0].goals_json as string[]) : [],
+        pillar1KPIs: Array.isArray(pillars?.[0]?.kpis_json) ? (pillars[0].kpis_json as string[]) : [],
+        pillar2Name: pillars?.[1]?.display_name || 'Pillar 2',
+        pillar2Summary: pillars?.[1]?.short_summary || '',
+        pillar2Context: pillars?.[1]?.long_context_md || '',
+        pillar2Goals: Array.isArray(pillars?.[1]?.goals_json) ? (pillars[1].goals_json as string[]) : [],
+        pillar2KPIs: Array.isArray(pillars?.[1]?.kpis_json) ? (pillars[1].kpis_json as string[]) : [],
+        contentCreationOn: utilities?.content_creation_on || false,
+        teachingOn: utilities?.teaching_on || false,
+        commercialOn: utilities?.commercial_on || false,
+        socialOn: utilities?.social_on || false,
+        primaryAudience: '',
+        consentCopy: 'I agree to receive updates and communications from this agent site.'
+      });
+
+      toast({
+        title: "Site Loaded",
+        description: "You can now edit your agent site configuration.",
+      });
+    } catch (error) {
+      console.error('Error loading site for editing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load site data for editing.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSavedDraft = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('setup_drafts')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setState({ ...INITIAL_STATE, ...(data.setup_state as Partial<SetupState>) });
+        setCurrentStep(data.current_step);
+        toast({
+          title: "Draft Loaded",
+          description: "Your previous setup progress has been restored.",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading setup draft:', error);
+    }
+  };
 
   const saveDraft = async () => {
     if (!user) return;
@@ -185,37 +282,19 @@ export function Setup() {
     navigate('/admin/overview');
   };
 
-  const handleCreateSite = async () => {
+  const cloneFromMasterTemplate = async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      // If an agent site already exists, skip creation and go to overview
-      const { data: existingSite, error: existingErr } = await supabase
-        .from('agent_sites')
-        .select('id, site_slug')
-        .eq('owner_user_id', user.id)
-        .maybeSingle();
-
-      if (existingErr) throw existingErr;
-
-      if (existingSite) {
-        toast({
-          title: 'Agent site already exists',
-          description: 'Opening your dashboard.'
-        });
-        // Clean up draft so you start fresh next time (optional)
-        await supabase.from('setup_drafts').delete().eq('user_id', user.id);
-        window.location.href = '/admin/overview';
-        return;
-      }
-
-      // Create agent site
+      // Create agent site with master template
+      const siteSlug = `${user.email?.split('@')[0]}-site-${Date.now()}`;
+      
       const { data: siteData, error: siteError } = await supabase
         .from('agent_sites')
         .insert({
           owner_user_id: user.id,
-          site_slug: `${user.email?.split('@')[0]}-site`,
+          site_slug: siteSlug,
           title: `${user.email?.split('@')[0]} Agent Site`
         })
         .select()
@@ -223,126 +302,284 @@ export function Setup() {
 
       if (siteError) throw siteError;
 
-      // Create Satoshi Agent (locked)
-      const { error: satoshiError } = await supabase
-        .from('aigents')
-        .insert({
-          agent_site_id: siteData.id,
-          name: 'Satoshi Agent',
-          agent_kind: 'satoshi',
-          is_system_agent: true,
-          is_mutable: false,
-          system_prompt_md: 'You are the Satoshi Agent, providing canonical guidance on 21 Sats and Bitcoin fundamentals.'
-        });
-
-      if (satoshiError) throw satoshiError;
-
-      // Create KNYT Agent (user-customizable)
-      const { error: knytError } = await supabase
-        .from('aigents')
-        .insert({
-          agent_site_id: siteData.id,
-          name: 'KNYT Agent',
-          agent_kind: 'knyt',
-          is_system_agent: false,
-          is_mutable: true
-        });
-
-      if (knytError) throw knytError;
-
-      // Create Mythos branch
-      const { error: mythosError } = await supabase
-        .from('agent_branches')
-        .insert({
-          agent_site_id: siteData.id,
-          kind: 'mythos',
-          display_name: state.mythosName,
-          short_summary: 'Your narrative identity and story',
-          long_context_md: state.mythosOrigin,
-          values_json: state.mythosValues,
-          tone: state.mythosTone,
-          audience: state.mythosAudience,
-          safety_notes_md: state.mythosSafety
-        });
-
-      if (mythosError) throw mythosError;
-
-      // Create Logos branch
-      const { error: logosError } = await supabase
-        .from('agent_branches')
-        .insert({
-          agent_site_id: siteData.id,
-          kind: 'logos',
-          display_name: state.logosName,
-          short_summary: 'Your real-world expertise and purpose',
-          long_context_md: `Domain: ${state.logosDomain}\nOutcomes: ${state.logosOutcomes}\nCTAs: ${state.logosCTAs}\nConstraints: ${state.logosConstraints}`
-        });
-
-      if (logosError) throw logosError;
-
-      // Create Mission Pillars
-      const { error: pillar1Error } = await supabase
-        .from('mission_pillars')
-        .insert({
-          agent_site_id: siteData.id,
-          display_name: state.pillar1Name,
-          short_summary: state.pillar1Summary,
-          long_context_md: state.pillar1Context,
-          goals_json: state.pillar1Goals,
-          kpis_json: state.pillar1KPIs
-        });
-
-      if (pillar1Error) throw pillar1Error;
-
-      const { error: pillar2Error } = await supabase
-        .from('mission_pillars')
-        .insert({
-          agent_site_id: siteData.id,
-          display_name: state.pillar2Name,
-          short_summary: state.pillar2Summary,
-          long_context_md: state.pillar2Context,
-          goals_json: state.pillar2Goals,
-          kpis_json: state.pillar2KPIs
-        });
-
-      if (pillar2Error) throw pillar2Error;
-
-      // Create utilities config
-      const { error: utilitiesError } = await supabase
-        .from('utilities_config')
-        .insert({
-          agent_site_id: siteData.id,
-          content_creation_on: state.contentCreationOn,
-          teaching_on: state.teachingOn,
-          commercial_on: state.commercialOn,
-          social_on: state.socialOn
-        });
-
-      if (utilitiesError) throw utilitiesError;
-
-      // Clean up draft after successful creation
-      await supabase
-        .from('setup_drafts')
-        .delete()
-        .eq('user_id', user.id);
-
-      toast({
-        title: "Success!",
-        description: "Your agent site has been created successfully.",
+      // Call clone-master-template edge function
+      const { error: cloneError } = await supabase.functions.invoke('clone-master-template', {
+        body: {
+          agentSiteId: siteData.id,
+          userEmail: user.email
+        }
       });
 
-      // Force refresh auth state to pick up new agent site
+      if (cloneError) throw cloneError;
+
+      // Clean up draft
+      await supabase.from('setup_drafts').delete().eq('user_id', user.id);
+
+      toast({
+        title: "Site Created from Master Template!",
+        description: "Your agent site has been created with sample content.",
+      });
+
       window.location.href = '/admin/overview';
     } catch (error) {
-      console.error('Setup error:', error);
+      console.error('Error cloning from master template:', error);
       toast({
         title: "Error",
-        description: "Failed to create agent site. Please try again.",
+        description: "Failed to clone from master template. Please try again.",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateSite = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      if (editMode && editingSiteId) {
+        // Update existing site
+        await updateExistingSite(editingSiteId);
+      } else {
+        // Create new site
+        await createNewSite();
+      }
+    } catch (error) {
+      console.error('Setup error:', error);
+      toast({
+        title: "Error",
+        description: editMode ? "Failed to update agent site." : "Failed to create agent site.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateExistingSite = async (siteId: string) => {
+    // Update branches
+    const { data: branches } = await supabase
+      .from('agent_branches')
+      .select('id, kind')
+      .eq('agent_site_id', siteId);
+
+    const mythosId = branches?.find(b => b.kind === 'mythos')?.id;
+    const logosId = branches?.find(b => b.kind === 'logos')?.id;
+
+    if (mythosId) {
+      await supabase
+        .from('agent_branches')
+        .update({
+          display_name: state.mythosName,
+          long_context_md: state.mythosOrigin,
+          values_json: state.mythosValues,
+          tone: state.mythosTone,
+          audience: state.mythosAudience,
+          safety_notes_md: state.mythosSafety
+        })
+        .eq('id', mythosId);
+    }
+
+    if (logosId) {
+      await supabase
+        .from('agent_branches')
+        .update({
+          display_name: state.logosName,
+          long_context_md: `Domain: ${state.logosDomain}\nOutcomes: ${state.logosOutcomes}\nCTAs: ${state.logosCTAs}\nConstraints: ${state.logosConstraints}`
+        })
+        .eq('id', logosId);
+    }
+
+    // Delete and recreate pillars
+    await supabase
+      .from('mission_pillars')
+      .delete()
+      .eq('agent_site_id', siteId);
+
+    await supabase
+      .from('mission_pillars')
+      .insert([
+        {
+          agent_site_id: siteId,
+          display_name: state.pillar1Name,
+          short_summary: state.pillar1Summary,
+          long_context_md: state.pillar1Context,
+          goals_json: state.pillar1Goals,
+          kpis_json: state.pillar1KPIs
+        },
+        {
+          agent_site_id: siteId,
+          display_name: state.pillar2Name,
+          short_summary: state.pillar2Summary,
+          long_context_md: state.pillar2Context,
+          goals_json: state.pillar2Goals,
+          kpis_json: state.pillar2KPIs
+        }
+      ]);
+
+    // Update utilities
+    await supabase
+      .from('utilities_config')
+      .update({
+        content_creation_on: state.contentCreationOn,
+        teaching_on: state.teachingOn,
+        commercial_on: state.commercialOn,
+        social_on: state.socialOn
+      })
+      .eq('agent_site_id', siteId);
+
+    toast({
+      title: "Site Updated!",
+      description: "Your agent site configuration has been updated.",
+    });
+
+    window.location.href = '/admin/overview';
+  };
+
+  const createNewSite = async () => {
+    // Check if site already exists
+    const { data: existingSite, error: existingErr } = await supabase
+      .from('agent_sites')
+      .select('id, site_slug')
+      .eq('owner_user_id', user!.id)
+      .maybeSingle();
+
+    if (existingErr) throw existingErr;
+
+    if (existingSite) {
+      toast({
+        title: 'Agent site already exists',
+        description: 'Opening your dashboard.'
+      });
+      await supabase.from('setup_drafts').delete().eq('user_id', user!.id);
+      window.location.href = '/admin/overview';
+      return;
+    }
+
+    // Create agent site
+    const { data: siteData, error: siteError } = await supabase
+      .from('agent_sites')
+      .insert({
+        owner_user_id: user!.id,
+        site_slug: `${user!.email?.split('@')[0]}-site`,
+        title: `${user!.email?.split('@')[0]} Agent Site`
+      })
+      .select()
+      .single();
+
+    if (siteError) throw siteError;
+
+    // Create Satoshi Agent (locked)
+    const { error: satoshiError } = await supabase
+      .from('aigents')
+      .insert({
+        agent_site_id: siteData.id,
+        name: 'Satoshi Agent',
+        agent_kind: 'satoshi',
+        is_system_agent: true,
+        is_mutable: false,
+        system_prompt_md: 'You are the Satoshi Agent, providing canonical guidance on 21 Sats and Bitcoin fundamentals.'
+      });
+
+    if (satoshiError) throw satoshiError;
+
+    // Create KNYT Agent (user-customizable)
+    const { error: knytError } = await supabase
+      .from('aigents')
+      .insert({
+        agent_site_id: siteData.id,
+        name: 'KNYT Agent',
+        agent_kind: 'knyt',
+        is_system_agent: false,
+        is_mutable: true
+      });
+
+    if (knytError) throw knytError;
+
+    // Create Mythos branch
+    const { error: mythosError } = await supabase
+      .from('agent_branches')
+      .insert({
+        agent_site_id: siteData.id,
+        kind: 'mythos',
+        display_name: state.mythosName,
+        short_summary: 'Your narrative identity and story',
+        long_context_md: state.mythosOrigin,
+        values_json: state.mythosValues,
+        tone: state.mythosTone,
+        audience: state.mythosAudience,
+        safety_notes_md: state.mythosSafety
+      });
+
+    if (mythosError) throw mythosError;
+
+    // Create Logos branch
+    const { error: logosError } = await supabase
+      .from('agent_branches')
+      .insert({
+        agent_site_id: siteData.id,
+        kind: 'logos',
+        display_name: state.logosName,
+        short_summary: 'Your real-world expertise and purpose',
+        long_context_md: `Domain: ${state.logosDomain}\nOutcomes: ${state.logosOutcomes}\nCTAs: ${state.logosCTAs}\nConstraints: ${state.logosConstraints}`
+      });
+
+    if (logosError) throw logosError;
+
+    // Create Mission Pillars
+    const { error: pillar1Error } = await supabase
+      .from('mission_pillars')
+      .insert({
+        agent_site_id: siteData.id,
+        display_name: state.pillar1Name,
+        short_summary: state.pillar1Summary,
+        long_context_md: state.pillar1Context,
+        goals_json: state.pillar1Goals,
+        kpis_json: state.pillar1KPIs
+      });
+
+    if (pillar1Error) throw pillar1Error;
+
+    const { error: pillar2Error } = await supabase
+      .from('mission_pillars')
+      .insert({
+        agent_site_id: siteData.id,
+        display_name: state.pillar2Name,
+        short_summary: state.pillar2Summary,
+        long_context_md: state.pillar2Context,
+        goals_json: state.pillar2Goals,
+        kpis_json: state.pillar2KPIs
+      });
+
+    if (pillar2Error) throw pillar2Error;
+
+    // Create utilities config
+    const { error: utilitiesError } = await supabase
+      .from('utilities_config')
+      .insert({
+        agent_site_id: siteData.id,
+        content_creation_on: state.contentCreationOn,
+        teaching_on: state.teachingOn,
+        commercial_on: state.commercialOn,
+        social_on: state.socialOn
+      });
+
+    if (utilitiesError) throw utilitiesError;
+
+    // Clean up draft after successful creation
+    await supabase
+      .from('setup_drafts')
+      .delete()
+      .eq('user_id', user!.id);
+
+    toast({
+      title: "Success!",
+      description: "Your agent site has been created successfully.",
+    });
+
+    // Force refresh auth state to pick up new agent site
+    window.location.href = '/admin/overview';
   };
 
   const renderStep = () => {
@@ -369,18 +606,20 @@ export function Setup() {
                 variant="outline" 
                 onClick={skipSetupAndSave}
                 className="text-sm"
-                disabled={savingDraft}
+                disabled={savingDraft || editMode}
               >
                 {savingDraft ? 'Saving...' : 'Save & Continue Later'}
               </Button>
-              <Button 
-                variant="default" 
-                onClick={skipSetupAndSave}
-                className="text-sm"
-                disabled={savingDraft}
-              >
-                {savingDraft ? 'Saving...' : 'Skip Setup (Save Draft)'}
-              </Button>
+              {!editMode && (
+                <Button 
+                  onClick={cloneFromMasterTemplate}
+                  disabled={loading}
+                  className="gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {loading ? 'Cloning...' : 'Clone from Master Template'}
+                </Button>
+              )}
             </div>
           </div>
         );
@@ -851,7 +1090,7 @@ export function Setup() {
                 disabled={loading}
                 className="flex items-center gap-2"
               >
-                {loading ? 'Creating...' : 'Create Site'}
+                {loading ? (editMode ? 'Updating...' : 'Creating...') : (editMode ? 'Update Site' : 'Create Site')}
                 <Sparkles className="w-4 h-4" />
               </Button>
             ) : (
