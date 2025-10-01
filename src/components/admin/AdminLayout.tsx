@@ -11,22 +11,30 @@ export function AdminLayout() {
   const { user, userRoles, isAdmin, hasAgentSite, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  // TEMP: Allow any signed-in user to access admin during testing
+  // Proper role-based access control
   React.useEffect(() => {
-    console.debug('[AdminLayout] guard (TEST MODE)', { loading, userEmail: user?.email, userRoles });
-    if (!loading && !user) {
-      console.debug('[AdminLayout] redirecting to /auth');
-      navigate('/auth');
+    if (!loading) {
+      if (!user) {
+        console.debug('[AdminLayout] No user, redirecting to /auth');
+        navigate('/auth');
+      } else if (!isAdmin && userRoles.length === 0) {
+        console.debug('[AdminLayout] User has no admin roles, redirecting to /app');
+        navigate('/app');
+      }
     }
-  }, [loading, user, navigate]);
+  }, [loading, user, isAdmin, userRoles, navigate]);
 
   if (loading) {
-    console.debug('[AdminLayout] rendering loading spinner', { userEmail: user?.email, isAdmin, userRoles });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  // Don't render admin interface for non-admin users
+  if (!isAdmin && userRoles.length === 0) {
+    return null;
   }
 
 

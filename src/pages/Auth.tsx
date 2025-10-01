@@ -41,11 +41,11 @@ export default function Auth() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  // Redirect if already authenticated - but wait for loading to complete
+  // Redirect if already authenticated - all users go to /app (consumer site)
   useEffect(() => {
     if (user && !authLoading) {
       setTimeout(() => {
-        navigate("/admin");
+        navigate("/app");
       }, 50);
     }
   }, [user, authLoading, navigate]);
