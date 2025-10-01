@@ -37,7 +37,7 @@ interface Update {
   };
 }
 
-export function UpdatePropagation() {
+const UpdatePropagation = () => {
   const { isUberAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -331,4 +331,6 @@ export function UpdatePropagation() {
       </Card>
     </div>
   );
-}
+};
+
+export default UpdatePropagation;

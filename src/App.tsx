@@ -11,7 +11,7 @@ import { ContentManagement } from "@/pages/admin/ContentManagement";
 import { ContentEditor } from "@/pages/admin/ContentEditor";
 import { UserManagement } from "@/pages/admin/UserManagement";
 import { UberAdmin } from "@/pages/admin/UberAdmin";
-import { UpdatePropagation } from "@/pages/admin/UpdatePropagation";
+import UpdatePropagation from "@/pages/admin/UpdatePropagation";
 import { Analytics } from "@/pages/admin/Analytics";
 import { Settings as AdminSettings } from "@/pages/admin/Settings";
 import { Preview } from "@/pages/Preview";
