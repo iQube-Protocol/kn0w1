@@ -22,6 +22,14 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
+interface MediaAsset {
+  id: string;
+  kind: string;
+  storage_path?: string;
+  external_url?: string;
+  oembed_html?: string;
+}
+
 interface ContentItem {
   id: string;
   title: string;
@@ -38,6 +46,7 @@ interface ContentItem {
   social_url?: string;
   social_embed_html?: string;
   cover_image_id?: string;
+  media_assets?: MediaAsset[];
 }
 
 interface ContentCardProps {
@@ -57,15 +66,29 @@ const typeIcons = {
 };
 
 const getMediaThumbnail = (item: ContentItem) => {
-  // For social embeds, try to extract thumbnail from embed HTML
-  if (item.type === 'social' && item.social_embed_html) {
-    const thumbnailMatch = item.social_embed_html.match(/poster="([^"]+)"|src="([^"]+\.(jpg|jpeg|png|webp|gif))"/i);
-    if (thumbnailMatch) {
-      return thumbnailMatch[1] || thumbnailMatch[2];
+  // Priority 1: Check media_assets for image or video thumbnails
+  if (item.media_assets && item.media_assets.length > 0) {
+    for (const asset of item.media_assets) {
+      // If it's an image asset with storage_path
+      if (asset.kind === 'image' && asset.storage_path) {
+        const { data } = supabase.storage.from('content-files').getPublicUrl(asset.storage_path);
+        return data.publicUrl;
+      }
+      // If it's an image asset with external_url
+      if (asset.kind === 'image' && asset.external_url) {
+        return asset.external_url;
+      }
+      // If it's a video with thumbnail
+      if (asset.kind === 'video' && asset.external_url) {
+        if (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be')) {
+          const videoId = asset.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+          if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        }
+      }
     }
   }
   
-  // If social URL exists and is an image, use it
+  // Priority 2: If social URL exists and is an image, use it
   if (item.social_url) {
     const extension = item.social_url.split('.').pop()?.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
@@ -76,15 +99,20 @@ const getMediaThumbnail = (item: ContentItem) => {
       const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
       if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     }
-    if (item.social_url.includes('vimeo.com')) {
-      // Vimeo thumbnails require API call, skip for now
-      return null;
+  }
+  
+  // Priority 3: For social embeds, try to extract thumbnail from embed HTML
+  if (item.type === 'social' && item.social_embed_html) {
+    const thumbnailMatch = item.social_embed_html.match(/poster="([^"]+)"|src="([^"]+\.(jpg|jpeg|png|webp|gif))"/i);
+    if (thumbnailMatch) {
+      return thumbnailMatch[1] || thumbnailMatch[2];
     }
   }
   
-  // Check if cover_image_id exists (from storage bucket)
+  // Priority 4: Check if cover_image_id exists (from storage bucket)
   if (item.cover_image_id) {
-    return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/content-files/${item.cover_image_id}`;
+    const { data } = supabase.storage.from('content-files').getPublicUrl(item.cover_image_id);
+    return data.publicUrl;
   }
   
   return null;

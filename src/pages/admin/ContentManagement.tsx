@@ -81,7 +81,8 @@ export function ContentManagement() {
         .from('content_items')
         .select(`
           *,
-          category:content_categories(name)
+          category:content_categories(name),
+          media_assets(id, kind, storage_path, external_url, oembed_html)
         `)
         .order('created_at', { ascending: false });
 

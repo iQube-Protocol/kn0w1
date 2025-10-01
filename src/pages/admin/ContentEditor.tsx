@@ -92,6 +92,7 @@ export function ContentEditor() {
   const [tagInput, setTagInput] = useState('');
   const [agentSiteId, setAgentSiteId] = useState<string>('');
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
+  const [mediaAssets, setMediaAssets] = useState<any[]>([]);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -124,7 +125,10 @@ export function ContentEditor() {
     try {
       const { data, error } = await supabase
         .from('content_items')
-        .select('*')
+        .select(`
+          *,
+          media_assets(id, kind, storage_path, external_url, oembed_html)
+        `)
         .eq('id', id)
         .single();
 
@@ -136,15 +140,53 @@ export function ContentEditor() {
           publish_at: data.publish_at?.slice(0, 16) || '', // Format for datetime-local input
         });
         
-        // Set thumbnail URL if available
-        if (data.cover_image_id) {
-          setThumbnailUrl(`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/content-files/${data.cover_image_id}`);
-        } else if (data.social_url) {
-          const extension = data.social_url.split('.').pop()?.toLowerCase();
-          if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
-            setThumbnailUrl(data.social_url);
+        setMediaAssets(data.media_assets || []);
+        
+        // Set thumbnail URL using priority logic
+        let thumbnail = '';
+        
+        // Priority 1: media_assets
+        if (data.media_assets && data.media_assets.length > 0) {
+          for (const asset of data.media_assets) {
+            if (asset.kind === 'image' && asset.storage_path) {
+              const { data: urlData } = supabase.storage.from('content-files').getPublicUrl(asset.storage_path);
+              thumbnail = urlData.publicUrl;
+              break;
+            }
+            if (asset.kind === 'image' && asset.external_url) {
+              thumbnail = asset.external_url;
+              break;
+            }
+            if (asset.kind === 'video' && asset.external_url) {
+              if (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be')) {
+                const videoId = asset.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+                if (videoId) {
+                  thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                  break;
+                }
+              }
+            }
           }
         }
+        
+        // Priority 2: social_url
+        if (!thumbnail && data.social_url) {
+          const extension = data.social_url.split('.').pop()?.toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+            thumbnail = data.social_url;
+          } else if (data.social_url.includes('youtube.com') || data.social_url.includes('youtu.be')) {
+            const videoId = data.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+            if (videoId) thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+          }
+        }
+        
+        // Priority 3: cover_image_id
+        if (!thumbnail && data.cover_image_id) {
+          const { data: urlData } = supabase.storage.from('content-files').getPublicUrl(data.cover_image_id);
+          thumbnail = urlData.publicUrl;
+        }
+        
+        setThumbnailUrl(thumbnail);
       }
     } catch (error) {
       console.error('Error fetching content:', error);
