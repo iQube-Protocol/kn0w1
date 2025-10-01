@@ -51,7 +51,14 @@ export function SiteSelector() {
       // Auto-select master site if no site is selected
       if (!currentSiteId && data && data.length > 0) {
         const masterSite = data.find(s => s.is_master);
-        setCurrentSiteId(masterSite?.id || data[0].id);
+        const newSiteId = masterSite?.id || data[0].id;
+        setCurrentSiteId(newSiteId);
+        
+        // Navigate to the selected site's overview
+        if (import.meta.env.DEV) {
+          console.debug('[SiteSelector] Auto-selecting and navigating to:', newSiteId);
+        }
+        navigate(`/admin/${newSiteId}/overview`, { replace: true });
       }
       
       setLoading(false);

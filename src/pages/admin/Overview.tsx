@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useSelectedSiteId } from '@/hooks/useSelectedSiteId';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,7 @@ interface MissionPillar {
 
 export function Overview() {
   const { user } = useAuth();
+  const selectedSiteId = useSelectedSiteId();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -64,30 +66,40 @@ export function Overview() {
   const [compiledPrompt, setCompiledPrompt] = useState<string>('');
 
   useEffect(() => {
-    if (user) {
+    if (selectedSiteId) {
       fetchAgentSiteData();
     }
-  }, [user]);
+  }, [selectedSiteId]);
 
   const fetchAgentSiteData = async () => {
+    if (!selectedSiteId) {
+      if (import.meta.env.DEV) {
+        console.debug('[Overview] No selectedSiteId yet');
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Get user's agent site
+      // Fetch the selected site by ID
       const { data: siteData, error: siteError } = await supabase
         .from('agent_sites')
         .select('*')
-        .eq('owner_user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
+        .eq('id', selectedSiteId)
         .maybeSingle();
 
       if (siteError) {
-        console.error('No agent site found:', siteError);
+        console.error('Error fetching agent site:', siteError);
         return;
       }
 
       if (!siteData) {
         setAgentSite(null);
         return;
+      }
+
+      if (import.meta.env.DEV) {
+        console.debug('[Overview] Loaded site:', siteData.display_name, siteData.id);
       }
 
       setAgentSite(siteData);

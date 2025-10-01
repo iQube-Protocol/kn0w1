@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useSelectedSiteId } from '@/hooks/useSelectedSiteId';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,6 +64,7 @@ interface ContentItem {
 }
 
 export function ContentManagement() {
+  const selectedSiteId = useSelectedSiteId();
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,10 +76,20 @@ export function ContentManagement() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchContent();
-  }, []);
+    if (selectedSiteId) {
+      fetchContent();
+    }
+  }, [selectedSiteId]);
 
   const fetchContent = async () => {
+    if (!selectedSiteId) {
+      if (import.meta.env.DEV) {
+        console.debug('[ContentManagement] No selectedSiteId yet');
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('content_items')
@@ -86,11 +98,16 @@ export function ContentManagement() {
           category:content_categories(name, slug),
           media_assets(id, kind, storage_path, external_url, oembed_html)
         `)
+        .eq('agent_site_id', selectedSiteId)
         .order('created_at', { ascending: false });
 
-if (error) throw error;
-console.debug('fetchContent loaded', data?.length || 0, data?.slice(0,2));
-setContent(data || []);
+      if (error) throw error;
+      
+      if (import.meta.env.DEV) {
+        console.debug('[ContentManagement] Loaded content for site:', selectedSiteId, data?.length || 0);
+      }
+      
+      setContent(data || []);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {

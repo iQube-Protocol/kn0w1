@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useSelectedSiteId } from '@/hooks/useSelectedSiteId';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   BarChart3, 
@@ -24,6 +25,7 @@ interface AnalyticsData {
 }
 
 export function Analytics() {
+  const selectedSiteId = useSelectedSiteId();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalViews: 0,
     totalUsers: 0,
@@ -37,15 +39,26 @@ export function Analytics() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAnalytics();
-  }, []);
+    if (selectedSiteId) {
+      fetchAnalytics();
+    }
+  }, [selectedSiteId]);
 
   const fetchAnalytics = async () => {
+    if (!selectedSiteId) {
+      if (import.meta.env.DEV) {
+        console.debug('[Analytics] No selectedSiteId yet');
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Fetch content analytics
+      // Fetch content analytics for the selected site
       const { data: contentData } = await supabase
         .from('content_items')
         .select('*')
+        .eq('agent_site_id', selectedSiteId)
         .order('views_count', { ascending: false });
 
       // Fetch user count
@@ -59,6 +72,10 @@ export function Analytics() {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
+
+      if (import.meta.env.DEV) {
+        console.debug('[Analytics] Loaded analytics for site:', selectedSiteId, contentData?.length || 0);
+      }
 
       if (contentData) {
         const totalViews = contentData.reduce((sum, item) => sum + (item.views_count || 0), 0);

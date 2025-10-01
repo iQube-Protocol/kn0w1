@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 export function AdminLayout() {
   const { user, userRoles, isAdmin, isUberAdmin, hasAgentSite, signOut, loading, currentSiteId, setCurrentSiteId } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { siteId } = useParams();
 
   // Proper role-based access control
@@ -34,6 +35,21 @@ export function AdminLayout() {
       }
     }
   }, [siteId, currentSiteId, setCurrentSiteId]);
+
+  // Redirect Uber Admins from generic /admin routes to site-scoped routes
+  React.useEffect(() => {
+    if (!loading && isUberAdmin && currentSiteId) {
+      const path = location.pathname;
+      
+      // If on generic /admin or /admin/overview without siteId in URL, redirect to site-scoped URL
+      if (!siteId && (path === '/admin' || path === '/admin/overview')) {
+        if (import.meta.env.DEV) {
+          console.debug('[AdminLayout] Redirecting Uber Admin to site-scoped URL:', currentSiteId);
+        }
+        navigate(`/admin/${currentSiteId}/overview`, { replace: true });
+      }
+    }
+  }, [loading, isUberAdmin, currentSiteId, siteId, location.pathname, navigate]);
 
   if (loading) {
     return (

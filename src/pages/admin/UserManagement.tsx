@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useSelectedSiteId } from '@/hooks/useSelectedSiteId';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -68,6 +69,7 @@ interface UserWithProfile extends User {
 }
 
 export function UserManagement() {
+  const selectedSiteId = useSelectedSiteId();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,19 +79,34 @@ export function UserManagement() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (selectedSiteId) {
+      fetchUsers();
+    }
+  }, [selectedSiteId]);
 
   const fetchUsers = async () => {
-    try {
-      // Fetch profiles and roles directly without admin API
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*');
+    if (!selectedSiteId) {
+      if (import.meta.env.DEV) {
+        console.debug('[UserManagement] No selectedSiteId yet');
+      }
+      setLoading(false);
+      return;
+    }
 
+    try {
+      // Fetch user roles for this specific site
       const { data: userRoles } = await supabase
         .from('user_roles')
-        .select('user_id, role');
+        .select('user_id, role')
+        .eq('agent_site_id', selectedSiteId);
+
+      // Fetch profiles for users who have roles on this site
+      const userIds = [...new Set(userRoles?.map(r => r.user_id) || [])];
+      
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('user_id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']); // Fallback to dummy ID if no roles
 
       const usersFromProfiles: UserWithProfile[] = profiles?.map(profile => ({
         id: profile.user_id,
@@ -100,6 +117,10 @@ export function UserManagement() {
         profile,
         roles: userRoles?.filter(r => r.user_id === profile.user_id).map(r => r.role) || []
       })) || [];
+
+      if (import.meta.env.DEV) {
+        console.debug('[UserManagement] Loaded users for site:', selectedSiteId, usersFromProfiles.length);
+      }
 
       setUsers(usersFromProfiles);
     } catch (error) {
@@ -116,10 +137,12 @@ export function UserManagement() {
 
 
   const assignRole = async (userId: string, role: 'super_admin' | 'content_admin' | 'social_admin') => {
+    if (!selectedSiteId) return;
+
     try {
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role });
+        .insert({ user_id: userId, role, agent_site_id: selectedSiteId });
 
       if (error) throw error;
 
@@ -140,12 +163,15 @@ export function UserManagement() {
   };
 
   const removeRole = async (userId: string, role: 'super_admin' | 'content_admin' | 'social_admin') => {
+    if (!selectedSiteId) return;
+
     try {
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role);
+        .eq('role', role)
+        .eq('agent_site_id', selectedSiteId);
 
       if (error) throw error;
 
