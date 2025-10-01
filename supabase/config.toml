@@ -15,3 +15,6 @@ verify_jwt = true
 
 [functions.backfill-media-assets]
 verify_jwt = true
+
+[functions.propagate-updates]
+verify_jwt = true

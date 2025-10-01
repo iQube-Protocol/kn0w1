@@ -15,6 +15,8 @@ interface AgentSite {
   display_name: string;
   site_slug: string;
   is_master: boolean;
+  status: string;
+  seed_status: string | null;
 }
 
 export function SiteSelector() {
@@ -28,7 +30,7 @@ export function SiteSelector() {
     const fetchSites = async () => {
       const { data, error } = await supabase
         .from('agent_sites')
-        .select('id, display_name, site_slug, is_master')
+        .select('id, display_name, site_slug, is_master, status, seed_status')
         .order('is_master', { ascending: false })
         .order('display_name');
 
@@ -79,13 +81,27 @@ export function SiteSelector() {
           {sites.map((site) => (
             <SelectItem key={site.id} value={site.id}>
               <div className="flex items-center justify-between w-full gap-2">
-                <div className="flex items-center gap-2">
-                  {site.is_master && (
-                    <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
-                      MASTER
-                    </span>
-                  )}
-                  <span>{site.display_name}</span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    {site.is_master && (
+                      <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                        MASTER
+                      </span>
+                    )}
+                    <span className="font-medium">{site.display_name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>/{site.site_slug}</span>
+                    {site.seed_status && (
+                      <span className={`px-1.5 py-0.5 rounded ${
+                        site.seed_status === 'completed' ? 'bg-green-500/20 text-green-600' :
+                        site.seed_status === 'pending' ? 'bg-yellow-500/20 text-yellow-600' :
+                        'bg-red-500/20 text-red-600'
+                      }`}>
+                        {site.seed_status}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {site.id === currentSiteId && <Check className="h-4 w-4" />}
               </div>

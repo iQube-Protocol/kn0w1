@@ -121,31 +121,32 @@ const UpdatePropagation = () => {
   };
 
   const pushUpdate = async (updateId: string) => {
-    // This would trigger the actual propagation logic
-    // For now, just mark as pushed
-    const { error } = await supabase
-      .from('master_site_updates')
-      .update({ 
-        status: 'pushed',
-        pushed_at: new Date().toISOString()
-      })
-      .eq('id', updateId);
+    try {
+      toast({
+        title: 'Propagating...',
+        description: 'Pushing update to all branch sites'
+      });
 
-    if (error) {
+      const { data, error } = await supabase.functions.invoke('propagate-updates', {
+        body: { updateId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: data.message || 'Update pushed to all branch sites'
+      });
+
+      fetchUpdates();
+    } catch (error) {
+      console.error('Push error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to push update',
+        description: error.message || 'Failed to push update',
         variant: 'destructive'
       });
-      return;
     }
-
-    toast({
-      title: 'Success',
-      description: 'Update pushed to all branch sites'
-    });
-
-    fetchUpdates();
   };
 
   if (loading) {
