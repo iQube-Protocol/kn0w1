@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSelectedSiteId } from '@/hooks/useSelectedSiteId';
 import {
   Sidebar,
   SidebarContent,
@@ -85,7 +86,8 @@ const publicMenuItems = [
 ];
 
 export function AdminSidebar() {
-  const { userRoles, isAdmin, isUberAdmin, user, currentSiteId } = useAuth();
+  const { userRoles, isAdmin, isUberAdmin, user } = useAuth();
+  const selectedSiteId = useSelectedSiteId();
 
   // TEMP: allow all admin menu items during testing
   const hasRole = (_requiredRoles: string[]) => true;
@@ -95,11 +97,16 @@ export function AdminSidebar() {
       ? "bg-primary text-white font-medium" 
       : "text-white hover:bg-accent hover:text-white";
 
-  // Helper to generate site-specific URLs
+  // Helper to generate site-specific URLs for Uber Admins
   const getSiteUrl = (path: string) => {
-    if (currentSiteId && path.startsWith('/admin/')) {
+    // Uber Admins need site-scoped URLs, regular admins use simple paths
+    if (isUberAdmin && selectedSiteId && path.startsWith('/admin/')) {
       const pathPart = path.replace('/admin', '');
-      return `/admin/${currentSiteId}${pathPart}`;
+      const siteUrl = `/admin/${selectedSiteId}${pathPart}`;
+      if (import.meta.env.DEV) {
+        console.debug('[AdminSidebar] getSiteUrl:', path, '->', siteUrl);
+      }
+      return siteUrl;
     }
     return path;
   };
