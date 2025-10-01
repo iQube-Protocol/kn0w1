@@ -329,7 +329,7 @@ export function Setup() {
         description: "Your agent site has been created with sample content.",
       });
 
-      window.location.href = `/preview/${siteData.site_slug}`;
+      navigate('/app');
     } catch (error) {
       console.error('Error cloning from master template:', error);
       toast({
@@ -443,7 +443,7 @@ export function Setup() {
       description: "Your agent site configuration has been updated.",
     });
 
-    window.location.href = '/admin/overview';
+    navigate('/app');
   };
 
   const createNewSite = async () => {
@@ -459,10 +459,10 @@ export function Setup() {
     if (existingSite) {
       toast({
         title: 'Agent site already exists',
-        description: 'Opening your dashboard.'
+        description: 'Opening your site.'
       });
       await supabase.from('setup_drafts').delete().eq('user_id', user!.id);
-      window.location.href = '/admin/overview';
+      navigate('/app');
       return;
     }
 
@@ -596,8 +596,8 @@ export function Setup() {
       description: "Your agent site has been created successfully.",
     });
 
-    // Force refresh auth state to pick up new agent site
-    window.location.href = '/admin/overview';
+    // Navigate to consumer site to view new content
+    navigate('/app');
   };
 
   const renderStep = () => {

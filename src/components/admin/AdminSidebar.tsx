@@ -70,16 +70,9 @@ const menuItems = [
 
 const publicMenuItems = [
   {
-    title: 'Civic Readiness',
+    title: 'View Site',
     icon: Globe,
-    url: '/gotv',
-    external: true
-  },
-  {
-    title: 'Learn to Earn',
-    icon: Zap,
-    url: '/l2e',
-    external: true
+    url: '/app'
   }
 ];
 

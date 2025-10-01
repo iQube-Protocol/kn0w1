@@ -280,9 +280,9 @@ export function ContentManagement() {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate(`/content/${item.id}`)}>
+                        <DropdownMenuItem onClick={() => navigate('/app')}>
                           <Eye className="h-4 w-4 mr-2" />
-                          Preview
+                          View in Site
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => toggleFeature(item.id, item.featured, 'featured')}

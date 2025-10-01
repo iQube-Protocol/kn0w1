@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,6 +54,7 @@ interface MissionPillar {
 
 export function Overview() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [agentSite, setAgentSite] = useState<AgentSite | null>(null);
@@ -176,7 +178,7 @@ KPIs: ${Array.isArray(pillar.kpis_json) ? pillar.kpis_json.join(', ') : 'No KPIs
         <p className="text-muted-foreground mb-6">
           You need to complete the setup wizard first.
         </p>
-        <Button onClick={() => window.location.href = '/admin/setup'}>
+        <Button onClick={() => navigate('/admin/setup')}>
           Start Setup
         </Button>
       </div>
@@ -201,7 +203,7 @@ KPIs: ${Array.isArray(pillar.kpis_json) ? pillar.kpis_json.join(', ') : 'No KPIs
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.location.href = `/admin/setup?edit=${agentSite.id}`}
+            onClick={() => navigate(`/admin/setup?edit=${agentSite.id}`)}
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit Setup
@@ -209,10 +211,10 @@ KPIs: ${Array.isArray(pillar.kpis_json) ? pillar.kpis_json.join(', ') : 'No KPIs
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.open(`/preview/${agentSite.site_slug}`, '_blank')}
+            onClick={() => navigate('/app')}
           >
             <Eye className="w-4 h-4 mr-2" />
-            Preview Site
+            View Site
           </Button>
         </div>
       </div>
