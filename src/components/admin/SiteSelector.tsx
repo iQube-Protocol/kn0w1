@@ -28,7 +28,7 @@ export function SiteSelector() {
 
   const handleSiteChange = (siteId: string) => {
     setCurrentSiteId(siteId);
-    navigate('/admin/overview');
+    navigate(`/admin/${siteId}/overview`);
   };
 
   useEffect(() => {

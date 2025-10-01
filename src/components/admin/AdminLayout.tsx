@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -9,8 +9,9 @@ import { LogOut, User, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export function AdminLayout() {
-  const { user, userRoles, isAdmin, isUberAdmin, hasAgentSite, signOut, loading } = useAuth();
+  const { user, userRoles, isAdmin, isUberAdmin, hasAgentSite, signOut, loading, currentSiteId, setCurrentSiteId } = useAuth();
   const navigate = useNavigate();
+  const { siteId } = useParams();
 
   // Proper role-based access control
   React.useEffect(() => {
@@ -24,6 +25,15 @@ export function AdminLayout() {
       }
     }
   }, [loading, user, isAdmin, userRoles, navigate]);
+
+  // Sync selected site with URL param for Uber Admins
+  React.useEffect(() => {
+    if (siteId && setCurrentSiteId) {
+      if (siteId !== currentSiteId) {
+        setCurrentSiteId(siteId);
+      }
+    }
+  }, [siteId, currentSiteId, setCurrentSiteId]);
 
   if (loading) {
     return (
