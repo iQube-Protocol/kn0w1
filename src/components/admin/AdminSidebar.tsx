@@ -85,7 +85,7 @@ const publicMenuItems = [
 ];
 
 export function AdminSidebar() {
-  const { userRoles, isAdmin, isUberAdmin, user } = useAuth();
+  const { userRoles, isAdmin, isUberAdmin, user, currentSiteId } = useAuth();
 
   // TEMP: allow all admin menu items during testing
   const hasRole = (_requiredRoles: string[]) => true;
@@ -94,6 +94,15 @@ export function AdminSidebar() {
     isActive 
       ? "bg-primary text-white font-medium" 
       : "text-white hover:bg-accent hover:text-white";
+
+  // Helper to generate site-specific URLs
+  const getSiteUrl = (path: string) => {
+    if (currentSiteId && path.startsWith('/admin/')) {
+      const pathPart = path.replace('/admin', '');
+      return `/admin/${currentSiteId}${pathPart}`;
+    }
+    return path;
+  };
 
   return (
     <Sidebar className="w-60">
@@ -153,7 +162,7 @@ export function AdminSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink 
-                        to={item.url} 
+                        to={getSiteUrl(item.url)} 
                         end={item.url === '/admin'}
                         className={getNavClasses}
                       >

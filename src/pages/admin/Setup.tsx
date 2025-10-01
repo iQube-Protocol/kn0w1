@@ -95,12 +95,12 @@ const INITIAL_STATE: SetupState = {
 };
 
 const steps = [
-  { title: 'Site Identity', icon: Sparkles },
   { title: 'Welcome', icon: Sparkles },
   { title: 'Branches', icon: Target },
   { title: 'Mythos', icon: Users },
   { title: 'Logos', icon: Target },
   { title: 'Pillars', icon: Target },
+  { title: 'Site Identity', icon: Sparkles },
   { title: 'Goals & KPIs', icon: Target },
   { title: 'Utilities', icon: Settings },
   { title: 'Review', icon: Sparkles }
@@ -625,72 +625,6 @@ export function Setup() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        // Site Identity Step
-        return (
-          <div className="space-y-6 max-w-2xl mx-auto">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Name Your Agent Site</h2>
-              <p className="text-muted-foreground">
-                Give your site a unique identity. This will be used across your site and in URLs.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="siteName">Site Name *</Label>
-                <Input
-                  id="siteName"
-                  value={state.siteName}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    updateState({ 
-                      siteName: name,
-                      siteSlug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-                    });
-                  }}
-                  placeholder="e.g., MetaKNYT Universe"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  This will be your site's display name
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="siteSlug">Site URL Slug *</Label>
-                <Input
-                  id="siteSlug"
-                  value={state.siteSlug}
-                  onChange={(e) => updateState({ siteSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-|-$/g, '') })}
-                  placeholder="e.g., metaknyt-universe"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Used in your site URL (lowercase letters, numbers, and hyphens only)
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="siteDescription">Site Description</Label>
-                <Textarea
-                  id="siteDescription"
-                  value={state.siteDescription}
-                  onChange={(e) => updateState({ siteDescription: e.target.value })}
-                  placeholder="Describe your site in a few sentences..."
-                  rows={3}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t">
-              <AISetupAssistant 
-                currentStep={0} 
-                stepName="Site Identity" 
-                context={{ siteName: state.siteName, siteSlug: state.siteSlug, siteDescription: state.siteDescription }}
-              />
-            </div>
-          </div>
-        );
-
-      case 1:
         // Welcome Step
         return (
           <div className="text-center space-y-6">
@@ -731,7 +665,7 @@ export function Setup() {
 
             <div className="mt-6 pt-6 border-t">
               <AISetupAssistant 
-                currentStep={1} 
+                currentStep={0} 
                 stepName="Welcome" 
                 context={{}}
               />
@@ -739,7 +673,7 @@ export function Setup() {
           </div>
         );
 
-      case 2:
+      case 1:
         return (
           <div className="space-y-6">
             <div>
@@ -775,7 +709,7 @@ export function Setup() {
 
             <div className="mt-6 pt-6 border-t">
               <AISetupAssistant 
-                currentStep={2} 
+                currentStep={1} 
                 stepName="Branches" 
                 context={{ mythosName: state.mythosName, logosName: state.logosName }}
               />
@@ -783,7 +717,7 @@ export function Setup() {
           </div>
         );
 
-      case 3:
+      case 2:
         return (
           <div className="space-y-6">
             <div>
@@ -841,7 +775,7 @@ export function Setup() {
 
             <div className="mt-6 pt-6 border-t">
               <AISetupAssistant 
-                currentStep={3} 
+                currentStep={2} 
                 stepName="Mythos" 
                 context={{ 
                   mythosName: state.mythosName, 
@@ -853,7 +787,7 @@ export function Setup() {
           </div>
         );
 
-      case 4:
+      case 3:
         return (
           <div className="space-y-6">
             <div>
@@ -909,7 +843,7 @@ export function Setup() {
 
             <div className="mt-6 pt-6 border-t">
               <AISetupAssistant 
-                currentStep={4} 
+                currentStep={3} 
                 stepName="Logos" 
                 context={{ 
                   logosName: state.logosName, 
@@ -921,7 +855,7 @@ export function Setup() {
           </div>
         );
 
-      case 5:
+      case 4:
         return (
           <div className="space-y-6">
             <div>
@@ -1001,13 +935,85 @@ export function Setup() {
 
             <div className="mt-6 pt-6 border-t">
               <AISetupAssistant 
-                currentStep={5} 
+                currentStep={4} 
                 stepName="Mission Pillars" 
                 context={{ 
                   pillar1Name: state.pillar1Name, 
                   pillar1Summary: state.pillar1Summary,
                   pillar2Name: state.pillar2Name,
                   pillar2Summary: state.pillar2Summary
+                }}
+              />
+            </div>
+          </div>
+        );
+
+      case 5:
+        // Site Identity (moved here after pillars)
+        return (
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Name Your Agent Site</h2>
+              <p className="text-muted-foreground">
+                Now that your pillars are defined, give your site a unique identity that reflects your mission.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="siteName">Site Name *</Label>
+                <Input
+                  id="siteName"
+                  value={state.siteName}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    updateState({ 
+                      siteName: name,
+                      siteSlug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+                    });
+                  }}
+                  placeholder="e.g., MetaKNYT Universe"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  This will be your site's display name
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="siteSlug">Site URL Slug *</Label>
+                <Input
+                  id="siteSlug"
+                  value={state.siteSlug}
+                  onChange={(e) => updateState({ siteSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-|-$/g, '') })}
+                  placeholder="e.g., metaknyt-universe"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Used in your site URL (lowercase letters, numbers, and hyphens only)
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="siteDescription">Site Description</Label>
+                <Textarea
+                  id="siteDescription"
+                  value={state.siteDescription}
+                  onChange={(e) => updateState({ siteDescription: e.target.value })}
+                  placeholder="Describe your site in a few sentences..."
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <AISetupAssistant 
+                currentStep={5} 
+                stepName="Site Identity" 
+                context={{ 
+                  siteName: state.siteName, 
+                  siteSlug: state.siteSlug, 
+                  siteDescription: state.siteDescription,
+                  pillar1Name: state.pillar1Name,
+                  pillar2Name: state.pillar2Name
                 }}
               />
             </div>

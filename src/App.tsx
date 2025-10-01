@@ -52,6 +52,15 @@ const App = () => (
               <Route path="users" element={<UserManagement />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<AdminSettings />} />
+              
+              {/* Site-specific admin routes */}
+              <Route path=":siteId/overview" element={<Overview />} />
+              <Route path=":siteId/content" element={<ContentManagement />} />
+              <Route path=":siteId/content/new" element={<ContentEditor />} />
+              <Route path=":siteId/content/:id" element={<ContentEditor />} />
+              <Route path=":siteId/users" element={<UserManagement />} />
+              <Route path=":siteId/analytics" element={<Analytics />} />
+              <Route path=":siteId/settings" element={<AdminSettings />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

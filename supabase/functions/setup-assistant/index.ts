@@ -80,37 +80,49 @@ ${context ? `Current Context: ${JSON.stringify(context, null, 2)}` : ''}`;
 
 function getStepGuidance(step: number, stepName: string): string {
   const guidance: Record<number, string> = {
-    0: `Help users define their site's identity including name, slug (URL-friendly identifier), description, and whether it's a master template or branch site. 
-    
-Key points:
-- Site name should be clear and memorable
-- Slug should be lowercase, hyphenated, no spaces (e.g., "my-awesome-site")
-- Master sites are templates that can be cloned to branch sites
-- Description helps explain the site's purpose`,
+    0: `Guide users through the welcome/onboarding step. Help them understand the overall setup process and what they'll accomplish.`,
 
-    1: `Guide users through the welcome/onboarding step. Help them understand the overall setup process and what they'll accomplish.`,
+    1: `Help users configure their Mythos and Logos branches by naming them:
+- Mythos: The narrative, storytelling identity
+- Logos: The practical, real-world expertise
+- These names will be used throughout the site`,
 
-    2: `Help users configure their Mythos and Logos branches:
-- Mythos: Emotional, narrative-driven content and values
-- Logos: Rational, factual, analytical content and values
-- Both need display names, summaries, and core values
-- Tone and audience settings define communication style`,
+    2: `Help users define their Mythos (storytelling/narrative branch):
+- Origin story and character identity
+- Core values and tone of voice
+- Target audience
+- Safety guidelines for appropriate content`,
 
-    3: `Assist with defining Mission Pillars - the core strategic areas:
-- Each pillar has goals, KPIs, and utilities
-- Goals should be specific and measurable
-- KPIs track progress
-- Utilities define what features are available (content creation, teaching, etc.)`,
+    3: `Help users define their Logos (practical expertise branch):
+- Domain of expertise and outcomes
+- Target outcomes people should achieve
+- Calls-to-action
+- Constraints and compliance considerations`,
 
-    4: `Help configure utility settings:
-- Content Creation: Enable content management
+    4: `Assist with defining Mission Pillars - the two main strategic focus areas:
+- Each pillar needs a name and summary
+- These drive the site's content and interactions
+- Help them create clear, actionable pillars`,
+
+    5: `Now that the pillars and branches are defined, help users create a site identity that reflects those values:
+- Site name should align with their mission
+- Slug should be URL-friendly (lowercase, hyphens)
+- Description should capture the essence of what they've defined
+- Identity should feel cohesive with their pillars and branches`,
+
+    6: `Help configure goals and KPIs for each pillar:
+- Goals should be specific and measurable (SMART framework)
+- KPIs track progress toward goals
+- Should align with the mission pillars defined earlier`,
+
+    7: `Help configure utility settings - which features to enable:
+- Content Creation: Content management and publishing
 - Teaching (L2E): Learning-to-earn features
 - Commercial: E-commerce and monetization
-- Social: Social media integrations
-Each can be enabled/disabled and configured`,
+- Social: Social media integrations`,
 
-    5: `Guide through review and finalization:
-- Review all entered information
+    8: `Guide through review and finalization:
+- Review all entered information for consistency
 - Make final adjustments
 - Confirm before creating the site`,
   };
