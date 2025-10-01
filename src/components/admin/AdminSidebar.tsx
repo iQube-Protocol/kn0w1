@@ -20,7 +20,7 @@ import {
   Share,
   Settings,
   Globe,
-  Zap
+  Crown
 } from 'lucide-react';
 
 const menuItems = [
@@ -68,6 +68,14 @@ const menuItems = [
   }
 ];
 
+const uberAdminItems = [
+  {
+    title: 'Update Propagation',
+    icon: Globe,
+    url: '/admin/updates'
+  }
+];
+
 const publicMenuItems = [
   {
     title: 'View Site',
@@ -77,7 +85,7 @@ const publicMenuItems = [
 ];
 
 export function AdminSidebar() {
-  const { userRoles, isAdmin, user } = useAuth();
+  const { userRoles, isAdmin, isUberAdmin, user } = useAuth();
 
   // TEMP: allow all admin menu items during testing
   const hasRole = (_requiredRoles: string[]) => true;
@@ -98,6 +106,41 @@ export function AdminSidebar() {
             </h2>
           </div>
         </SidebarGroup>
+
+        {/* Uber Admin Menu */}
+        {isUberAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Uber Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/admin/uber"
+                      className={getNavClasses}
+                    >
+                      <Crown className="h-4 w-4" />
+                      <span>Site Management</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                {uberAdminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url}
+                        className={getNavClasses}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Admin Menu */}
         <SidebarGroup>

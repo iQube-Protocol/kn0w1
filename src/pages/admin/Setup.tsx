@@ -12,6 +12,12 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Sparkles, Target, Users, Settings } from 'lucide-react';
 
 interface SetupState {
+  // Step 0: Site Identity
+  siteName: string;
+  siteSlug: string;
+  siteDescription: string;
+  isMaster: boolean;
+  
   // Step 1-2: Branch names
   mythosName: string;
   logosName: string;
@@ -54,6 +60,10 @@ interface SetupState {
 }
 
 const INITIAL_STATE: SetupState = {
+  siteName: '',
+  siteSlug: '',
+  siteDescription: '',
+  isMaster: false,
   mythosName: 'Mythos',
   logosName: 'Logos',
   mythosOrigin: '',
@@ -84,6 +94,7 @@ const INITIAL_STATE: SetupState = {
 };
 
 const steps = [
+  { title: 'Site Identity', icon: Sparkles },
   { title: 'Welcome', icon: Sparkles },
   { title: 'Branches', icon: Target },
   { title: 'Mythos', icon: Users },
@@ -176,6 +187,10 @@ export function Setup() {
 
       // Populate state from existing data
       setState({
+        siteName: site?.display_name || '',
+        siteSlug: site?.site_slug || '',
+        siteDescription: ((site?.branding_json as any)?.description) || '',
+        isMaster: site?.is_master || false,
         mythosName: mythos?.display_name || 'Mythos',
         logosName: logos?.display_name || 'Logos',
         mythosOrigin: mythos?.long_context_md || '',
@@ -472,9 +487,13 @@ export function Setup() {
       .from('agent_sites')
       .insert({
         owner_user_id: user!.id,
-        site_slug: `${user!.email?.split('@')[0]}-site`,
-        title: `${user!.email?.split('@')[0]} Agent Site`,
-        display_name: `${user!.email?.split('@')[0]} Agent Site`
+        site_slug: state.siteSlug || `${user!.email?.split('@')[0]}-site`,
+        title: state.siteName || `${user!.email?.split('@')[0]} Agent Site`,
+        display_name: state.siteName || `${user!.email?.split('@')[0]} Agent Site`,
+        is_master: state.isMaster,
+        branding_json: {
+          description: state.siteDescription
+        }
       })
       .select()
       .single();
@@ -605,6 +624,65 @@ export function Setup() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
+        // Site Identity Step
+        return (
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Name Your Agent Site</h2>
+              <p className="text-muted-foreground">
+                Give your site a unique identity. This will be used across your site and in URLs.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="siteName">Site Name *</Label>
+                <Input
+                  id="siteName"
+                  value={state.siteName}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    updateState({ 
+                      siteName: name,
+                      siteSlug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+                    });
+                  }}
+                  placeholder="e.g., MetaKNYT Universe"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  This will be your site's display name
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="siteSlug">Site URL Slug *</Label>
+                <Input
+                  id="siteSlug"
+                  value={state.siteSlug}
+                  onChange={(e) => updateState({ siteSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-|-$/g, '') })}
+                  placeholder="e.g., metaknyt-universe"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Used in your site URL (lowercase letters, numbers, and hyphens only)
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="siteDescription">Site Description</Label>
+                <Textarea
+                  id="siteDescription"
+                  value={state.siteDescription}
+                  onChange={(e) => updateState({ siteDescription: e.target.value })}
+                  placeholder="Describe your site in a few sentences..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 1:
+        // Welcome Step
         return (
           <div className="text-center space-y-6">
             <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center">
@@ -644,7 +722,7 @@ export function Setup() {
           </div>
         );
 
-      case 1:
+      case 2:
         return (
           <div className="space-y-6">
             <div>
@@ -680,7 +758,7 @@ export function Setup() {
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <div>
@@ -738,7 +816,7 @@ export function Setup() {
           </div>
         );
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <div>
@@ -794,7 +872,7 @@ export function Setup() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <div>
@@ -874,7 +952,7 @@ export function Setup() {
           </div>
         );
 
-      case 5:
+      case 6:
         return (
           <div className="space-y-6">
             <div>
@@ -940,7 +1018,7 @@ export function Setup() {
           </div>
         );
 
-      case 6:
+      case 7:
         return (
           <div className="space-y-6">
             <div>
@@ -1002,7 +1080,7 @@ export function Setup() {
           </div>
         );
 
-      case 7:
+      case 8:
         return (
           <div className="space-y-6">
             <div>

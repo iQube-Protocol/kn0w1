@@ -10,6 +10,8 @@ import { Overview } from "@/pages/admin/Overview";
 import { ContentManagement } from "@/pages/admin/ContentManagement";
 import { ContentEditor } from "@/pages/admin/ContentEditor";
 import { UserManagement } from "@/pages/admin/UserManagement";
+import { UberAdmin } from "@/pages/admin/UberAdmin";
+import { UpdatePropagation } from "@/pages/admin/UpdatePropagation";
 import { Analytics } from "@/pages/admin/Analytics";
 import { Settings as AdminSettings } from "@/pages/admin/Settings";
 import { Preview } from "@/pages/Preview";
@@ -42,6 +44,8 @@ const App = () => (
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Overview />} />
               <Route path="overview" element={<Overview />} />
+              <Route path="uber" element={<UberAdmin />} />
+              <Route path="updates" element={<UpdatePropagation />} />
               <Route path="content" element={<ContentManagement />} />
               <Route path="content/new" element={<ContentEditor />} />
               <Route path="content/:id" element={<ContentEditor />} />
