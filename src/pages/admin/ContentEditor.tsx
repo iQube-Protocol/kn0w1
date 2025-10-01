@@ -91,6 +91,7 @@ export function ContentEditor() {
   const [saving, setSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [agentSiteId, setAgentSiteId] = useState<string>('');
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
 
   useEffect(() => {
     const initializeData = async () => {
@@ -134,6 +135,16 @@ export function ContentEditor() {
           tags: data.tags || [],
           publish_at: data.publish_at?.slice(0, 16) || '', // Format for datetime-local input
         });
+        
+        // Set thumbnail URL if available
+        if (data.cover_image_id) {
+          setThumbnailUrl(`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/content-files/${data.cover_image_id}`);
+        } else if (data.social_url) {
+          const extension = data.social_url.split('.').pop()?.toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+            setThumbnailUrl(data.social_url);
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching content:', error);
@@ -687,6 +698,27 @@ export function ContentEditor() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Media Preview */}
+          {thumbnailUrl && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Media Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video relative bg-muted rounded-lg overflow-hidden">
+                  <img 
+                    src={thumbnailUrl} 
+                    alt={content.title || 'Content preview'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Current thumbnail
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Publishing Settings */}
           <Card>
             <CardHeader>

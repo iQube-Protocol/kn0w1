@@ -36,6 +36,8 @@ interface ContentItem {
   publish_at: string | null;
   category: { name: string } | null;
   social_url?: string;
+  social_embed_html?: string;
+  cover_image_id?: string;
 }
 
 interface ContentCardProps {
@@ -55,15 +57,36 @@ const typeIcons = {
 };
 
 const getMediaThumbnail = (item: ContentItem) => {
+  // For social embeds, try to extract thumbnail from embed HTML
+  if (item.type === 'social' && item.social_embed_html) {
+    const thumbnailMatch = item.social_embed_html.match(/poster="([^"]+)"|src="([^"]+\.(jpg|jpeg|png|webp|gif))"/i);
+    if (thumbnailMatch) {
+      return thumbnailMatch[1] || thumbnailMatch[2];
+    }
+  }
+  
   // If social URL exists and is an image, use it
   if (item.social_url) {
     const extension = item.social_url.split('.').pop()?.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
       return item.social_url;
     }
+    // For video URLs, try to get thumbnail from common video platforms
+    if (item.social_url.includes('youtube.com') || item.social_url.includes('youtu.be')) {
+      const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+      if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    }
+    if (item.social_url.includes('vimeo.com')) {
+      // Vimeo thumbnails require API call, skip for now
+      return null;
+    }
   }
   
-  // Return placeholder based on type
+  // Check if cover_image_id exists (from storage bucket)
+  if (item.cover_image_id) {
+    return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/content-files/${item.cover_image_id}`;
+  }
+  
   return null;
 };
 

@@ -67,6 +67,7 @@ export function ContentManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const navigate = useNavigate();
 
@@ -98,8 +99,9 @@ export function ContentManagement() {
                          item.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     const matchesStrand = strandFilter === 'all' || item.strand === strandFilter;
+    const matchesType = typeFilter === 'all' || item.type === typeFilter;
     
-    return matchesSearch && matchesStatus && matchesStrand;
+    return matchesSearch && matchesStatus && matchesStrand && matchesType;
   });
 
   const getStatusBadge = (status: string) => {
@@ -232,6 +234,21 @@ export function ContentManagement() {
                 <SelectItem value="all">All Strands</SelectItem>
                 <SelectItem value="civic_readiness">Civic Readiness</SelectItem>
                 <SelectItem value="learn_to_earn">Learn to Earn</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+                <SelectItem value="audio">Audio</SelectItem>
+                <SelectItem value="image">Image</SelectItem>
+                <SelectItem value="text">Article/Text</SelectItem>
+                <SelectItem value="pdf">PDF</SelectItem>
+                <SelectItem value="social">Social Post</SelectItem>
+                <SelectItem value="mixed">Mixed Media</SelectItem>
               </SelectContent>
             </Select>
           </div>
