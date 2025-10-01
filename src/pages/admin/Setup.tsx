@@ -410,6 +410,24 @@ export function Setup() {
   };
 
   const updateExistingSite = async (siteId: string) => {
+    // Update main site information
+    const { error: siteUpdateError } = await supabase
+      .from('agent_sites')
+      .update({
+        title: state.siteName,
+        display_name: state.siteName,
+        site_slug: state.siteSlug,
+        branding_json: {
+          description: state.siteDescription
+        }
+      })
+      .eq('id', siteId);
+
+    if (siteUpdateError) {
+      console.error('Error updating agent site:', siteUpdateError);
+      throw siteUpdateError;
+    }
+
     // Update branches
     const { data: branches } = await supabase
       .from('agent_branches')
