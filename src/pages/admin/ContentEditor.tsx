@@ -339,8 +339,11 @@ export function ContentEditor() {
         }
       }
 
+      // Exclude media_assets from save data (it's a separate table)
+      const { media_assets, ...contentToSave } = content as any;
+      
       const saveData = {
-        ...content,
+        ...contentToSave,
         status: newStatus || content.status,
         agent_site_id: agentSiteData.id,
         owner_id: userData.user.id,
