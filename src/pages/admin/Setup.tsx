@@ -701,34 +701,110 @@ export function Setup() {
       case 0:
         // Welcome Step
         return (
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center">
-              <Sparkles className="w-12 h-12 text-primary-foreground" />
+          <div className="space-y-8 max-w-4xl mx-auto">
+            <div className="text-center space-y-4">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center">
+                <Sparkles className="w-12 h-12 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold mb-4">Welcome to 21 Sats Agent Setup</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Choose how you'd like to get started with your agent site
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold mb-4">Welcome to 21 Sats Agent Setup</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Let's create your personalized agent site in just a few steps. We'll help you define your Mythos (story), Logos (purpose), and twin mission pillars.
-              </p>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg max-w-lg mx-auto">
-              <p className="text-sm text-muted-foreground">
-                This should take about 8-10 minutes to complete.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              {!editMode && (
-                <Button 
-                  onClick={cloneFromMasterTemplate}
-                  disabled={loading}
-                  className="gap-2"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  {loading ? 'Cloning...' : 'Clone from Master Template'}
+
+            {!editMode && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="border-2 border-primary/50 bg-primary/5">
+                  <CardHeader>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <CardTitle>Quick Start (Recommended)</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Clone our master template with 15 pre-built articles, categories, and complete configuration. Perfect for getting started quickly.
+                    </p>
+                    <ul className="text-sm space-y-2 text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        <span>15 sample articles across multiple categories</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        <span>Pre-configured mission pillars and branches</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        <span>Ready to customize and publish in minutes</span>
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={cloneFromMasterTemplate}
+                      disabled={loading}
+                      className="w-full gap-2"
+                      size="lg"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      {loading ? 'Cloning...' : 'Start with Sample Content'}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-5 h-5" />
+                      <CardTitle>Custom Setup</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Build your agent site from scratch with complete control over every aspect. Ideal if you have specific requirements.
+                    </p>
+                    <ul className="text-sm space-y-2 text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="text-muted-foreground mt-0.5">•</span>
+                        <span>Define your own Mythos and Logos</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-muted-foreground mt-0.5">•</span>
+                        <span>Create custom mission pillars from scratch</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-muted-foreground mt-0.5">•</span>
+                        <span>Takes about 8-10 minutes to complete</span>
+                      </li>
+                    </ul>
+                    <Button 
+                      variant="outline" 
+                      onClick={nextStep}
+                      className="w-full gap-2"
+                      size="lg"
+                    >
+                      Build From Scratch
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {editMode && (
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  You're editing an existing site. Continue through the setup to update your configuration.
+                </p>
+                <Button onClick={nextStep} size="lg">
+                  Continue to Edit
                 </Button>
-              )}
+              </div>
+            )}
+
+            <div className="text-center">
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 onClick={skipSetupAndSave}
                 className="text-sm"
                 disabled={savingDraft || editMode}
@@ -737,7 +813,7 @@ export function Setup() {
               </Button>
             </div>
 
-            <div className="mt-6 pt-6 border-t">
+            <div className="pt-6 border-t">
               <AISetupAssistant 
                 currentStep={0} 
                 stepName="Welcome" 

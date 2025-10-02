@@ -36,7 +36,8 @@ import {
   FileText,
   Image as ImageIcon,
   Music,
-  Share2
+  Share2,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -72,6 +73,7 @@ export function ContentManagement() {
   const [strandFilter, setStrandFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [seedingContent, setSeedingContent] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -197,6 +199,45 @@ export function ContentManagement() {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleSeedContent = async () => {
+    if (!selectedSiteId) return;
+    
+    try {
+      setSeedingContent(true);
+      toast({
+        title: "Loading sample content...",
+        description: "This will create 15 sample articles and categories from the master template.",
+      });
+
+      const { data, error } = await supabase.functions.invoke('clone-master-template', {
+        body: { targetSiteId: selectedSiteId }
+      });
+
+      if (error) throw error;
+
+      // Update site seed_status
+      await supabase
+        .from('agent_sites')
+        .update({ seed_status: 'complete' })
+        .eq('id', selectedSiteId);
+
+      toast({
+        title: "Success!",
+        description: "Sample content has been loaded into your site.",
+      });
+
+      fetchContent();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load sample content",
+        variant: "destructive",
+      });
+    } finally {
+      setSeedingContent(false);
     }
   };
 
@@ -423,16 +464,43 @@ export function ContentManagement() {
           </Table>
           )}
           
-          {filteredContent.length === 0 && (
+          {filteredContent.length === 0 && content.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                <FileText className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No content yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Get started quickly by loading sample content from our master template, or create your own from scratch.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  onClick={handleSeedContent}
+                  disabled={seedingContent}
+                  className="gap-2"
+                  size="lg"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {seedingContent ? 'Loading...' : 'Load Sample Content'}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/admin/content/new')} 
+                  className="gap-2"
+                  size="lg"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create From Scratch
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Sample content includes 15 articles and categories you can customize
+              </p>
+            </div>
+          )}
+          {filteredContent.length === 0 && content.length > 0 && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No content items found</p>
-              <Button 
-                onClick={() => navigate('/admin/content/new')} 
-                className="mt-4 gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Create Your First Content
-              </Button>
+              <p className="text-muted-foreground">No content matches your filters</p>
             </div>
           )}
         </CardContent>
