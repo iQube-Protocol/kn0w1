@@ -33,7 +33,6 @@ interface ContentItem {
   type: string;
   strand: string;
   status: string;
-  category: string;
   l2e_points: number;
   featured?: boolean;
   tags: string[];
@@ -481,10 +480,13 @@ Community-driven initiatives:
       
       const categoryId = categoryMap.get(categorySlug);
       
+      // Destructure to remove category field (doesn't exist in DB, only category_id)
+      const { category, ...contentWithoutCategory } = content as any;
+      
       const { data: newContent, error } = await supabaseClient
         .from('content_items')
         .insert({
-          ...content,
+          ...contentWithoutCategory,
           agent_site_id: agentSiteId,
           category_id: categoryId,
           owner_id: agentSite.owner_user_id,
