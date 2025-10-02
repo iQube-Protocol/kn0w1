@@ -97,6 +97,12 @@ export function ContentEditor() {
   const [agentSiteId, setAgentSiteId] = useState<string>('');
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
   const [mediaAssets, setMediaAssets] = useState<any[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{
+    kind: 'audio' | 'image' | 'mixed' | 'pdf' | 'social' | 'text' | 'video';
+    storage_path?: string;
+    external_url?: string;
+    file_type?: string;
+  }>>([]);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -350,6 +356,8 @@ export function ContentEditor() {
         publish_at: content.publish_at ? new Date(content.publish_at).toISOString() : null,
       };
 
+      let contentItemId = id;
+
       if (isNew) {
         const { data, error } = await supabase
           .from('content_items')
@@ -358,6 +366,32 @@ export function ContentEditor() {
           .single();
 
         if (error) throw error;
+        contentItemId = data.id;
+        
+        // Create media_assets records for uploaded files
+        if (uploadedFiles.length > 0) {
+          const mediaAssetRecords = uploadedFiles.map(file => ({
+            content_item_id: contentItemId,
+            kind: file.kind,
+            storage_path: file.storage_path,
+            external_url: file.external_url,
+            mime_type: file.file_type,
+            agent_site_id: agentSiteData.id
+          }));
+
+          const { error: mediaError } = await supabase
+            .from('media_assets')
+            .insert(mediaAssetRecords);
+
+          if (mediaError) {
+            console.error('Error creating media assets:', mediaError);
+            toast({
+              title: "Warning",
+              description: "Content saved but some media assets failed to link",
+              variant: "destructive",
+            });
+          }
+        }
         
         toast({
           title: "Success",
@@ -372,6 +406,31 @@ export function ContentEditor() {
           .eq('id', id);
 
         if (error) throw error;
+
+        // Create media_assets records for newly uploaded files
+        if (uploadedFiles.length > 0) {
+          const mediaAssetRecords = uploadedFiles.map(file => ({
+            content_item_id: contentItemId,
+            kind: file.kind,
+            storage_path: file.storage_path,
+            external_url: file.external_url,
+            mime_type: file.file_type,
+            agent_site_id: agentSiteData.id
+          }));
+
+          const { error: mediaError } = await supabase
+            .from('media_assets')
+            .insert(mediaAssetRecords);
+
+          if (mediaError) {
+            console.error('Error creating media assets:', mediaError);
+            toast({
+              title: "Warning",
+              description: "Content updated but some media assets failed to link",
+              variant: "destructive",
+            });
+          }
+        }
         
         toast({
           title: "Success",
@@ -540,7 +599,10 @@ export function ContentEditor() {
                       accept=".pdf"
                       maxSize={25}
                       currentFile={content.social_url}
-                      onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                      onFileUploaded={(data) => {
+                        setContent(prev => ({ ...prev, social_url: data.url }));
+                        setUploadedFiles(prev => [...prev, { kind: 'pdf', storage_path: data.storagePath, file_type: data.fileType }]);
+                      }}
                       onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
                     />
                   </div>
@@ -607,7 +669,10 @@ export function ContentEditor() {
                     accept="image/*"
                     maxSize={10}
                     currentFile={content.social_url}
-                    onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                    onFileUploaded={(data) => {
+                      setContent(prev => ({ ...prev, social_url: data.url }));
+                      setUploadedFiles(prev => [...prev, { kind: 'image', storage_path: data.storagePath, file_type: data.fileType }]);
+                    }}
                     onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
                   />
                   
@@ -643,7 +708,10 @@ export function ContentEditor() {
                         accept="video/*"
                         maxSize={100}
                         currentFile={content.social_url}
-                        onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                        onFileUploaded={(data) => {
+                          setContent(prev => ({ ...prev, social_url: data.url }));
+                          setUploadedFiles(prev => [...prev, { kind: 'video', storage_path: data.storagePath, file_type: data.fileType }]);
+                        }}
                         onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
                       />
                     </TabsContent>
@@ -694,7 +762,10 @@ export function ContentEditor() {
                         accept="audio/*"
                         maxSize={50}
                         currentFile={content.social_url}
-                        onFileUploaded={(url, fileName) => setContent(prev => ({ ...prev, social_url: url }))}
+                        onFileUploaded={(data) => {
+                          setContent(prev => ({ ...prev, social_url: data.url }));
+                          setUploadedFiles(prev => [...prev, { kind: 'audio', storage_path: data.storagePath, file_type: data.fileType }]);
+                        }}
                         onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
                       />
                     </TabsContent>

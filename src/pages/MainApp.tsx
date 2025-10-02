@@ -65,12 +65,33 @@ export default function MainApp() {
 
         // Transform database content to MediaItem format
         const transformedContent: MediaItem[] = (data || []).map((item: any) => {
-          // Get first media asset for thumbnail
-          const thumbnail = item.media_assets?.[0];
-          const imageUrl = thumbnail?.external_url || 
-                          (thumbnail?.storage_path ? 
-                            `https://ysykvckvggaqykhhntyo.supabase.co/storage/v1/object/public/content-files/${thumbnail.storage_path}` 
-                            : heroImage);
+          let imageUrl = heroImage;
+          
+          // Priority 1: Get image from media_assets
+          if (item.media_assets && item.media_assets.length > 0) {
+            const imageAsset = item.media_assets.find((asset: any) => 
+              asset.storage_path || asset.external_url
+            );
+            
+            if (imageAsset) {
+              if (imageAsset.storage_path) {
+                const { data: urlData } = supabase.storage
+                  .from('content-files')
+                  .getPublicUrl(imageAsset.storage_path);
+                imageUrl = urlData.publicUrl;
+              } else if (imageAsset.external_url) {
+                imageUrl = imageAsset.external_url;
+              }
+            }
+          }
+          
+          // Priority 2: Use social_url if it's an image URL
+          if (imageUrl === heroImage && item.social_url) {
+            const extension = item.social_url.split('.').pop()?.toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+              imageUrl = item.social_url;
+            }
+          }
 
           return {
             id: item.id,

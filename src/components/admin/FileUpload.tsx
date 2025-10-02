@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
 interface FileUploadProps {
-  onFileUploaded: (url: string, fileName: string) => void;
+  onFileUploaded: (data: { url: string; fileName: string; storagePath: string; fileType: string }) => void;
   accept: string;
   maxSize?: number; // in MB
   label: string;
@@ -94,7 +94,12 @@ export const FileUpload = ({
         .from('content-files')
         .getPublicUrl(filePath);
 
-      onFileUploaded(publicUrl, file.name);
+      onFileUploaded({
+        url: publicUrl,
+        fileName: file.name,
+        storagePath: filePath,
+        fileType: file.type
+      });
       
       toast({
         title: "Upload successful",
