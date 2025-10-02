@@ -35,6 +35,7 @@ export function SiteSelector() {
     if (!isUberAdmin) return;
 
     const fetchSites = async () => {
+      // Fetch all sites for uber admins
       const { data, error } = await supabase
         .from('agent_sites')
         .select('id, display_name, site_slug, is_master, status, seed_status')

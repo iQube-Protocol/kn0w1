@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             Promise.all([
               supabase
                 .from('user_roles')
-                .select('role')
+                .select('role, agent_site_id')
                 .eq('user_id', uid),
               supabase
                 .from('agent_sites')
@@ -56,12 +56,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               supabase.rpc('is_mm_super_admin', { uid })
             ]).then(
               ([rolesResult, sitesResult, uberAdminResult]) => {
-                setUserRoles(rolesResult.data?.map(r => r.role) || []);
-                setHasAgentSite((sitesResult.data?.length || 0) > 0);
+                const roles = rolesResult.data?.map(r => r.role) || [];
+                const hasOwnedSite = (sitesResult.data?.length || 0) > 0;
+                const hasManagedSite = (rolesResult.data?.length || 0) > 0;
+                
+                setUserRoles(roles);
+                // User has a site if they own one OR have admin roles on any site
+                setHasAgentSite(hasOwnedSite || hasManagedSite);
                 setIsUberAdmin(!!uberAdminResult.data);
                 console.debug('[Auth] roles and site loaded (auth state change)', {
-                  roles: rolesResult.data?.map(r => r.role) || [],
-                  hasAgentSite: (sitesResult.data?.length || 0) > 0,
+                  roles,
+                  hasOwnedSite,
+                  hasManagedSite,
+                  hasAgentSite: hasOwnedSite || hasManagedSite,
                   isUberAdmin: !!uberAdminResult.data
                 });
                 setLoading(false);
@@ -99,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Promise.all([
           supabase
             .from('user_roles')
-            .select('role')
+            .select('role, agent_site_id')
             .eq('user_id', uid),
           supabase
             .from('agent_sites')
@@ -109,12 +116,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           supabase.rpc('is_mm_super_admin', { uid })
         ]).then(
           ([rolesResult, sitesResult, uberAdminResult]) => {
-            setUserRoles(rolesResult.data?.map(r => r.role) || []);
-            setHasAgentSite((sitesResult.data?.length || 0) > 0);
+            const roles = rolesResult.data?.map(r => r.role) || [];
+            const hasOwnedSite = (sitesResult.data?.length || 0) > 0;
+            const hasManagedSite = (rolesResult.data?.length || 0) > 0;
+            
+            setUserRoles(roles);
+            // User has a site if they own one OR have admin roles on any site
+            setHasAgentSite(hasOwnedSite || hasManagedSite);
             setIsUberAdmin(!!uberAdminResult.data);
             console.debug('[Auth] roles and site loaded (initial)', {
-              roles: rolesResult.data?.map(r => r.role) || [],
-              hasAgentSite: (sitesResult.data?.length || 0) > 0,
+              roles,
+              hasOwnedSite,
+              hasManagedSite,
+              hasAgentSite: hasOwnedSite || hasManagedSite,
               isUberAdmin: !!uberAdminResult.data
             });
             setLoading(false);
