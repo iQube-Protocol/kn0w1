@@ -1,151 +1,109 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, Menu, Share2, Maximize, Minimize, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
 import { ChatInterface } from "@/components/ChatInterface";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
+import { supabase } from "@/integrations/supabase/client";
+import { useSelectedSiteId } from "@/hooks/useSelectedSiteId";
+import { useToast } from "@/hooks/use-toast";
 
 import heroImage from "@/assets/hero-image.jpg";
-import content1 from "@/assets/content-1.jpg";
-import content2 from "@/assets/content-2.jpg";
-import content3 from "@/assets/content-3.jpg";
 
-const sampleMediaItems = [
-  {
-    id: "1",
-    title: "THE GENESIS BLOCK",
-    price: "$25",
-    rarity: "Limited",
-    imageUrl: heroImage,
-    type: "article" as const,
-    category: "Episode",
-    description: "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-  },
-  {
-    id: "2", 
-    title: "Digital Genesis Protocol",
-    price: "$25",
-    rarity: "Limited",
-    imageUrl: content1,
-    type: "video" as const,
-    category: "Episode",
-    description: "A digital realm lies beyond the physical world of Terra that you know, awaiting discovery. The war between The Fang and The Bat clans is escalating."
-  },
-  {
-    id: "3", 
-    title: "Cosmic Nexus Archives",
-    price: "$18",
-    rarity: "Rare",
-    imageUrl: content2,
-    type: "article" as const,
-    category: "Guide",
-    description: "Explore the mysteries of the cosmic nexus and unlock ancient secrets hidden in the digital archives."
-  },
-  {
-    id: "4",
-    title: "MetaKnight Chronicles",
-    price: "$30",
-    rarity: "Epic",
-    imageUrl: content3,
-    type: "video" as const,
-    category: "Series",
-    description: "Follow the legendary MetaKnight on an epic journey through the digital realms of Terra."
-  },
-  {
-    id: "5",
-    title: "Blockchain Fundamentals",
-    imageUrl: content1,
-    type: "article" as const,
-    category: "Education",
-    description: "Master the foundational concepts of blockchain technology and decentralized systems."
-  },
-  {
-    id: "6",
-    title: "DeFi Deep Dive",
-    imageUrl: content2,
-    type: "video" as const,
-    category: "Tutorial",
-    description: "Comprehensive guide to decentralized finance protocols and yield farming strategies."
-  },
-  {
-    id: "7",
-    title: "Quantum Mining Expedition",
-    price: "$45",
-    rarity: "Legendary",
-    imageUrl: content3,
-    type: "video" as const,
-    category: "Episode",
-    description: "Join the most dangerous mining expedition into the quantum depths of Terra's digital underground."
-  },
-  {
-    id: "8",
-    title: "Crypto Trading Mastery",
-    price: "$22",
-    rarity: "Rare",
-    imageUrl: content1,
-    type: "article" as const,
-    category: "Guide",
-    description: "Advanced trading strategies for navigating volatile cryptocurrency markets with confidence."
-  },
-  {
-    id: "9",
-    title: "The Shadow Protocol",
-    price: "$35",
-    rarity: "Epic",
-    imageUrl: content2,
-    type: "video" as const,
-    category: "Series",
-    description: "Uncover the mysterious Shadow Protocol that threatens to reshape the digital landscape forever."
-  },
-  {
-    id: "10",
-    title: "Smart Contract Security",
-    imageUrl: content3,
-    type: "article" as const,
-    category: "Education",
-    description: "Essential security practices for developing and auditing smart contracts on various blockchain platforms."
-  },
-  {
-    id: "11",
-    title: "NFT Creation Workshop",
-    imageUrl: content1,
-    type: "video" as const,
-    category: "Tutorial",
-    description: "Step-by-step guide to creating, minting, and marketing your own NFT collections."
-  },
-  {
-    id: "12",
-    title: "Digital Rebellion",
-    price: "$28",
-    rarity: "Limited",
-    imageUrl: content2,
-    type: "video" as const,
-    category: "Episode",
-    description: "The resistance begins as digital citizens fight back against the oppressive Data Lords."
-  },
-  {
-    id: "13",
-    title: "DAO Governance Guide",
-    imageUrl: content3,
-    type: "article" as const,
-    category: "Education",
-    description: "Understanding decentralized autonomous organizations and participating in community governance."
-  }
-];
+interface MediaItem {
+  id: string;
+  title: string;
+  price?: string;
+  rarity?: string;
+  imageUrl?: string;
+  type: 'video' | 'audio' | 'article';
+  category: string;
+  description: string;
+}
 
 export default function MainApp() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'fullscreen'>('discovery');
-  const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
+  const [selectedContent, setSelectedContent] = useState<MediaItem | null>(null);
   const [isContentPlaying, setIsContentPlaying] = useState(false);
+  const [contentItems, setContentItems] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const { isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
-  
+  const selectedSiteId = useSelectedSiteId();
+  const { toast } = useToast();
+  // Fetch content from database
+  useEffect(() => {
+    const fetchContent = async () => {
+      if (!selectedSiteId) return;
+      
+      try {
+        setLoading(true);
+        
+        const { data, error } = await supabase
+          .from('content_items')
+          .select(`
+            *,
+            content_categories (
+              name,
+              slug
+            ),
+            media_assets (
+              storage_path,
+              external_url,
+              mime_type
+            )
+          `)
+          .eq('agent_site_id', selectedSiteId)
+          .eq('status', 'published')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform database content to MediaItem format
+        const transformedContent: MediaItem[] = (data || []).map((item: any) => {
+          // Get first media asset for thumbnail
+          const thumbnail = item.media_assets?.[0];
+          const imageUrl = thumbnail?.external_url || 
+                          (thumbnail?.storage_path ? 
+                            `https://ysykvckvggaqykhhntyo.supabase.co/storage/v1/object/public/content-files/${thumbnail.storage_path}` 
+                            : heroImage);
+
+          return {
+            id: item.id,
+            title: item.title,
+            imageUrl,
+            type: item.type as 'video' | 'audio' | 'article',
+            category: item.content_categories?.name || 'Uncategorized',
+            description: item.description || '',
+            price: item.featured ? '$25' : undefined,
+            rarity: item.pinned ? 'Featured' : item.featured ? 'Limited' : undefined,
+          };
+        });
+
+        setContentItems(transformedContent);
+        
+        // Set initial selected content to first item
+        if (transformedContent.length > 0 && !selectedContent) {
+          setSelectedContent(transformedContent[0]);
+        }
+      } catch (error: any) {
+        console.error('Error fetching content:', error);
+        toast({
+          title: "Error loading content",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, [selectedSiteId]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -156,7 +114,7 @@ export default function MainApp() {
     // In a real app, this would filter content based on the search query
   };
 
-  const handleContentSelect = (item: any) => {
+  const handleContentSelect = (item: MediaItem) => {
     setSelectedContent(item);
     // Scroll to top to show the selected content
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -169,6 +127,34 @@ export default function MainApp() {
   const handleStopPlaying = () => {
     setIsContentPlaying(false);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen cosmic-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse text-2xl font-bold text-foreground">Loading content...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (!selectedContent || contentItems.length === 0) {
+    return (
+      <div className="min-h-screen cosmic-bg flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-foreground">No published content available</h2>
+          <p className="text-muted-foreground">Check back later or contact the administrator.</p>
+          {isAdmin && (
+            <Button onClick={() => navigate('/admin')}>
+              Go to Admin Panel
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen cosmic-bg relative">
@@ -255,23 +241,38 @@ export default function MainApp() {
             <main className={`pb-24 ${isChatExpanded ? 'pb-[60vh]' : 'pb-24'} transition-all duration-300`}>
               {/* Content Sections */}
               <section className="space-y-12 px-4 pt-8">
-                {/* Media Carousels */}
-                <MediaCarousel
-                  title="KnytBooks"
-                  items={sampleMediaItems.filter(item => item.type === 'article')}
-                  onItemClick={handleContentSelect}
-                  showOwnedToggle={true}
-                />
+                {/* Featured/Pinned Content */}
+                {contentItems.filter(item => item.rarity).length > 0 && (
+                  <MediaCarousel
+                    title="Featured Content"
+                    items={contentItems.filter(item => item.rarity)}
+                    onItemClick={handleContentSelect}
+                  />
+                )}
 
-                <MediaCarousel
-                  title="Learn to Earn"
-                  items={sampleMediaItems.filter(item => item.category === 'Education' || item.category === 'Tutorial')}
-                  onItemClick={handleContentSelect}
-                />
+                {/* Articles/KnytBooks */}
+                {contentItems.filter(item => item.type === 'article').length > 0 && (
+                  <MediaCarousel
+                    title="KnytBooks"
+                    items={contentItems.filter(item => item.type === 'article')}
+                    onItemClick={handleContentSelect}
+                    showOwnedToggle={true}
+                  />
+                )}
 
+                {/* Videos */}
+                {contentItems.filter(item => item.type === 'video').length > 0 && (
+                  <MediaCarousel
+                    title="Video Content"
+                    items={contentItems.filter(item => item.type === 'video')}
+                    onItemClick={handleContentSelect}
+                  />
+                )}
+
+                {/* All Content */}
                 <MediaCarousel
-                  title="Featured Content"
-                  items={sampleMediaItems}
+                  title="All Content"
+                  items={contentItems}
                   onItemClick={handleContentSelect}
                 />
               </section>
