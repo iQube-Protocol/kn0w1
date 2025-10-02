@@ -59,17 +59,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const roles = rolesResult.data?.map(r => r.role) || [];
                 const hasOwnedSite = (sitesResult.data?.length || 0) > 0;
                 const hasManagedSite = (rolesResult.data?.length || 0) > 0;
+                const isUber = !!uberAdminResult.data;
                 
                 setUserRoles(roles);
                 // User has a site if they own one OR have admin roles on any site
                 setHasAgentSite(hasOwnedSite || hasManagedSite);
-                setIsUberAdmin(!!uberAdminResult.data);
+                setIsUberAdmin(isUber);
+                
+                // Auto-select site for non-Uber Admins who manage a site
+                if (!isUber && hasManagedSite && rolesResult.data && rolesResult.data.length > 0) {
+                  const firstManagedSiteId = rolesResult.data[0]?.agent_site_id;
+                  if (firstManagedSiteId) {
+                    setCurrentSiteId(firstManagedSiteId);
+                    console.debug('[Auth] Auto-selected site for non-Uber Admin:', firstManagedSiteId);
+                  }
+                }
+                
                 console.debug('[Auth] roles and site loaded (auth state change)', {
                   roles,
                   hasOwnedSite,
                   hasManagedSite,
                   hasAgentSite: hasOwnedSite || hasManagedSite,
-                  isUberAdmin: !!uberAdminResult.data
+                  isUberAdmin: isUber
                 });
                 setLoading(false);
               },
@@ -119,17 +130,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const roles = rolesResult.data?.map(r => r.role) || [];
             const hasOwnedSite = (sitesResult.data?.length || 0) > 0;
             const hasManagedSite = (rolesResult.data?.length || 0) > 0;
+            const isUber = !!uberAdminResult.data;
             
             setUserRoles(roles);
             // User has a site if they own one OR have admin roles on any site
             setHasAgentSite(hasOwnedSite || hasManagedSite);
-            setIsUberAdmin(!!uberAdminResult.data);
+            setIsUberAdmin(isUber);
+            
+            // Auto-select site for non-Uber Admins who manage a site
+            if (!isUber && hasManagedSite && rolesResult.data && rolesResult.data.length > 0) {
+              const firstManagedSiteId = rolesResult.data[0]?.agent_site_id;
+              if (firstManagedSiteId) {
+                setCurrentSiteId(firstManagedSiteId);
+                console.debug('[Auth] Auto-selected site for non-Uber Admin:', firstManagedSiteId);
+              }
+            }
+            
             console.debug('[Auth] roles and site loaded (initial)', {
               roles,
               hasOwnedSite,
               hasManagedSite,
               hasAgentSite: hasOwnedSite || hasManagedSite,
-              isUberAdmin: !!uberAdminResult.data
+              isUberAdmin: isUber
             });
             setLoading(false);
           },

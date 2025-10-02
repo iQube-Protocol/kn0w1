@@ -117,7 +117,7 @@ const steps = [
 ];
 
 export function Setup() {
-  const { user } = useAuth();
+  const { user, isUberAdmin, userRoles } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
@@ -155,10 +155,19 @@ export function Setup() {
       setEditingSiteId(editSiteId);
       loadExistingSite(editSiteId);
     } else {
+      // Prevent non-Uber Admins who already have roles from creating new sites
+      if (!isUberAdmin && userRoles.length > 0) {
+        toast({
+          title: "Already have site access",
+          description: "You already manage a site. Redirecting to admin dashboard.",
+        });
+        navigate('/admin');
+        return;
+      }
       // Load saved draft
       loadSavedDraft();
     }
-  }, [user, toast]);
+  }, [user, toast, isUberAdmin, userRoles, navigate]);
 
   const loadExistingSite = async (siteId: string) => {
     if (!user) return;
