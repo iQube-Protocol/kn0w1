@@ -38,13 +38,11 @@ export default function MainApp() {
   // Fetch content from database
   useEffect(() => {
     const fetchContent = async () => {
-      if (!selectedSiteId) return;
-      
       try {
         setLoading(true);
         console.debug('[MainApp] Fetching content', { selectedSiteId });
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('content_items')
           .select(`
             *,
@@ -59,9 +57,14 @@ export default function MainApp() {
               mime_type
             )
           `)
-          .eq('agent_site_id', selectedSiteId)
           .eq('status', 'published')
           .order('created_at', { ascending: false });
+
+        if (selectedSiteId) {
+          query = query.eq('agent_site_id', selectedSiteId);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
