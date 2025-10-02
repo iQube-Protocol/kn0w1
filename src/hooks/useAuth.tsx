@@ -139,9 +139,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+    try {
+      // Prefer local sign-out to avoid server errors when refresh token is missing/expired
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (err) {
+      console.warn('[Auth] signOut error, proceeding with client cleanup', err);
+    } finally {
+      // Proactively clear auth-related client state
+      setUser(null);
+      setSession(null);
+      setUserRoles([]);
+      setHasAgentSite(false);
+      setIsUberAdmin(false);
+      setCurrentSiteId(null);
 
+      // Remove any Supabase auth tokens from localStorage (sb- prefix)
+      try {
+        Object.keys(localStorage).forEach((k) => {
+          if (k.startsWith('sb-')) localStorage.removeItem(k);
+        });
+      } catch {}
+
+      // Redirect to Auth
+      window.location.assign('/auth');
+    }
+  };
   // Check if user is admin either by having admin roles OR by email containing 'admin', 'nakamoto', or specific admin emails
   const isAdmin = userRoles.length > 0 || (user?.email && (user.email.includes('admin') || user.email.includes('nakamoto') || user.email === 'dele@metame.com'));
 

@@ -50,7 +50,7 @@ export function AdminLayout() {
           .from('agent_sites')
           .select('status')
           .eq('id', activeSiteId)
-          .single();
+          .maybeSingle();
         
         if (data) {
           setSiteStatus(data.status);
