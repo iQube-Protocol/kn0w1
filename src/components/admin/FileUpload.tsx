@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, File, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FileUploadProps {
   onFileUploaded: (url: string, fileName: string) => void;
@@ -30,6 +31,7 @@ export const FileUpload = ({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -50,8 +52,13 @@ export const FileUpload = ({
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
-      const filePath = `content/${fileName}`;
+      const userId = user?.id || 'anonymous';
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const fileName = `${timestamp}-${random}.${fileExt}`;
+      const filePath = `content/${userId}/${fileName}`;
+
+      console.log('Starting upload:', { filePath, fileSize: file.size, fileType: file.type });
 
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
@@ -60,12 +67,27 @@ export const FileUpload = ({
 
       const { data, error } = await supabase.storage
         .from('content-files')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: true
+        });
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Upload error details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+          status: (error as any).status,
+          statusText: (error as any).statusText
+        });
+        throw error;
+      }
+
+      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -81,9 +103,15 @@ export const FileUpload = ({
 
     } catch (error: any) {
       console.error('Upload error:', error);
+      const errorDetails = [
+        error.message || "Failed to upload file",
+        error.status && `Status: ${error.status}`,
+        error.statusText && `(${error.statusText})`
+      ].filter(Boolean).join(' ');
+      
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload file",
+        description: errorDetails,
         variant: "destructive",
       });
     } finally {
