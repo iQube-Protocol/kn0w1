@@ -425,20 +425,30 @@ export function Setup() {
 
     if (siteUpdateError) {
       console.error('Error updating agent site:', siteUpdateError);
+      toast({
+        title: "Error",
+        description: `Failed to update site information: ${siteUpdateError.message}`,
+        variant: "destructive"
+      });
       throw siteUpdateError;
     }
 
     // Update branches
-    const { data: branches } = await supabase
+    const { data: branches, error: branchesError } = await supabase
       .from('agent_branches')
       .select('id, kind')
       .eq('agent_site_id', siteId);
+
+    if (branchesError) {
+      console.error('Error fetching branches:', branchesError);
+      throw branchesError;
+    }
 
     const mythosId = branches?.find(b => b.kind === 'mythos')?.id;
     const logosId = branches?.find(b => b.kind === 'logos')?.id;
 
     if (mythosId) {
-      await supabase
+      const { error: mythosError } = await supabase
         .from('agent_branches')
         .update({
           display_name: state.mythosName,
@@ -449,25 +459,31 @@ export function Setup() {
           safety_notes_md: state.mythosSafety
         })
         .eq('id', mythosId);
+      
+      if (mythosError) throw mythosError;
     }
 
     if (logosId) {
-      await supabase
+      const { error: logosError } = await supabase
         .from('agent_branches')
         .update({
           display_name: state.logosName,
           long_context_md: `Domain: ${state.logosDomain}\nOutcomes: ${state.logosOutcomes}\nCTAs: ${state.logosCTAs}\nConstraints: ${state.logosConstraints}`
         })
         .eq('id', logosId);
+      
+      if (logosError) throw logosError;
     }
 
     // Delete and recreate pillars
-    await supabase
+    const { error: deletePillarsError } = await supabase
       .from('mission_pillars')
       .delete()
       .eq('agent_site_id', siteId);
 
-    await supabase
+    if (deletePillarsError) throw deletePillarsError;
+
+    const { error: insertPillarsError } = await supabase
       .from('mission_pillars')
       .insert([
         {
@@ -488,8 +504,10 @@ export function Setup() {
         }
       ]);
 
+    if (insertPillarsError) throw insertPillarsError;
+
     // Update utilities
-    await supabase
+    const { error: utilitiesError } = await supabase
       .from('utilities_config')
       .update({
         content_creation_on: state.contentCreationOn,
@@ -499,12 +517,15 @@ export function Setup() {
       })
       .eq('agent_site_id', siteId);
 
+    if (utilitiesError) throw utilitiesError;
+
     toast({
       title: "Site Updated!",
       description: "Your agent site configuration has been updated.",
     });
 
-    navigate('/app');
+    // Navigate to admin overview to see changes reflected
+    navigate(`/admin/${siteId}/overview`);
   };
 
   const createNewSite = async () => {

@@ -53,11 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .select('id')
                 .eq('owner_user_id', uid)
                 .limit(1),
-              supabase
-                .from('mm_super_admins')
-                .select('user_id')
-                .eq('user_id', uid)
-                .maybeSingle()
+              supabase.rpc('is_mm_super_admin', { uid })
             ]).then(
               ([rolesResult, sitesResult, uberAdminResult]) => {
                 setUserRoles(rolesResult.data?.map(r => r.role) || []);
@@ -110,11 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .select('id')
             .eq('owner_user_id', uid)
             .limit(1),
-          supabase
-            .from('mm_super_admins')
-            .select('user_id')
-            .eq('user_id', uid)
-            .maybeSingle()
+          supabase.rpc('is_mm_super_admin', { uid })
         ]).then(
           ([rolesResult, sitesResult, uberAdminResult]) => {
             setUserRoles(rolesResult.data?.map(r => r.role) || []);

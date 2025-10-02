@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { SiteSelector } from './SiteSelector';
-import { LogOut, User, Crown } from 'lucide-react';
+import { LogOut, User, Crown, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function AdminLayout() {
   const { user, userRoles, isAdmin, isUberAdmin, hasAgentSite, signOut, loading, currentSiteId, setCurrentSiteId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { siteId } = useParams();
+  const [siteStatus, setSiteStatus] = useState<string>('active');
+  const [checkingSiteStatus, setCheckingSiteStatus] = useState(true);
 
   // Proper role-based access control
   React.useEffect(() => {
@@ -35,6 +39,33 @@ export function AdminLayout() {
       }
     }
   }, [siteId, currentSiteId, setCurrentSiteId]);
+
+  // Check site status and block access to inactive sites
+  useEffect(() => {
+    if (!loading && (siteId || currentSiteId)) {
+      const activeSiteId = siteId || currentSiteId;
+      
+      const checkStatus = async () => {
+        const { data } = await supabase
+          .from('agent_sites')
+          .select('status')
+          .eq('id', activeSiteId)
+          .single();
+        
+        if (data) {
+          setSiteStatus(data.status);
+          
+          // Redirect non-uber-admins away from inactive sites
+          if (data.status === 'inactive' && !isUberAdmin) {
+            navigate('/admin', { replace: true });
+          }
+        }
+        setCheckingSiteStatus(false);
+      };
+      
+      checkStatus();
+    }
+  }, [loading, siteId, currentSiteId, isUberAdmin, navigate]);
 
   // Redirect Uber Admins from generic /admin routes to site-scoped routes
   React.useEffect(() => {
@@ -112,6 +143,16 @@ export function AdminLayout() {
 
           {/* Main Content */}
           <main className="flex-1 p-6">
+            {/* Inactive Site Warning for Uber Admins */}
+            {!checkingSiteStatus && siteStatus === 'inactive' && isUberAdmin && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Site Inactive</AlertTitle>
+                <AlertDescription>
+                  This site is currently inactive. Regular users cannot access it. Toggle the status in the Uber Admin site manager to make it accessible.
+                </AlertDescription>
+              </Alert>
+            )}
             <Outlet />
           </main>
         </div>

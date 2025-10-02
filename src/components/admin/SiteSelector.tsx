@@ -93,7 +93,7 @@ export function SiteSelector() {
         </SelectTrigger>
         <SelectContent>
           {sites.map((site) => (
-            <SelectItem key={site.id} value={site.id}>
+            <SelectItem key={site.id} value={site.id} disabled={site.status === 'inactive'}>
               <div className="flex items-center justify-between w-full gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
@@ -102,7 +102,14 @@ export function SiteSelector() {
                         MASTER
                       </span>
                     )}
-                    <span className="font-medium">{site.display_name}</span>
+                    {site.status === 'inactive' && (
+                      <span className="text-xs bg-red-500/20 text-red-600 px-1.5 py-0.5 rounded">
+                        INACTIVE
+                      </span>
+                    )}
+                    <span className={`font-medium ${site.status === 'inactive' ? 'opacity-50' : ''}`}>
+                      {site.display_name}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>/{site.site_slug}</span>

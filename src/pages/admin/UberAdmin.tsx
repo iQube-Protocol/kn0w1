@@ -7,9 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Crown, Building2, Users, Shield, Plus, Trash2 } from 'lucide-react';
+import { Crown, Building2, Users, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface Site {
   id: string;
@@ -41,6 +52,11 @@ export function UberAdmin() {
       return;
     }
     fetchData();
+
+    // Refetch on window focus
+    const handleFocus = () => fetchData();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [isUberAdmin, navigate]);
 
   const fetchData = async () => {
@@ -98,7 +114,7 @@ export function UberAdmin() {
     fetchData();
   };
 
-  const removeUberAdmin = async (userId: string) => {
+  const removeUberAdmin = async (userId: string | null, email: string) => {
     if (userId === user?.id) {
       toast({
         title: 'Error',
@@ -108,10 +124,10 @@ export function UberAdmin() {
       return;
     }
 
-    const { error } = await supabase
-      .from('mm_super_admins')
-      .delete()
-      .eq('user_id', userId);
+    // Delete by user_id if available, otherwise by email
+    const { error } = userId 
+      ? await supabase.from('mm_super_admins').delete().eq('user_id', userId)
+      : await supabase.from('mm_super_admins').delete().eq('email', email);
 
     if (error) {
       toast({
@@ -125,6 +141,54 @@ export function UberAdmin() {
     toast({
       title: 'Success',
       description: 'Uber Admin removed successfully'
+    });
+
+    fetchData();
+  };
+
+  const deleteSite = async (siteId: string) => {
+    const { error } = await supabase
+      .from('agent_sites')
+      .delete()
+      .eq('id', siteId);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete site',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Success',
+      description: 'Site deleted successfully'
+    });
+
+    fetchData();
+  };
+
+  const toggleSiteStatus = async (siteId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    const { error } = await supabase
+      .from('agent_sites')
+      .update({ status: newStatus })
+      .eq('id', siteId);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update site status',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Success',
+      description: `Site is now ${newStatus}`
     });
 
     fetchData();
@@ -247,7 +311,7 @@ export function UberAdmin() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeUberAdmin(admin.user_id)}
+                      onClick={() => removeUberAdmin(admin.user_id, admin.email)}
                       disabled={admin.user_id === user?.id}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -293,9 +357,13 @@ export function UberAdmin() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={site.status === 'active' ? 'default' : 'secondary'}>
-                      {site.status}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={site.status === 'active'}
+                        onCheckedChange={() => toggleSiteStatus(site.id, site.status)}
+                      />
+                      <span className="text-sm">{site.status}</span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {new Date(site.created_at).toLocaleDateString()}
@@ -318,6 +386,27 @@ export function UberAdmin() {
                       >
                         Edit
                       </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Site</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{site.display_name}"? This action cannot be undone and will delete all associated data including branches, pillars, content, and roles.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteSite(site.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>
