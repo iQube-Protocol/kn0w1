@@ -140,9 +140,15 @@ export function UserManagement() {
     if (!selectedSiteId) return;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role, agent_site_id: selectedSiteId });
+        .insert({ 
+          user_id: userId, 
+          role, 
+          agent_site_id: selectedSiteId,
+          created_by: user?.id
+        });
 
       if (error) throw error;
 
