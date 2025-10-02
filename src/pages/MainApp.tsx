@@ -42,6 +42,7 @@ export default function MainApp() {
       
       try {
         setLoading(true);
+        console.debug('[MainApp] Fetching content', { selectedSiteId });
         
         const { data, error } = await supabase
           .from('content_items')
@@ -52,6 +53,7 @@ export default function MainApp() {
               slug
             ),
             media_assets (
+              kind,
               storage_path,
               external_url,
               mime_type
@@ -70,7 +72,7 @@ export default function MainApp() {
           // Priority 1: Get image from media_assets
           if (item.media_assets && item.media_assets.length > 0) {
             const imageAsset = item.media_assets.find((asset: any) => 
-              asset.storage_path || asset.external_url
+              asset.kind === 'image' && (asset.storage_path || asset.external_url)
             );
             
             if (imageAsset) {
@@ -84,12 +86,30 @@ export default function MainApp() {
               }
             }
           }
+          // Priority 2a: Use a YouTube thumbnail from media_assets if a video link exists
+          if (imageUrl === heroImage && item.media_assets && item.media_assets.length > 0) {
+            const ytVideo = item.media_assets.find((asset: any) => 
+              asset.kind === 'video' && typeof asset.external_url === 'string' &&
+              (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be'))
+            );
+            if (ytVideo) {
+              const videoId = ytVideo.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+              if (videoId) {
+                imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+              }
+            }
+          }
           
-          // Priority 2: Use social_url if it's an image URL
+          // Priority 2b: Use social_url if it's an image URL or YouTube
           if (imageUrl === heroImage && item.social_url) {
             const extension = item.social_url.split('.').pop()?.toLowerCase();
             if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
               imageUrl = item.social_url;
+            } else if (item.social_url.includes('youtube.com') || item.social_url.includes('youtu.be')) {
+              const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+              if (videoId) {
+                imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+              }
             }
           }
 
