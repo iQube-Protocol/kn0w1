@@ -213,7 +213,7 @@ export function ContentManagement() {
       });
 
       const { data, error } = await supabase.functions.invoke('clone-master-template', {
-        body: { targetSiteId: selectedSiteId }
+        body: { agentSiteId: selectedSiteId }
       });
 
       if (error) throw error;
