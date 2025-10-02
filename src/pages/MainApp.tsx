@@ -7,8 +7,8 @@ import { MediaCarousel } from "@/components/MediaCarousel";
 import { ChatInterface } from "@/components/ChatInterface";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+
+
 import heroImage from "@/assets/hero-image.jpg";
 import content1 from "@/assets/content-1.jpg";
 import content2 from "@/assets/content-2.jpg";
@@ -143,28 +143,12 @@ export default function MainApp() {
   const [selectedContent, setSelectedContent] = useState(sampleMediaItems[0]);
   const [isContentPlaying, setIsContentPlaying] = useState(false);
   
-  const { isAdmin } = useAuth();
+  const { isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
 
   const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-      
-      navigate('/auth');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to sign out",
-        variant: "destructive",
-      });
-    }
+    await signOut();
   };
 
   const handleContentSearch = (query: string) => {
