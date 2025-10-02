@@ -256,6 +256,40 @@ export function ContentEditor() {
       .replace(/(^-|-$)/g, '');
   };
 
+  // Ensure slug is unique per agent site by appending -2, -3, ... if needed
+  const ensureUniqueSlug = async (
+    baseSlug: string,
+    agentSiteId: string,
+    currentId?: string
+  ) => {
+    let normalized = (baseSlug || 'untitled')
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    let candidate = normalized;
+    let suffix = 2;
+
+    while (true) {
+      const { data } = await supabase
+        .from('content_items')
+        .select('id, slug')
+        .eq('agent_site_id', agentSiteId)
+        .eq('slug', candidate)
+        .maybeSingle();
+
+      if (!data) {
+        return candidate; // available
+      }
+
+      if (currentId && data.id === currentId) {
+        return candidate; // same record, allowed
+      }
+
+      candidate = `${normalized}-${suffix++}`;
+    }
+  };
+
   const handleTitleChange = (value: string) => {
     setContent(prev => ({
       ...prev,
@@ -348,8 +382,16 @@ export function ContentEditor() {
       // Exclude media_assets from save data (it's a separate table)
       const { media_assets, ...contentToSave } = content as any;
       
+      // Ensure slug exists and is unique per agent site
+      const baseSlug = (contentToSave.slug || generateSlug(contentToSave.title));
+      const uniqueSlug = await ensureUniqueSlug(baseSlug, agentSiteData.id, isNew ? undefined : (id as string));
+      if (baseSlug !== uniqueSlug) {
+        toast({ title: 'Slug adjusted', description: `Using "${uniqueSlug}" to avoid duplicates.` });
+      }
+      
       const saveData = {
         ...contentToSave,
+        slug: uniqueSlug,
         status: newStatus || content.status,
         agent_site_id: agentSiteData.id,
         owner_id: userData.user.id,
@@ -439,10 +481,12 @@ export function ContentEditor() {
       }
     } catch (error) {
       console.error('Error saving content:', error);
+      const message = (error as any)?.message || 'Failed to save content';
+      const friendly = message.includes('duplicate key') ? 'Slug already exists for this site. Please try again.' : message;
       toast({
-        title: "Error",
-        description: "Failed to save content",
-        variant: "destructive",
+        title: 'Error',
+        description: friendly,
+        variant: 'destructive',
       });
     } finally {
       setSaving(false);
