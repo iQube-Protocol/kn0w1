@@ -33,12 +33,10 @@ export function AdminLayout() {
 
   // Sync selected site with URL param for Uber Admins
   React.useEffect(() => {
-    if (siteId && setCurrentSiteId) {
-      if (siteId !== currentSiteId) {
-        setCurrentSiteId(siteId);
-      }
+    if (siteId && setCurrentSiteId && siteId !== currentSiteId) {
+      setCurrentSiteId(siteId);
     }
-  }, [siteId, currentSiteId, setCurrentSiteId]);
+  }, [siteId, setCurrentSiteId]);
 
   // Check site status and block access to inactive sites
   useEffect(() => {
@@ -68,16 +66,19 @@ export function AdminLayout() {
   }, [loading, siteId, currentSiteId, isUberAdmin, navigate]);
 
   // Redirect Uber Admins from generic /admin routes to site-scoped routes
+  const redirectedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!loading && isUberAdmin && currentSiteId) {
+    if (!loading && isUberAdmin && currentSiteId && !redirectedRef.current) {
       const path = location.pathname;
+      const targetPath = `/admin/${currentSiteId}/overview`;
       
-      // If on generic /admin or /admin/overview without siteId in URL, redirect to site-scoped URL
-      if (!siteId && (path === '/admin' || path === '/admin/overview')) {
+      // If on generic /admin or /admin/overview without siteId in URL, redirect once
+      if (!siteId && (path === '/admin' || path === '/admin/overview') && path !== targetPath) {
         if (import.meta.env.DEV) {
           console.debug('[AdminLayout] Redirecting Uber Admin to site-scoped URL:', currentSiteId);
         }
-        navigate(`/admin/${currentSiteId}/overview`, { replace: true });
+        redirectedRef.current = true;
+        navigate(targetPath, { replace: true });
       }
     }
   }, [loading, isUberAdmin, currentSiteId, siteId, location.pathname, navigate]);

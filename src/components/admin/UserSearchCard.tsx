@@ -46,115 +46,31 @@ export function UserSearchCard({ onUserFound }: UserSearchCardProps) {
 
     setSearching(true);
     try {
-      // Build the query
-      let query = supabase
-        .from('profiles')
-        .select(`
-          user_id,
-          first_name,
-          last_name,
-          total_points,
-          level,
-          civic_status,
-          created_at
-        `);
+      // Call edge function to search all users in the database
+      const { data, error } = await supabase.functions.invoke('search-users', {
+        body: { email, firstName, lastName }
+      });
 
-      // Apply filters
-      if (firstName) {
-        query = query.ilike('first_name', `%${firstName}%`);
-      }
-      if (lastName) {
-        query = query.ilike('last_name', `%${lastName}%`);
+      if (error) {
+        console.error('[UserSearchCard] Edge function error:', error);
+        throw error;
       }
 
-      const { data: profiles, error: profileError } = await query;
-
-      if (profileError) throw profileError;
-
-      // Now we need to get the email from auth.users
-      // Since we can't query auth.users directly, we'll use a different approach
-      // We'll search by trying to get user data using the service
-      
-      // If email is provided, try to find by email first
-      if (email) {
-        // We need to fetch all profiles and their associated user roles
-        const { data: allProfiles } = await supabase
-          .from('profiles')
-          .select('user_id, first_name, last_name, total_points, level, civic_status, created_at')
-          .limit(500);
-
-        // Get roles for all users
-        const { data: allRoles } = await supabase
-          .from('user_roles')
-          .select('user_id, role');
-
-        // For now, we'll create a mock user result since we can't access auth.users directly
-        // In a real scenario, you'd need an edge function to query auth.users
-        if (profiles && profiles.length > 0) {
-          const profile = profiles[0];
-          const userRoles = allRoles?.filter(r => r.user_id === profile.user_id) || [];
-          
-          const result: UserSearchResult = {
-            id: profile.user_id,
-            email: email, // Use the searched email
-            created_at: profile.created_at,
-            email_confirmed_at: profile.created_at,
-            last_sign_in_at: null,
-            profile: {
-              first_name: profile.first_name,
-              last_name: profile.last_name,
-              total_points: profile.total_points,
-              level: profile.level,
-              civic_status: profile.civic_status
-            },
-            roles: userRoles
-          };
-
-          onUserFound(result);
-        } else {
-          toast({
-            title: "User Not Found",
-            description: "No user found with the provided search criteria.",
-            variant: "destructive"
-          });
-        }
-      } else if (profiles && profiles.length > 0) {
-        // Found by name
-        const profile = profiles[0];
-        const { data: userRoles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', profile.user_id);
-
-        const result: UserSearchResult = {
-          id: profile.user_id,
-          email: 'Email not available', // Can't access auth.users
-          created_at: profile.created_at,
-          email_confirmed_at: profile.created_at,
-          last_sign_in_at: null,
-          profile: {
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            total_points: profile.total_points,
-            level: profile.level,
-            civic_status: profile.civic_status
-          },
-          roles: userRoles || []
-        };
-
-        onUserFound(result);
+      if (data && !data.error) {
+        console.log('[UserSearchCard] Found user:', data.email);
+        onUserFound(data);
       } else {
         toast({
           title: "User Not Found",
-          description: "No user found with the provided search criteria.",
+          description: data?.error || "No user found with the provided search criteria.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('Error searching users:', error);
+      console.error('[UserSearchCard] Error searching users:', error);
       toast({
         title: "Search Error",
-        description: "Failed to search for users.",
+        description: "Failed to search for users. Please try again.",
         variant: "destructive"
       });
     } finally {
