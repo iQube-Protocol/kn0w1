@@ -21,3 +21,6 @@ verify_jwt = true
 
 [functions.setup-assistant]
 verify_jwt = true
+
+[functions.search-users]
+verify_jwt = true

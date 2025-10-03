@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, User } from "lucide-react";
+import { CompactUserSearch } from "./CompactUserSearch";
 
 interface CreateBranchDialogProps {
   onBranchCreated: () => void;
@@ -17,13 +18,21 @@ export function CreateBranchDialog({ onBranchCreated }: CreateBranchDialogProps)
   const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [siteSlug, setSiteSlug] = useState("");
-  const [ownerType, setOwnerType] = useState<"existing" | "new">("existing");
+  const [ownerType, setOwnerType] = useState<"existing" | "search" | "new">("search");
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedUserEmail, setSelectedUserEmail] = useState("");
+  const [selectedUserName, setSelectedUserName] = useState("");
   const [users, setUsers] = useState<Array<{ id: string; email: string }>>([]);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserFirstName, setNewUserFirstName] = useState("");
   const [newUserLastName, setNewUserLastName] = useState("");
   const { toast } = useToast();
+
+  const handleUserSelected = (userId: string, userEmail: string, userName: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserEmail(userEmail);
+    setSelectedUserName(userName);
+  };
 
   useEffect(() => {
     if (open) {
@@ -165,8 +174,10 @@ export function CreateBranchDialog({ onBranchCreated }: CreateBranchDialogProps)
   const resetForm = () => {
     setDisplayName("");
     setSiteSlug("");
-    setOwnerType("existing");
+    setOwnerType("search");
     setSelectedUserId("");
+    setSelectedUserEmail("");
+    setSelectedUserName("");
     setNewUserEmail("");
     setNewUserFirstName("");
     setNewUserLastName("");
@@ -210,18 +221,32 @@ export function CreateBranchDialog({ onBranchCreated }: CreateBranchDialogProps)
 
           <div className="space-y-2">
             <Label htmlFor="ownerType">Site Owner</Label>
-            <Select value={ownerType} onValueChange={(val) => setOwnerType(val as "existing" | "new")}>
+            <Select value={ownerType} onValueChange={(val) => setOwnerType(val as "existing" | "search" | "new")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="existing">Select Existing User</SelectItem>
+                <SelectItem value="search">Search for User</SelectItem>
+                <SelectItem value="existing">Select from List</SelectItem>
                 <SelectItem value="new">Create New User</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {ownerType === "existing" ? (
+          {ownerType === "search" ? (
+            <>
+              <CompactUserSearch onUserSelected={handleUserSelected} />
+              {selectedUserId && (
+                <div className="flex items-center gap-2 p-3 bg-muted/50 rounded border">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 text-sm">
+                    <div className="font-medium">{selectedUserEmail}</div>
+                    <div className="text-muted-foreground">{selectedUserName}</div>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : ownerType === "existing" ? (
             <div className="space-y-2">
               <Label htmlFor="owner">Select User</Label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId} required>
