@@ -21,142 +21,97 @@ serve(async (req) => {
 
     console.log('[search-users] Searching for:', { email, firstName, lastName });
 
-    // Query auth.users using service role
-    let query = supabase
-      .from('profiles')
-      .select(`
-        user_id,
-        first_name,
-        last_name,
-        total_points,
-        level,
-        civic_status,
-        created_at
-      `);
-
-    // Apply filters
-    if (firstName) {
-      query = query.ilike('first_name', `%${firstName}%`);
-    }
-    if (lastName) {
-      query = query.ilike('last_name', `%${lastName}%`);
+    // Get all auth users first (we need this for both email and name searches)
+    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
+    
+    if (userError) {
+      console.error('[search-users] Auth users error:', userError);
+      throw userError;
     }
 
-    const { data: profiles, error: profileError } = await query;
+    console.log('[search-users] Total users in auth:', users.length);
 
-    if (profileError) {
-      console.error('[search-users] Profile query error:', profileError);
-      throw profileError;
-    }
+    let foundUser = null;
 
-    console.log('[search-users] Found profiles:', profiles?.length);
-
-    // If email is provided, we need to check auth.users
+    // Search by email
     if (email) {
-      const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-      
-      if (userError) {
-        console.error('[search-users] Auth users error:', userError);
-        throw userError;
+      foundUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+      console.log('[search-users] Email search result:', foundUser ? 'found' : 'not found');
+    } 
+    // Search by name in user metadata and profiles
+    else if (firstName || lastName) {
+      const searchTerm = `${firstName} ${lastName}`.toLowerCase().trim();
+      console.log('[search-users] Searching for name:', searchTerm);
+
+      // First try to find in auth.users user_metadata
+      foundUser = users.find(u => {
+        const metaFirstName = (u.user_metadata?.first_name || '').toLowerCase();
+        const metaLastName = (u.user_metadata?.last_name || '').toLowerCase();
+        const fullName = `${metaFirstName} ${metaLastName}`.trim();
+        const email = (u.email || '').toLowerCase();
+        
+        return fullName.includes(searchTerm) || 
+               email.includes(searchTerm) ||
+               metaFirstName.includes(searchTerm) ||
+               metaLastName.includes(searchTerm);
+      });
+
+      console.log('[search-users] User metadata search result:', foundUser ? 'found' : 'not found');
+
+      // If not found in metadata, search profiles table
+      if (!foundUser) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name')
+          .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`);
+
+        console.log('[search-users] Profiles search found:', profiles?.length || 0);
+
+        if (profiles && profiles.length > 0) {
+          foundUser = users.find(u => u.id === profiles[0].user_id);
+        }
       }
+    }
 
-      // Find user by email
-      const authUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-      
-      if (!authUser) {
-        return new Response(
-          JSON.stringify({ error: 'User not found' }),
-          { 
-            status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-
-      // Get profile and roles for this user
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', authUser.id)
-        .single();
-
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', authUser.id);
-
-      const result = {
-        id: authUser.id,
-        email: authUser.email,
-        created_at: authUser.created_at,
-        email_confirmed_at: authUser.email_confirmed_at,
-        last_sign_in_at: authUser.last_sign_in_at,
-        profile: profile || null,
-        roles: userRoles || []
-      };
-
-      console.log('[search-users] Found user by email:', result.email);
-
+    if (!foundUser) {
       return new Response(
-        JSON.stringify(result),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'User not found' }),
+        { 
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Search by name - return first matching profile with auth data
-    if (profiles && profiles.length > 0) {
-      const profile = profiles[0];
-      
-      // Get auth user data
-      const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-      
-      if (userError) {
-        console.error('[search-users] Auth users error:', userError);
-        throw userError;
-      }
+    // Get profile and roles for the found user
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', foundUser.id)
+      .maybeSingle();
 
-      const authUser = users.find(u => u.id === profile.user_id);
-      
-      if (!authUser) {
-        return new Response(
-          JSON.stringify({ error: 'User not found in auth' }),
-          { 
-            status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', foundUser.id);
 
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', profile.user_id);
+    const result = {
+      id: foundUser.id,
+      email: foundUser.email,
+      created_at: foundUser.created_at,
+      email_confirmed_at: foundUser.email_confirmed_at,
+      last_sign_in_at: foundUser.last_sign_in_at,
+      profile: profile || null,
+      roles: userRoles || []
+    };
 
-      const result = {
-        id: authUser.id,
-        email: authUser.email,
-        created_at: authUser.created_at,
-        email_confirmed_at: authUser.email_confirmed_at,
-        last_sign_in_at: authUser.last_sign_in_at,
-        profile: profile,
-        roles: userRoles || []
-      };
-
-      console.log('[search-users] Found user by name:', result.email);
-
-      return new Response(
-        JSON.stringify(result),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    console.log('[search-users] Found user:', result.email);
 
     return new Response(
-      JSON.stringify({ error: 'User not found' }),
-      { 
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
 
   } catch (error) {
     console.error('[search-users] Error:', error);
