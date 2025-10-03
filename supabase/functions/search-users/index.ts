@@ -21,94 +21,153 @@ serve(async (req) => {
 
     console.log('[search-users] Searching for:', { email, firstName, lastName });
 
-    // Get all auth users first (we need this for both email and name searches)
-    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
+    const matches = [];
+    let page = 1;
+    const perPage = 1000;
     
-    if (userError) {
-      console.error('[search-users] Auth users error:', userError);
-      throw userError;
-    }
-
-    console.log('[search-users] Total users in auth:', users.length);
-
-    let foundUser = null;
-
-    // Search by email
+    // Search by email (exact match)
     if (email) {
-      foundUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-      console.log('[search-users] Email search result:', foundUser ? 'found' : 'not found');
-    } 
-    // Search by name in user metadata and profiles
-    else if (firstName || lastName) {
-      const searchTerm = `${firstName} ${lastName}`.toLowerCase().trim();
-      console.log('[search-users] Searching for name:', searchTerm);
-
-      // First try to find in auth.users user_metadata
-      foundUser = users.find(u => {
-        const metaFirstName = (u.user_metadata?.first_name || '').toLowerCase();
-        const metaLastName = (u.user_metadata?.last_name || '').toLowerCase();
-        const fullName = `${metaFirstName} ${metaLastName}`.trim();
-        const email = (u.email || '').toLowerCase();
+      console.log('[search-users] Email search mode');
+      
+      while (true) {
+        const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({ page, perPage });
         
-        return fullName.includes(searchTerm) || 
-               email.includes(searchTerm) ||
-               metaFirstName.includes(searchTerm) ||
-               metaLastName.includes(searchTerm);
-      });
-
-      console.log('[search-users] User metadata search result:', foundUser ? 'found' : 'not found');
-
-      // If not found in metadata, search profiles table
-      if (!foundUser) {
+        if (userError) {
+          console.error('[search-users] Auth users error:', userError);
+          throw userError;
+        }
+        
+        console.log(`[search-users] Page ${page}: ${users.length} users`);
+        
+        const foundUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+        
+        if (foundUser) {
+          console.log('[search-users] Email match found:', foundUser.email);
+          matches.push(foundUser);
+          break;
+        }
+        
+        if (users.length < perPage) {
+          console.log('[search-users] Email search exhausted, no match');
+          break;
+        }
+        
+        page++;
+      }
+    }
+    // Search by name (tokenized partial match, up to 5 results)
+    else if (firstName || lastName) {
+      const searchTokens = `${firstName} ${lastName}`.toLowerCase().trim().split(/\s+/);
+      console.log('[search-users] Name search mode, tokens:', searchTokens);
+      
+      while (matches.length < 5) {
+        const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({ page, perPage });
+        
+        if (userError) {
+          console.error('[search-users] Auth users error:', userError);
+          throw userError;
+        }
+        
+        console.log(`[search-users] Page ${page}: ${users.length} users`);
+        
+        for (const u of users) {
+          if (matches.length >= 5) break;
+          
+          const metaFirstName = (u.user_metadata?.first_name || '').toLowerCase();
+          const metaLastName = (u.user_metadata?.last_name || '').toLowerCase();
+          const userEmail = (u.email || '').toLowerCase();
+          
+          const matchesTokens = searchTokens.every(token =>
+            metaFirstName.includes(token) ||
+            metaLastName.includes(token) ||
+            userEmail.includes(token)
+          );
+          
+          if (matchesTokens) {
+            matches.push(u);
+          }
+        }
+        
+        if (users.length < perPage) {
+          console.log('[search-users] Metadata search complete');
+          break;
+        }
+        
+        page++;
+      }
+      
+      // Fallback to profiles table if needed
+      if (matches.length < 5) {
+        const searchTerm = searchTokens.join(' ');
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, first_name, last_name')
-          .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`);
+          .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
+          .limit(5 - matches.length);
 
         console.log('[search-users] Profiles search found:', profiles?.length || 0);
 
         if (profiles && profiles.length > 0) {
-          foundUser = users.find(u => u.id === profiles[0].user_id);
+          page = 1;
+          while (matches.length < 5) {
+            const { data: { users } } = await supabase.auth.admin.listUsers({ page, perPage });
+            
+            for (const profile of profiles) {
+              if (matches.length >= 5) break;
+              const foundUser = users.find(u => u.id === profile.user_id);
+              if (foundUser && !matches.some(m => m.id === foundUser.id)) {
+                matches.push(foundUser);
+              }
+            }
+            
+            if (users.length < perPage || matches.length >= 5) break;
+            page++;
+          }
         }
       }
     }
 
-    if (!foundUser) {
+    if (matches.length === 0) {
+      console.log('[search-users] No matches found');
       return new Response(
-        JSON.stringify({ error: 'User not found' }),
+        JSON.stringify({ found: false, matches: [] }),
         { 
-          status: 404,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
 
-    // Get profile and roles for the found user
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', foundUser.id)
-      .maybeSingle();
+    // Enrich matches with profile and roles data
+    const enrichedMatches = await Promise.all(
+      matches.map(async (user) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-    const { data: userRoles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', foundUser.id);
+        const { data: userRoles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
 
-    const result = {
-      id: foundUser.id,
-      email: foundUser.email,
-      created_at: foundUser.created_at,
-      email_confirmed_at: foundUser.email_confirmed_at,
-      last_sign_in_at: foundUser.last_sign_in_at,
-      profile: profile || null,
-      roles: userRoles || []
-    };
+        return {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at,
+          email_confirmed_at: user.email_confirmed_at,
+          last_sign_in_at: user.last_sign_in_at,
+          profile: profile || null,
+          roles: userRoles || []
+        };
+      })
+    );
 
-    console.log('[search-users] Found user:', result.email);
+    console.log('[search-users] Returning', enrichedMatches.length, 'match(es)');
 
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({ found: true, matches: enrichedMatches }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

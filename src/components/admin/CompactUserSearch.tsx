@@ -27,7 +27,6 @@ export function CompactUserSearch({ onUserSelected }: CompactUserSearchProps) {
 
     setSearching(true);
     try {
-      // Determine if it's an email or name search
       const isEmail = searchValue.includes('@');
       
       const { data, error } = await supabase.functions.invoke('search-users', {
@@ -40,31 +39,49 @@ export function CompactUserSearch({ onUserSelected }: CompactUserSearchProps) {
 
       if (error) throw error;
 
-      if (data && !data.error) {
-        const userName = data.profile 
-          ? `${data.profile.first_name || ''} ${data.profile.last_name || ''}`.trim() 
-          : 'Unknown';
-        
-        onUserSelected(data.id, data.email, userName);
-        
-        toast({
-          title: "User Found",
-          description: `Selected: ${data.email}`,
-        });
-        
-        setSearchValue('');
-      } else {
+      if (data?.found === false || !data?.matches || data.matches.length === 0) {
         toast({
           title: "User Not Found",
           description: "No user found with that email or name.",
           variant: "destructive"
         });
+        return;
+      }
+
+      if (data.matches.length === 1) {
+        const user = data.matches[0];
+        const userName = user.profile 
+          ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() 
+          : 'Unknown';
+        
+        onUserSelected(user.id, user.email, userName);
+        
+        toast({
+          title: "User Found",
+          description: `Selected: ${user.email}`,
+        });
+        
+        setSearchValue('');
+      } else {
+        const user = data.matches[0];
+        const userName = user.profile 
+          ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() 
+          : 'Unknown';
+        
+        onUserSelected(user.id, user.email, userName);
+        
+        toast({
+          title: "User Found",
+          description: `Selected first match: ${user.email}`,
+        });
+        
+        setSearchValue('');
       }
     } catch (error) {
       console.error('[CompactUserSearch] Error:', error);
       toast({
-        title: "Search Error",
-        description: "Failed to search for users. Please try again.",
+        title: "User Not Found",
+        description: "No user found with that email or name.",
         variant: "destructive"
       });
     } finally {

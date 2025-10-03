@@ -36,7 +36,7 @@ export function AdminLayout() {
     if (siteId && setCurrentSiteId && siteId !== currentSiteId) {
       setCurrentSiteId(siteId);
     }
-  }, [siteId, setCurrentSiteId]);
+  }, [siteId, setCurrentSiteId, currentSiteId]);
 
   // Check site status and block access to inactive sites
   useEffect(() => {
@@ -65,18 +65,16 @@ export function AdminLayout() {
     }
   }, [loading, siteId, currentSiteId, isUberAdmin, navigate]);
 
-  // Redirect Uber Admins from generic /admin routes to site-scoped routes
+  // Redirect Uber Admins from generic /admin routes to site-scoped routes (once per mount)
   const redirectedRef = React.useRef(false);
   React.useEffect(() => {
     if (!loading && isUberAdmin && currentSiteId && !redirectedRef.current) {
       const path = location.pathname;
       const targetPath = `/admin/${currentSiteId}/overview`;
       
-      // If on generic /admin or /admin/overview without siteId in URL, redirect once
+      // Only redirect if we're not already at the target path
       if (!siteId && (path === '/admin' || path === '/admin/overview') && path !== targetPath) {
-        if (import.meta.env.DEV) {
-          console.debug('[AdminLayout] Redirecting Uber Admin to site-scoped URL:', currentSiteId);
-        }
+        console.debug('[AdminLayout] Redirecting Uber Admin to:', targetPath);
         redirectedRef.current = true;
         navigate(targetPath, { replace: true });
       }

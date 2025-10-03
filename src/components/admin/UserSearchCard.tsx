@@ -46,7 +46,6 @@ export function UserSearchCard({ onUserFound }: UserSearchCardProps) {
 
     setSearching(true);
     try {
-      // Call edge function to search all users in the database
       const { data, error } = await supabase.functions.invoke('search-users', {
         body: { email, firstName, lastName }
       });
@@ -56,21 +55,25 @@ export function UserSearchCard({ onUserFound }: UserSearchCardProps) {
         throw error;
       }
 
-      if (data && !data.error) {
-        console.log('[UserSearchCard] Found user:', data.email);
-        onUserFound(data);
-      } else {
+      if (data?.found === false || !data?.matches || data.matches.length === 0) {
         toast({
           title: "User Not Found",
-          description: data?.error || "No user found with the provided search criteria.",
+          description: "No user found with the provided search criteria.",
           variant: "destructive"
         });
+        return;
+      }
+
+      if (data.matches.length > 0) {
+        const user = data.matches[0];
+        console.log('[UserSearchCard] Found user:', user.email);
+        onUserFound(user);
       }
     } catch (error) {
       console.error('[UserSearchCard] Error searching users:', error);
       toast({
-        title: "Search Error",
-        description: "Failed to search for users. Please try again.",
+        title: "User Not Found",
+        description: "No user found with the provided search criteria.",
         variant: "destructive"
       });
     } finally {
