@@ -9,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Crown, Building2, Users, Plus, Trash2 } from 'lucide-react';
+import { Crown, Building2, Users, Plus, Trash2, UserCog } from 'lucide-react';
+import { CreateBranchDialog } from '@/components/admin/CreateBranchDialog';
+import { SiteUserManager } from '@/components/admin/SiteUserManager';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +47,8 @@ export function UberAdmin() {
   const [uberAdmins, setUberAdmins] = useState<UberAdminUser[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedSiteForUsers, setSelectedSiteForUsers] = useState<{ id: string; name: string } | null>(null);
+  const [siteUserCounts, setSiteUserCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!isUberAdmin) {
@@ -73,6 +77,19 @@ export function UberAdmin() {
     const { data: adminsData } = await supabase
       .from('mm_super_admins')
       .select('user_id, email');
+
+    // Fetch user counts for each site
+    if (sitesData) {
+      const counts: Record<string, number> = {};
+      for (const site of sitesData) {
+        const { count } = await supabase
+          .from('user_roles')
+          .select('*', { count: 'exact', head: true })
+          .eq('agent_site_id', site.id);
+        counts[site.id] = count || 0;
+      }
+      setSiteUserCounts(counts);
+    }
 
     setSites((sitesData as Site[]) || []);
     setUberAdmins((adminsData as UberAdminUser[]) || []);
@@ -327,10 +344,13 @@ export function UberAdmin() {
       {/* Sites Management */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            All Sites
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              All Sites
+            </CardTitle>
+            <CreateBranchDialog onBranchCreated={fetchData} />
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -339,6 +359,7 @@ export function UberAdmin() {
                 <TableHead>Site Name</TableHead>
                 <TableHead>Slug</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Users</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -358,6 +379,14 @@ export function UberAdmin() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{siteUserCounts[site.id] || 0}</span>
+                      {siteUserCounts[site.id] === 0 && (
+                        <Badge variant="destructive" className="text-xs">No admins</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
                       <Switch
                         checked={site.status === 'active'}
                         onCheckedChange={() => toggleSiteStatus(site.id, site.status)}
@@ -370,6 +399,14 @@ export function UberAdmin() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedSiteForUsers({ id: site.id, name: site.display_name })}
+                      >
+                        <UserCog className="h-4 w-4 mr-1" />
+                        Users
+                      </Button>
                       {!site.is_master && (
                         <Button
                           variant="outline"
@@ -415,6 +452,17 @@ export function UberAdmin() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Site User Manager Dialog */}
+      {selectedSiteForUsers && (
+        <SiteUserManager
+          siteId={selectedSiteForUsers.id}
+          siteName={selectedSiteForUsers.name}
+          open={!!selectedSiteForUsers}
+          onOpenChange={(open) => !open && setSelectedSiteForUsers(null)}
+          onUpdate={fetchData}
+        />
+      )}
     </div>
   );
 }
