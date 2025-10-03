@@ -56,6 +56,14 @@
     --input: 240 20% 15%;
     --ring: 180 100% 50%;
     
+    /* Sidebar - solid background */
+    --sidebar: 240 25% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 240 15% 25%;
+    --sidebar-accent: 320 100% 60%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-ring: 180 100% 50%;
+    
     --radius: 1rem;
     
     /* Shadows & Glows */

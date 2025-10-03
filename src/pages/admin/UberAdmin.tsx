@@ -372,9 +372,9 @@ export function UberAdmin() {
                   <TableCell className="font-mono text-xs">{site.site_slug}</TableCell>
                   <TableCell>
                     {site.is_master ? (
-                      <Badge className="bg-amber-500">Master</Badge>
+                      <Badge className="bg-primary text-primary-foreground hover:bg-amber-500 hover:text-background">Master</Badge>
                     ) : (
-                      <Badge variant="secondary">Branch</Badge>
+                      <Badge variant="secondary" className="text-white">Branch</Badge>
                     )}
                   </TableCell>
                   <TableCell>
