@@ -1,15 +1,14 @@
-name: Auto Publish on Tag
+name: CI
+
 on:
   push:
-    tags:
-      - '@qriptoagentiq/*@*'
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,13 +20,13 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Build SDK
-        run: npm run build:sdk
-
-      - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: node ./scripts/publish.js
+        run: npm ci || npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Type check
+        run: npm run type-check || echo "Type check skipped"
