@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { getCore } from '@/lib/agentiq';
 
 interface AuthContextType {
   user: User | null;
@@ -83,17 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   hasAgentSite: hasOwnedSite || hasManagedSite,
                   isUberAdmin: isUber
                 });
-                
-                // TEST 1: SDK Bootstrap - verify ensureIamUser() works
-                console.log('[AgentiQ Test 1] Testing SDK bootstrap...');
-                getCore()
-                  .then(() => {
-                    console.log('[AgentiQ Test 1] ✅ SDK bootstrap successful - ensureIamUser() completed');
-                  })
-                  .catch((error) => {
-                    console.error('[AgentiQ Test 1] ❌ SDK bootstrap failed:', error);
-                  });
-                
                 setLoading(false);
               },
               (err) => {
@@ -165,17 +153,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               hasAgentSite: hasOwnedSite || hasManagedSite,
               isUberAdmin: isUber
             });
-            
-            // TEST 1: SDK Bootstrap - verify ensureIamUser() works
-            console.log('[AgentiQ Test 1] Testing SDK bootstrap (initial load)...');
-            getCore()
-              .then(() => {
-                console.log('[AgentiQ Test 1] ✅ SDK bootstrap successful (initial) - ensureIamUser() completed');
-              })
-              .catch((error) => {
-                console.error('[AgentiQ Test 1] ❌ SDK bootstrap failed (initial):', error);
-              });
-            
             setLoading(false);
           },
           (err) => {
