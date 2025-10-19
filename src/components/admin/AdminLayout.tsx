@@ -100,7 +100,7 @@ export function AdminLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar />
         
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative z-0">
           {/* Admin Header */}
           <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
             <div className="flex h-14 items-center px-4 gap-4">
