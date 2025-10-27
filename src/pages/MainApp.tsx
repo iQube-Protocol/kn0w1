@@ -46,15 +46,16 @@ export default function MainApp() {
           .from('content_items')
           .select(`
             *,
-            content_categories (
+            content_categories!inner(
               name,
               slug
             ),
-            media_assets (
+            media_assets!content_item_id(
               kind,
               storage_path,
               external_url,
-              mime_type
+              mime_type,
+              thumbnail_url
             )
           `)
           .eq('status', 'published')
@@ -72,49 +73,56 @@ export default function MainApp() {
         const transformedContent: MediaItem[] = (data || []).map((item: any) => {
           let imageUrl = heroImage;
           
-          // Priority 1: Get image from media_assets
-          if (item.media_assets && item.media_assets.length > 0) {
+          // Priority 1: Get image from media_assets (properly joined now)
+          if (item.media_assets && Array.isArray(item.media_assets) && item.media_assets.length > 0) {
+            // First try to find an explicit image asset
             const imageAsset = item.media_assets.find((asset: any) => 
-              asset.kind === 'image' && (asset.storage_path || asset.external_url)
+              asset.kind === 'image' && (asset.storage_path || asset.external_url || asset.thumbnail_url)
             );
             
             if (imageAsset) {
-              if (imageAsset.storage_path) {
+              if (imageAsset.external_url) {
+                imageUrl = imageAsset.external_url;
+              } else if (imageAsset.thumbnail_url) {
+                imageUrl = imageAsset.thumbnail_url;
+              } else if (imageAsset.storage_path) {
                 const { data: urlData } = supabase.storage
                   .from('content-files')
                   .getPublicUrl(imageAsset.storage_path);
                 imageUrl = urlData.publicUrl;
-              } else if (imageAsset.external_url) {
-                imageUrl = imageAsset.external_url;
               }
             }
-          }
-          // Priority 2a: Use a YouTube thumbnail from media_assets if a video link exists
-          if (imageUrl === heroImage && item.media_assets && item.media_assets.length > 0) {
-            const ytVideo = item.media_assets.find((asset: any) => 
-              asset.kind === 'video' && typeof asset.external_url === 'string' &&
-              (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be'))
-            );
-            if (ytVideo) {
-              const videoId = ytVideo.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
-              if (videoId) {
-                imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            
+            // If no image found, try to extract YouTube thumbnail from video assets
+            if (imageUrl === heroImage) {
+              const ytVideo = item.media_assets.find((asset: any) => 
+                asset.kind === 'video' && asset.external_url &&
+                (asset.external_url.includes('youtube.com') || asset.external_url.includes('youtu.be'))
+              );
+              if (ytVideo?.external_url) {
+                const videoId = ytVideo.external_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+                if (videoId) {
+                  imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                }
               }
             }
           }
           
-          // Priority 2b: Use social_url if it's an image URL or YouTube
+          // Priority 2: Use social_url if it's an image URL or YouTube
           if (imageUrl === heroImage && item.social_url) {
-            const extension = item.social_url.split('.').pop()?.toLowerCase();
-            if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+            const lowerUrl = item.social_url.toLowerCase();
+            if (lowerUrl.match(/\.(jpg|jpeg|png|webp|gif)$/)) {
               imageUrl = item.social_url;
-            } else if (item.social_url.includes('youtube.com') || item.social_url.includes('youtu.be')) {
+            } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
               const videoId = item.social_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
               if (videoId) {
                 imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
               }
             }
           }
+          
+          // Priority 3: Check for cover_image_id (if you implement this in future)
+          // This would require another query to fetch the image from storage
 
           return {
             id: item.id,
