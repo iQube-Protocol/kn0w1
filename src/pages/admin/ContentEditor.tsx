@@ -74,7 +74,7 @@ export function ContentEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isNew = id === 'new';
+  const isNew = !id || id === 'new';
 
   const [content, setContent] = useState<ContentItem>({
     title: '',
@@ -122,7 +122,9 @@ export function ContentEditor() {
         }
       }
       
-      if (!isNew && id) {
+      if (isNew) {
+        setLoading(false);
+      } else if (id) {
         await fetchContent();
       }
     };
