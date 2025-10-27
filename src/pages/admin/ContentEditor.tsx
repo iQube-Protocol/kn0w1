@@ -269,14 +269,27 @@ export function ContentEditor() {
 
     let candidate = normalized;
     let suffix = 2;
+    let attempts = 0;
 
     while (true) {
-      const { data } = await supabase
+      attempts++;
+      if (attempts > 50) {
+        // Prevent any chance of an infinite loop
+        console.error('ensureUniqueSlug exceeded 50 attempts, using fallback candidate:', candidate);
+        return `${normalized}-${Date.now()}`;
+      }
+
+      const { data, error } = await supabase
         .from('content_items')
         .select('id, slug')
         .eq('agent_site_id', agentSiteId)
         .eq('slug', candidate)
         .maybeSingle();
+
+      if (error && (error as any).code !== 'PGRST116') {
+        // PGRST116 is "Results contain 0 rows" for maybeSingle - not an actual error
+        console.warn('ensureUniqueSlug select warning:', error);
+      }
 
       if (!data) {
         return candidate; // available
@@ -324,6 +337,7 @@ export function ContentEditor() {
 
   const handleSave = async (newStatus?: typeof content.status) => {
     setSaving(true);
+    console.debug('[ContentEditor] handleSave start', { newStatus, isNew });
     try {
       // Get the current user's agent site
       const { data: userData } = await supabase.auth.getUser();
@@ -334,6 +348,8 @@ export function ContentEditor() {
         .select('id')
         .eq('owner_user_id', userData.user.id)
         .maybeSingle();
+
+      console.debug('[ContentEditor] agentSite lookup', { agentSiteId: agentSiteData?.id });
 
       // Create agent site if it doesn't exist
       if (!agentSiteData) {
@@ -354,15 +370,22 @@ export function ContentEditor() {
 
         // Clone master template content for new site
         try {
-          const { error: templateError } = await supabase.functions.invoke('clone-master-template', {
+          console.debug('[ContentEditor] Cloning master template for new site', agentSiteData.id);
+          const clonePromise = supabase.functions.invoke('clone-master-template', {
             body: { 
               agentSiteId: agentSiteData.id,
               userEmail: userData.user.email 
             }
           });
-          
-          if (templateError) {
-            console.error('Failed to clone master template:', templateError);
+
+          // Don't let cloning block content creation indefinitely
+          const result: any = await Promise.race([
+            clonePromise,
+            new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'timeout' } }), 10000))
+          ]);
+
+          if (result?.error) {
+            console.error('Failed to clone master template:', result.error);
             toast({
               title: "Site Created",
               description: "Site created but template cloning failed. You can add content manually.",
@@ -385,6 +408,7 @@ export function ContentEditor() {
       // Ensure slug exists and is unique per agent site
       const baseSlug = (contentToSave.slug || generateSlug(contentToSave.title));
       const uniqueSlug = await ensureUniqueSlug(baseSlug, agentSiteData.id, isNew ? undefined : (id as string));
+      console.debug('[ContentEditor] Slug check', { baseSlug, uniqueSlug, agentSiteId: agentSiteData.id });
       if (baseSlug !== uniqueSlug) {
         toast({ title: 'Slug adjusted', description: `Using "${uniqueSlug}" to avoid duplicates.` });
       }
@@ -401,6 +425,7 @@ export function ContentEditor() {
       let contentItemId = id;
 
       if (isNew) {
+        console.debug('[ContentEditor] creating content_items', { saveData });
         const { data, error } = await supabase
           .from('content_items')
           .insert([saveData])
