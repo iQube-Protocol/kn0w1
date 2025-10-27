@@ -125,9 +125,13 @@ export default function MainApp() {
 
           // Get content URL for PDFs and other media
           let contentUrl = '';
-          if (item.type === 'pdf' && item.media_assets) {
+          let actualContentType = item.type;
+          
+          // Check for PDF in media_assets regardless of type field
+          if (item.media_assets && Array.isArray(item.media_assets)) {
             const pdfAsset = item.media_assets.find((asset: any) => asset.kind === 'pdf');
             if (pdfAsset) {
+              actualContentType = 'pdf';
               if (pdfAsset.external_url) {
                 contentUrl = pdfAsset.external_url;
               } else if (pdfAsset.storage_path) {
@@ -148,7 +152,7 @@ export default function MainApp() {
             description: item.description || '',
             price: item.featured ? '$25' : undefined,
             rarity: item.pinned ? 'Featured' : item.featured ? 'Limited' : undefined,
-            contentType: item.type,
+            contentType: actualContentType,
             contentUrl,
           };
         });
