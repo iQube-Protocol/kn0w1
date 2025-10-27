@@ -630,12 +630,15 @@ export function ContentEditor() {
 
           {/* Content Type Specific Fields */}
           <Tabs value={content.type} onValueChange={(value: any) => setContent(prev => ({ ...prev, type: value }))}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="text">Text</TabsTrigger>
+              <TabsTrigger value="pdf">PDF</TabsTrigger>
               <TabsTrigger value="image">Image</TabsTrigger>
               <TabsTrigger value="video">Video</TabsTrigger>
               <TabsTrigger value="audio">Audio</TabsTrigger>
               <TabsTrigger value="social">Social</TabsTrigger>
+              <TabsTrigger value="mixed">Mixed</TabsTrigger>
+              <TabsTrigger value="l2e">L2E</TabsTrigger>
             </TabsList>
 
             <TabsContent value="text" className="space-y-4">
@@ -851,6 +854,46 @@ export function ContentEditor() {
                       </div>
                     </TabsContent>
                   </Tabs>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="pdf" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>PDF Content</CardTitle>
+                  <CardDescription>Upload a PDF document (e.g., comic book, guide)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FileUpload
+                    label="Upload PDF File"
+                    description="Upload a PDF document (max 100MB)"
+                    accept="application/pdf,.pdf"
+                    maxSize={100}
+                    currentFile={content.social_url}
+                    onFileUploaded={(data) => {
+                      setContent(prev => ({ ...prev, social_url: data.url }));
+                      setUploadedFiles(prev => [...prev, { kind: 'pdf', storage_path: data.storagePath, file_type: data.fileType }]);
+                    }}
+                    onRemoveFile={() => setContent(prev => ({ ...prev, social_url: '' }))}
+                  />
+
+                  <div className="space-y-2">
+                    <Label>Custom Thumbnail</Label>
+                    <FileUpload
+                      label="Upload Thumbnail"
+                      description="Upload a custom cover image for this PDF"
+                      accept="image/*"
+                      maxSize={5}
+                      currentFile={thumbnailUrl}
+                      onFileUploaded={(data) => {
+                        setThumbnailUrl(data.url);
+                        // Thumbnail is handled separately via cover_image upload
+                        setUploadedFiles(prev => [...prev, { kind: 'image', storage_path: data.storagePath, file_type: data.fileType }]);
+                      }}
+                      onRemoveFile={() => setThumbnailUrl('')}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

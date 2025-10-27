@@ -21,6 +21,8 @@ interface MediaItem {
   type: 'video' | 'audio' | 'article';
   category: string;
   description: string;
+  contentType?: string;
+  contentUrl?: string;
 }
 
 export default function MainApp() {
@@ -121,6 +123,22 @@ export default function MainApp() {
           // Priority 3: Check for cover_image_id (if you implement this in future)
           // This would require another query to fetch the image from storage
 
+          // Get content URL for PDFs and other media
+          let contentUrl = '';
+          if (item.type === 'pdf' && item.media_assets) {
+            const pdfAsset = item.media_assets.find((asset: any) => asset.kind === 'pdf');
+            if (pdfAsset) {
+              if (pdfAsset.external_url) {
+                contentUrl = pdfAsset.external_url;
+              } else if (pdfAsset.storage_path) {
+                const { data: urlData } = supabase.storage
+                  .from('content-files')
+                  .getPublicUrl(pdfAsset.storage_path);
+                contentUrl = urlData.publicUrl;
+              }
+            }
+          }
+
           return {
             id: item.id,
             title: item.title,
@@ -130,6 +148,8 @@ export default function MainApp() {
             description: item.description || '',
             price: item.featured ? '$25' : undefined,
             rarity: item.pinned ? 'Featured' : item.featured ? 'Limited' : undefined,
+            contentType: item.type,
+            contentUrl,
           };
         });
 
@@ -276,6 +296,8 @@ export default function MainApp() {
           imageUrl={selectedContent.imageUrl}
           viewMode={viewMode}
           isContentPlaying={isContentPlaying}
+          contentType={selectedContent.contentType}
+          contentUrl={selectedContent.contentUrl}
           onStartPlaying={handleStartPlaying}
           onStopPlaying={handleStopPlaying}
         />
