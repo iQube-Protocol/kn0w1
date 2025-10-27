@@ -417,8 +417,7 @@ export function ContentEditor() {
             kind: file.kind,
             storage_path: file.storage_path,
             external_url: file.external_url,
-            mime_type: file.file_type,
-            agent_site_id: agentSiteData.id
+            mime_type: file.file_type
           }));
 
           const { error: mediaError } = await supabase
@@ -456,8 +455,7 @@ export function ContentEditor() {
             kind: file.kind,
             storage_path: file.storage_path,
             external_url: file.external_url,
-            mime_type: file.file_type,
-            agent_site_id: agentSiteData.id
+            mime_type: file.file_type
           }));
 
           const { error: mediaError } = await supabase
