@@ -54,8 +54,7 @@ export default function MainApp() {
               kind,
               storage_path,
               external_url,
-              mime_type,
-              thumbnail_url
+              mime_type
             )
           `)
           .eq('status', 'published')
@@ -77,14 +76,12 @@ export default function MainApp() {
           if (item.media_assets && Array.isArray(item.media_assets) && item.media_assets.length > 0) {
             // First try to find an explicit image asset
             const imageAsset = item.media_assets.find((asset: any) => 
-              asset.kind === 'image' && (asset.storage_path || asset.external_url || asset.thumbnail_url)
+              asset.kind === 'image' && (asset.storage_path || asset.external_url)
             );
             
             if (imageAsset) {
               if (imageAsset.external_url) {
                 imageUrl = imageAsset.external_url;
-              } else if (imageAsset.thumbnail_url) {
-                imageUrl = imageAsset.thumbnail_url;
               } else if (imageAsset.storage_path) {
                 const { data: urlData } = supabase.storage
                   .from('content-files')
