@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,9 +18,11 @@ import {
   Edit,
   Eye,
   Star,
-  Pin
+  Pin,
+  DollarSign
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { PurchaseButton } from '@/components/x402/PurchaseButton';
 import content1 from '@/assets/content-1.jpg';
 import content2 from '@/assets/content-2.jpg';
 import content3 from '@/assets/content-3.jpg';
@@ -155,7 +157,50 @@ const getMediaThumbnail = (item: ContentItem) => {
 export function ContentCard({ item, navigate, fetchContent }: ContentCardProps) {
   const TypeIcon = typeIcons[item.type as keyof typeof typeIcons] || FileText;
   const thumbnail = getMediaThumbnail(item);
+  const [assetPolicy, setAssetPolicy] = useState<any>(null);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
   console.debug('ContentCard thumbnail', { id: item.id, title: item.title, type: item.type, social_url: item.social_url, hasEmbed: !!item.social_embed_html, mediaCount: item.media_assets?.length || 0, thumbnail });
+
+  useEffect(() => {
+    fetchAssetPolicy();
+    checkAccess();
+  }, [item.id]);
+
+  const fetchAssetPolicy = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('asset_policies')
+        .select('*')
+        .eq('asset_id', item.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setAssetPolicy(data);
+      }
+    } catch (error) {
+      console.error('Error fetching asset policy:', error);
+    }
+  };
+
+  const checkAccess = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('entitlements')
+        .select('id')
+        .eq('asset_id', item.id)
+        .eq('holder_user_id', user.id)
+        .maybeSingle();
+
+      setHasAccess(!!data);
+    } catch (error) {
+      console.error('Error checking access:', error);
+    }
+  };
 
   const toggleFeature = async (field: 'featured' | 'pinned', currentValue: boolean) => {
     try {
@@ -278,16 +323,39 @@ export function ContentCard({ item, navigate, fetchContent }: ContentCardProps) 
               </Badge>
               <span>{item.views_count || 0} views</span>
             </div>
-            <Badge 
-              variant={
-                item.status === 'published' ? 'default' : 
-                item.status === 'draft' ? 'secondary' : 
-                'outline'
-              }
-            >
-              {item.status}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {assetPolicy && assetPolicy.price_amount > 0 && (
+                <Badge variant="secondary" className="gap-1">
+                  <DollarSign className="h-3 w-3" />
+                  {assetPolicy.price_amount} {assetPolicy.price_asset}
+                </Badge>
+              )}
+              <Badge 
+                variant={
+                  item.status === 'published' ? 'default' : 
+                  item.status === 'draft' ? 'secondary' : 
+                  'outline'
+                }
+              >
+                {item.status}
+              </Badge>
+            </div>
           </div>
+
+          {/* Purchase Button - Only show if published and has policy */}
+          {item.status === 'published' && assetPolicy && (
+            <div className="pt-3 border-t">
+              <PurchaseButton
+                assetId={item.id}
+                policy={assetPolicy}
+                hasAccess={hasAccess}
+                onPurchaseComplete={() => {
+                  checkAccess();
+                  fetchContent();
+                }}
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

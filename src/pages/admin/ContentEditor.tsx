@@ -23,12 +23,14 @@ import {
   Calendar,
   Star,
   Pin,
-  Tag
+  Tag,
+  DollarSign
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileUpload } from '@/components/admin/FileUpload';
 import { AIContentGenerator } from '@/components/admin/AIContentGenerator';
+import { AssetPolicyForm } from '@/components/admin/AssetPolicyForm';
 import content1 from '@/assets/content-1.jpg';
 import content2 from '@/assets/content-2.jpg';
 import content3 from '@/assets/content-3.jpg';
@@ -1113,6 +1115,19 @@ export function ContentEditor() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Monetization */}
+          {!isNew && content.id && (
+            <AssetPolicyForm 
+              contentItemId={content.id} 
+              onPolicySaved={() => {
+                toast({
+                  title: 'Success',
+                  description: 'Asset policy updated successfully',
+                });
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
