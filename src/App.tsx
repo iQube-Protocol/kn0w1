@@ -18,6 +18,7 @@ import { Preview } from "@/pages/Preview";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MainApp from "./pages/MainApp";
+import Purchases from "./pages/Purchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/app/:siteName?" element={<MainApp />} />
+            <Route path="/purchases" element={<Purchases />} />
             <Route path="/gotv" element={<MainApp />} />
             <Route path="/l2e" element={<MainApp />} />
             <Route path="/preview/:siteSlug" element={<Preview />} />

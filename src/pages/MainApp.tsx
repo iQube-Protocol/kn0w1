@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Menu, Share2, Maximize, Minimize, Shield, LogOut } from "lucide-react";
+import { Settings, Menu, Share2, Maximize, Minimize, Shield, LogOut, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaPlayer } from "@/components/MediaPlayer";
 import { MediaCarousel } from "@/components/MediaCarousel";
@@ -263,6 +263,15 @@ export default function MainApp() {
         </Button>
         <Button variant="ghost" size="sm" className="glass hover-glow w-10 h-10 rounded-lg">
           <Share2 className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="glass hover-glow w-10 h-10 rounded-lg border border-primary/20"
+          onClick={() => navigate('/purchases')}
+          title="My Purchases"
+        >
+          <ShoppingBag className="h-4 w-4" />
         </Button>
         <Button 
           variant="ghost" 
