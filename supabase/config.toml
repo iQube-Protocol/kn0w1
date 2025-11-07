@@ -24,3 +24,15 @@ verify_jwt = true
 
 [functions.search-users]
 verify_jwt = true
+
+[functions.aa-payments-quote]
+verify_jwt = true
+
+[functions.aa-payments-notify]
+verify_jwt = false
+
+[functions.aa-entitlements]
+verify_jwt = true
+
+[functions.aa-auth-challenge]
+verify_jwt = false
