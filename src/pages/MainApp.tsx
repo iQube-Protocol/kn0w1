@@ -12,6 +12,13 @@ import { useToast } from "@/hooks/use-toast";
 
 import heroImage from "@/assets/hero-image.jpg";
 
+interface AssetPolicy {
+  price_amount: number;
+  price_asset: string;
+  rights: string[];
+  visibility: string;
+}
+
 interface MediaItem {
   id: string;
   title: string;
@@ -23,6 +30,9 @@ interface MediaItem {
   description: string;
   contentType?: string;
   contentUrl?: string;
+  assetId?: string;
+  policy?: AssetPolicy;
+  hasAccess?: boolean;
 }
 
 export default function MainApp() {
@@ -33,10 +43,11 @@ export default function MainApp() {
   const [contentItems, setContentItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const { isAdmin, signOut } = useAuth();
+  const { isAdmin, signOut, user } = useAuth();
   const navigate = useNavigate();
   const selectedSiteId = useSelectedSiteId();
   const { toast } = useToast();
+  
   // Fetch content from database
   useEffect(() => {
     const fetchContent = async () => {
@@ -69,6 +80,30 @@ export default function MainApp() {
         const { data, error } = await query;
 
         if (error) throw error;
+
+        // Fetch asset policies for all content items
+        const contentIds = (data || []).map((item: any) => item.id);
+        const { data: policiesData } = await supabase
+          .from('asset_policies')
+          .select('asset_id, price_amount, price_asset, rights, visibility')
+          .in('asset_id', contentIds);
+
+        const policiesMap = new Map(
+          (policiesData || []).map(p => [p.asset_id, p])
+        );
+
+        // Fetch user entitlements if logged in
+        let entitlementsMap = new Map();
+        if (user) {
+          const { data: entitlementsData } = await supabase
+            .from('entitlements')
+            .select('asset_id, rights')
+            .eq('holder_user_id', user.id);
+          
+          entitlementsMap = new Map(
+            (entitlementsData || []).map(e => [e.asset_id, e])
+          );
+        }
 
         // Transform database content to MediaItem format
         const transformedContent: MediaItem[] = (data || []).map((item: any) => {
@@ -143,6 +178,10 @@ export default function MainApp() {
             }
           }
 
+          const policy = policiesMap.get(item.id);
+          const entitlement = entitlementsMap.get(item.id);
+          const hasAccess = !!entitlement || policy?.visibility === 'public' || !policy;
+
           return {
             id: item.id,
             title: item.title,
@@ -150,10 +189,13 @@ export default function MainApp() {
             type: item.type as 'video' | 'audio' | 'article',
             category: item.content_categories?.name || 'Uncategorized',
             description: item.description || '',
-            price: item.featured ? '$25' : undefined,
+            price: policy ? `${policy.price_amount} ${policy.price_asset}` : undefined,
             rarity: item.pinned ? 'Featured' : item.featured ? 'Limited' : undefined,
             contentType: actualContentType,
             contentUrl,
+            assetId: item.id,
+            policy,
+            hasAccess,
           };
         });
 
@@ -176,7 +218,87 @@ export default function MainApp() {
     };
 
     fetchContent();
-  }, [selectedSiteId]);
+  }, [selectedSiteId, user]);
+
+  const handlePurchaseComplete = () => {
+    // Refetch content to update access status
+    const fetchContent = async () => {
+      try {
+        let query = supabase
+          .from('content_items')
+          .select(`
+            *,
+            content_categories!inner(
+              name,
+              slug
+            ),
+            media_assets!content_item_id(
+              kind,
+              storage_path,
+              external_url,
+              mime_type
+            )
+          `)
+          .eq('status', 'published')
+          .order('created_at', { ascending: false });
+
+        if (selectedSiteId) {
+          query = query.eq('agent_site_id', selectedSiteId);
+        }
+
+        const { data } = await query;
+
+        // Fetch updated entitlements
+        if (user && data) {
+          const contentIds = data.map((item: any) => item.id);
+          const { data: policiesData } = await supabase
+            .from('asset_policies')
+            .select('asset_id, price_amount, price_asset, rights, visibility')
+            .in('asset_id', contentIds);
+
+          const policiesMap = new Map(
+            (policiesData || []).map(p => [p.asset_id, p])
+          );
+
+          const { data: entitlementsData } = await supabase
+            .from('entitlements')
+            .select('asset_id, rights')
+            .eq('holder_user_id', user.id);
+          
+          const entitlementsMap = new Map(
+            (entitlementsData || []).map(e => [e.asset_id, e])
+          );
+
+          const transformedContent: MediaItem[] = (data || []).map((item: any) => {
+            const policy = policiesMap.get(item.id);
+            const entitlement = entitlementsMap.get(item.id);
+            const hasAccess = !!entitlement || policy?.visibility === 'public' || !policy;
+
+            return {
+              id: item.id,
+              title: item.title,
+              imageUrl: item.imageUrl || heroImage,
+              type: item.type as 'video' | 'audio' | 'article',
+              category: item.content_categories?.name || 'Uncategorized',
+              description: item.description || '',
+              price: policy ? `${policy.price_amount} ${policy.price_asset}` : undefined,
+              rarity: item.pinned ? 'Featured' : item.featured ? 'Limited' : undefined,
+              contentType: item.type,
+              contentUrl: '',
+              assetId: item.id,
+              policy,
+              hasAccess,
+            };
+          });
+
+          setContentItems(transformedContent);
+        }
+      } catch (error) {
+        console.error('Error refreshing content:', error);
+      }
+    };
+    fetchContent();
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -331,6 +453,7 @@ export default function MainApp() {
                     title="Featured Content"
                     items={contentItems.filter(item => item.rarity)}
                     onItemClick={handleContentSelect}
+                    onPurchaseComplete={handlePurchaseComplete}
                   />
                 )}
 
@@ -341,6 +464,7 @@ export default function MainApp() {
                     items={contentItems.filter(item => item.type === 'article')}
                     onItemClick={handleContentSelect}
                     showOwnedToggle={true}
+                    onPurchaseComplete={handlePurchaseComplete}
                   />
                 )}
 
@@ -350,6 +474,7 @@ export default function MainApp() {
                     title="Video Content"
                     items={contentItems.filter(item => item.type === 'video')}
                     onItemClick={handleContentSelect}
+                    onPurchaseComplete={handlePurchaseComplete}
                   />
                 )}
 
@@ -358,6 +483,7 @@ export default function MainApp() {
                   title="All Content"
                   items={contentItems}
                   onItemClick={handleContentSelect}
+                  onPurchaseComplete={handlePurchaseComplete}
                 />
               </section>
             </main>

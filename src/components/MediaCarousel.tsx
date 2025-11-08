@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, ChevronRight, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PurchaseButton } from "@/components/x402/PurchaseButton";
+
+interface AssetPolicy {
+  price_amount: number;
+  price_asset: string;
+  rights: string[];
+  visibility: string;
+}
 
 interface MediaItem {
   id: string;
@@ -13,6 +21,9 @@ interface MediaItem {
   imageUrl?: string;
   type: 'video' | 'audio' | 'article';
   category: string;
+  assetId?: string;
+  policy?: AssetPolicy;
+  hasAccess?: boolean;
 }
 
 interface MediaCarouselProps {
@@ -20,9 +31,10 @@ interface MediaCarouselProps {
   items: MediaItem[];
   onItemClick?: (item: MediaItem) => void;
   showOwnedToggle?: boolean;
+  onPurchaseComplete?: () => void;
 }
 
-export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = false }: MediaCarouselProps) {
+export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = false, onPurchaseComplete }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -150,6 +162,7 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
               key={item.id} 
               item={item} 
               onClick={() => onItemClick?.(item)}
+              onPurchaseComplete={onPurchaseComplete}
             />
           ))}
         </div>
@@ -158,8 +171,21 @@ export function MediaCarousel({ title, items, onItemClick, showOwnedToggle = fal
   );
 }
 
-function MediaCard({ item, onClick }: { item: MediaItem; onClick?: () => void }) {
+function MediaCard({ item, onClick, onPurchaseComplete }: { 
+  item: MediaItem; 
+  onClick?: () => void;
+  onPurchaseComplete?: () => void;
+}) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger onClick if clicking on the purchase button
+    if ((e.target as HTMLElement).closest('.purchase-button-container')) {
+      e.stopPropagation();
+      return;
+    }
+    onClick?.();
+  };
 
   return (
     <Card 
@@ -168,7 +194,7 @@ function MediaCard({ item, onClick }: { item: MediaItem; onClick?: () => void })
         "glass-card hover-float transition-all duration-300",
         isHovered && "scale-105"
       )}
-      onClick={onClick}
+      onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -208,11 +234,23 @@ function MediaCard({ item, onClick }: { item: MediaItem; onClick?: () => void })
           <h3 className="font-semibold text-sm text-foreground line-clamp-2">
             {item.title}
           </h3>
-          {item.price && (
-            <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
+            {item.price && (
               <span className="text-neon-cyan text-sm font-medium">From {item.price}</span>
-              <span className="text-xs text-muted-foreground">{item.category}</span>
-            </div>
+            )}
+            {item.policy && item.assetId && (
+              <div className="purchase-button-container" onClick={(e) => e.stopPropagation()}>
+                <PurchaseButton
+                  assetId={item.assetId}
+                  policy={item.policy}
+                  hasAccess={item.hasAccess}
+                  onPurchaseComplete={onPurchaseComplete}
+                />
+              </div>
+            )}
+          </div>
+          {item.category && (
+            <span className="text-xs text-muted-foreground">{item.category}</span>
           )}
         </div>
       </div>
