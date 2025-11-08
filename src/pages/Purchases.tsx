@@ -16,19 +16,19 @@ interface PurchasedItem {
   expires_at: string | null;
   created_at: string;
   tokenqube_id: string | null;
-  content_item: {
+  content_items: {
     id: string;
     title: string;
     description: string | null;
     type: string;
     slug: string;
+    media_assets: Array<{
+      id: string;
+      storage_path: string | null;
+      external_url: string | null;
+      kind: string;
+    }>;
   } | null;
-  media_assets: Array<{
-    id: string;
-    storage_path: string | null;
-    external_url: string | null;
-    kind: string;
-  }>;
 }
 
 export default function Purchases() {
@@ -58,18 +58,18 @@ export default function Purchases() {
           expires_at,
           created_at,
           tokenqube_id,
-          content_items!entitlements_asset_id_fkey (
+          content_items!asset_id (
             id,
             title,
             description,
             type,
-            slug
-          ),
-          media_assets!media_assets_content_item_id_fkey (
-            id,
-            storage_path,
-            external_url,
-            kind
+            slug,
+            media_assets (
+              id,
+              storage_path,
+              external_url,
+              kind
+            )
           )
         `)
         .eq("holder_user_id", user?.id)
@@ -185,9 +185,7 @@ export default function Purchases() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {purchases.map((purchase) => {
-              const contentItem = Array.isArray(purchase.content_item) 
-                ? purchase.content_item[0] 
-                : purchase.content_item;
+              const contentItem = purchase.content_items;
               
               const isExpired = purchase.expires_at 
                 ? new Date(purchase.expires_at) < new Date() 
