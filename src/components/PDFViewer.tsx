@@ -16,7 +16,7 @@ interface PDFViewerProps {
 export function PDFViewer({ url, onClose }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
-  const [scale, setScale] = useState<number>(0.6);
+  const [scale, setScale] = useState<number>(0.3);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
