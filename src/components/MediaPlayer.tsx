@@ -14,6 +14,7 @@ interface MediaPlayerProps {
   isContentPlaying?: boolean;
   contentType?: string;
   contentUrl?: string;
+  hasAccess?: boolean;
   onPlay?: () => void;
   onStartPlaying?: () => void;
   onStopPlaying?: () => void;
@@ -29,6 +30,7 @@ export function MediaPlayer({
   isContentPlaying = false,
   contentType,
   contentUrl,
+  hasAccess = true,
   onPlay,
   onStartPlaying,
   onStopPlaying,
@@ -48,6 +50,9 @@ export function MediaPlayer({
   };
 
   const handleContentAction = (action: 'read' | 'watch') => {
+    if (!hasAccess) {
+      return; // Block access if user doesn't have entitlement
+    }
     console.log(`Starting ${action} for:`, title);
     if (contentType === 'pdf' && contentUrl) {
       setShowPDFViewer(true);
@@ -115,7 +120,12 @@ export function MediaPlayer({
           {/* Action Buttons - Show in both modes when not playing */}
           {!isContentPlaying && (
             <div className="flex gap-2 mt-6">
-              {contentType === 'pdf' ? (
+              {!hasAccess && (
+                <div className="glass rounded-lg px-3 py-2 bg-destructive/10 border border-destructive/20">
+                  <p className="text-xs text-destructive-foreground">🔒 Purchase required to access this content</p>
+                </div>
+              )}
+              {hasAccess && contentType === 'pdf' ? (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -128,7 +138,7 @@ export function MediaPlayer({
                   <FileText className="h-3 w-3 mr-1" />
                   Read PDF
                 </Button>
-              ) : (
+              ) : hasAccess ? (
                 <>
                   <Button 
                     variant="outline" 
@@ -155,7 +165,7 @@ export function MediaPlayer({
                     Watch
                   </Button>
                 </>
-              )}
+              ) : null}
             </div>
           )}
         </div>

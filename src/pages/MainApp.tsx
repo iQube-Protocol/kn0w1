@@ -433,6 +433,7 @@ export default function MainApp() {
           isContentPlaying={isContentPlaying}
           contentType={selectedContent.contentType}
           contentUrl={selectedContent.contentUrl}
+          hasAccess={selectedContent.hasAccess}
           onStartPlaying={handleStartPlaying}
           onStopPlaying={handleStopPlaying}
         />

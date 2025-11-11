@@ -10,10 +10,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface PDFViewerProps {
   url: string;
+  hasAccess?: boolean;
   onClose?: () => void;
 }
 
-export function PDFViewer({ url, onClose }: PDFViewerProps) {
+export function PDFViewer({ url, hasAccess = true, onClose }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(0.2);
@@ -86,31 +87,41 @@ export function PDFViewer({ url, onClose }: PDFViewerProps) {
 
         {/* PDF Content */}
         <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-muted/20">
-          <Document
-            file={url}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading={
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            }
-            error={
-              <div className="text-center p-8">
-                <p className="text-destructive">Failed to load PDF</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Please check the file and try again
-                </p>
-              </div>
-            }
-          >
-            <Page
-              pageNumber={pageNumber}
-              scale={scale}
-              className="shadow-lg"
-              renderTextLayer={true}
-              renderAnnotationLayer={true}
-            />
-          </Document>
+          {!hasAccess ? (
+            <div className="text-center p-8 glass rounded-lg">
+              <div className="text-6xl mb-4">🔒</div>
+              <p className="text-xl font-semibold mb-2">Content Locked</p>
+              <p className="text-muted-foreground">
+                Purchase this content to access the full PDF
+              </p>
+            </div>
+          ) : (
+            <Document
+              file={url}
+              onLoadSuccess={onDocumentLoadSuccess}
+              loading={
+                <div className="flex items-center justify-center h-64">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              }
+              error={
+                <div className="text-center p-8">
+                  <p className="text-destructive">Failed to load PDF</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Please check the file and try again
+                  </p>
+                </div>
+              }
+            >
+              <Page
+                pageNumber={pageNumber}
+                scale={scale}
+                className="shadow-lg"
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+              />
+            </Document>
+          )}
         </div>
       </div>
     </div>
