@@ -2,13 +2,11 @@
 
 ## Prerequisites
 
-1. **Mock Server Running**: Ensure the wallet mock server is running on `localhost:8080`
-   ```bash
-   cd supabase/functions/wallet-mock
-   npm start
-   ```
-
-2. **Environment Variable**: Set `VITE_AGENTIQ_WALLET_BASE_URL=http://localhost:8080` in `.env`
+1. **Mock Server**: The mock server is already deployed as a Supabase Edge Function - no setup needed!
+   
+2. **Environment Variable**: Leave `VITE_AGENTIQ_WALLET_BASE_URL` empty in `.env` to use deployed mock
+   - Optional: Set to `http://localhost:8080` for local testing
+   - See `supabase/functions/wallet-mock/README.md` for local setup
 
 3. **Logged In User**: Be authenticated with a valid Supabase session
 
