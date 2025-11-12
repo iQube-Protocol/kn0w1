@@ -16,26 +16,33 @@ export function clearDIDJWT() {
 
 export async function getOrCreateDID(userId: string): Promise<string> {
   // Check existing DID
-  const { data: existingDid } = await supabase
+  const { data: existingDid, error } = await supabase
     .from('did_identities')
     .select('did')
     .eq('user_id', userId)
     .single();
 
   if (existingDid?.did) {
+    console.log('Using existing DID:', existingDid.did);
     return existingDid.did;
   }
 
-  // Create new DID
+  // Create new DID if none exists
   const did = `did:kn0w1:${userId.replace(/-/g, '')}`;
   
-  await supabase
+  const { error: insertError } = await supabase
     .from('did_identities')
     .insert({
       user_id: userId,
       did,
     });
 
+  if (insertError) {
+    console.error('Failed to create DID:', insertError);
+    throw new Error(`DID creation failed: ${insertError.message}`);
+  }
+
+  console.log('Created new DID:', did);
   return did;
 }
 

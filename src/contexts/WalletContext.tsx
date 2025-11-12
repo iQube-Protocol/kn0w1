@@ -70,12 +70,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      console.log('Starting wallet initialization for user:', user.id);
+      
       // 1. Get or create DID
       const did = await getOrCreateDID(user.id);
+      console.log('DID retrieved:', did);
       
       // 2. Generate DID JWT
       const jwt = await generateDIDJWT(user.id, did);
       storeDIDJWT(jwt);
+      console.log('DID JWT generated and stored');
 
       // 3. Set auth for wallet client
       if (session?.access_token) {
@@ -83,7 +87,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
 
       // 4. Initialize wallet via API
+      console.log('Calling wallet API at:', import.meta.env.VITE_AGENTIQ_WALLET_BASE_URL);
       const result = await client.initWallet('delegated');
+      console.log('Wallet initialized:', result);
       
       // 5. Get initial balances
       const balances = await client.getBalances();
