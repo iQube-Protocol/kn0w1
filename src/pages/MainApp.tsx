@@ -440,8 +440,11 @@ export default function MainApp() {
           contentType={selectedContent.contentType}
           contentUrl={selectedContent.contentUrl}
           hasAccess={selectedContent.hasAccess}
+          assetId={selectedContent.assetId}
+          policy={selectedContent.policy}
           onStartPlaying={handleStartPlaying}
           onStopPlaying={handleStopPlaying}
+          onPurchaseComplete={handlePurchaseComplete}
         />
       </section>
 

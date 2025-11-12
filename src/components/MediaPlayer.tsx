@@ -3,6 +3,7 @@ import { Play, Pause, Maximize, Minimize, BookOpen, FileText } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PDFViewer } from "./PDFViewer";
+import { PurchaseButton } from "@/components/x402/PurchaseButton";
 
 interface MediaPlayerProps {
   title: string;
@@ -15,9 +16,17 @@ interface MediaPlayerProps {
   contentType?: string;
   contentUrl?: string;
   hasAccess?: boolean;
+  assetId?: string;
+  policy?: {
+    price_amount: number;
+    price_asset: string;
+    rights: string[];
+    visibility: string;
+  };
   onPlay?: () => void;
   onStartPlaying?: () => void;
   onStopPlaying?: () => void;
+  onPurchaseComplete?: () => void;
 }
 
 export function MediaPlayer({
@@ -31,9 +40,12 @@ export function MediaPlayer({
   contentType,
   contentUrl,
   hasAccess = true,
+  assetId,
+  policy,
   onPlay,
   onStartPlaying,
   onStopPlaying,
+  onPurchaseComplete,
 }: MediaPlayerProps) {
   const [playing, setPlaying] = useState(isPlaying);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -120,9 +132,17 @@ export function MediaPlayer({
           {/* Action Buttons - Show in both modes when not playing */}
           {!isContentPlaying && (
             <div className="flex gap-2 mt-6">
-              {!hasAccess && (
-                <div className="glass rounded-lg px-3 py-2 bg-destructive/10 border border-destructive/20">
-                  <p className="text-xs text-destructive-foreground">🔒 Purchase required to access this content</p>
+              {!hasAccess && assetId && policy && (
+                <div className="flex flex-col gap-2">
+                  <div className="glass rounded-lg px-3 py-2 bg-destructive/10 border border-destructive/20">
+                    <p className="text-xs text-destructive-foreground">🔒 Purchase required to access this content</p>
+                  </div>
+                  <PurchaseButton
+                    assetId={assetId}
+                    policy={policy}
+                    hasAccess={hasAccess}
+                    onPurchaseComplete={onPurchaseComplete}
+                  />
                 </div>
               )}
               {hasAccess && contentType === 'pdf' ? (
