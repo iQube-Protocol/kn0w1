@@ -15,26 +15,33 @@ export function clearDIDJWT() {
 }
 
 export async function getOrCreateDID(userId: string): Promise<string> {
-  // Check existing DID using maybeSingle to avoid error on no rows
-  const { data: existingDid } = await supabase
+  // Check for kn0w1 format DID first (preferred format)
+  const expectedDid = `did:kn0w1:${userId.replace(/-/g, '')}`;
+  
+  const { data: existingDids } = await supabase
     .from('did_identities')
     .select('did')
     .eq('user_id', userId)
-    .maybeSingle();
+    .order('created_at', { ascending: false });
 
-  if (existingDid?.did) {
-    console.log('Using existing DID:', existingDid.did);
-    return existingDid.did;
+  // If we have the expected kn0w1 format, use it
+  if (existingDids && existingDids.length > 0) {
+    const kn0w1Did = existingDids.find(d => d.did === expectedDid);
+    if (kn0w1Did) {
+      console.log('Using existing kn0w1 DID:', kn0w1Did.did);
+      return kn0w1Did.did;
+    }
+    // Otherwise use the most recent one
+    console.log('Using most recent DID:', existingDids[0].did);
+    return existingDids[0].did;
   }
 
   // Create new DID if none exists
-  const did = `did:kn0w1:${userId.replace(/-/g, '')}`;
-  
   const { error: insertError } = await supabase
     .from('did_identities')
     .insert({
       user_id: userId,
-      did,
+      did: expectedDid,
     });
 
   if (insertError) {
@@ -44,6 +51,8 @@ export async function getOrCreateDID(userId: string): Promise<string> {
         .from('did_identities')
         .select('did')
         .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
       
       if (existing?.did) {
@@ -55,8 +64,8 @@ export async function getOrCreateDID(userId: string): Promise<string> {
     throw new Error(`DID creation failed: ${insertError.message}`);
   }
 
-  console.log('Created new DID:', did);
-  return did;
+  console.log('Created new DID:', expectedDid);
+  return expectedDid;
 }
 
 export async function generateDIDJWT(userId: string, did: string): Promise<string> {
