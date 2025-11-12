@@ -91,6 +91,8 @@ export default function MainApp() {
         const policiesMap = new Map(
           (policiesData || []).map(p => [p.asset_id, p])
         );
+        
+        console.log('[MainApp] Fetched policies:', policiesData?.length || 0, policiesMap.size);
 
         // Fetch user entitlements if logged in
         let entitlementsMap = new Map();
@@ -178,9 +180,13 @@ export default function MainApp() {
             }
           }
 
-          const policy = policiesMap.get(item.id);
-          const entitlement = entitlementsMap.get(item.id);
-          const hasAccess = !!entitlement || policy?.visibility === 'public' || !policy;
+            const policy = policiesMap.get(item.id);
+            const entitlement = entitlementsMap.get(item.id);
+            const hasAccess = !!entitlement || policy?.visibility === 'public' || !policy;
+            
+            if (policy) {
+              console.log('[MainApp] Item with policy:', item.title, policy.price_amount, policy.price_asset);
+            }
 
           return {
             id: item.id,
