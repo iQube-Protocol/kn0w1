@@ -35,22 +35,41 @@ function sseStream() {
   const stream = new ReadableStream({
     start(controller) {
       const enc = new TextEncoder();
+      let isClosed = false;
+      
       const send = (event: string, data: any) => {
-        controller.enqueue(enc.encode(`data: ${JSON.stringify({ type: event, ...data })}\n\n`));
+        if (!isClosed) {
+          try {
+            controller.enqueue(enc.encode(`data: ${JSON.stringify({ type: event, ...data })}\n\n`));
+          } catch (e) {
+            isClosed = true;
+          }
+        }
       };
+      
+      const cleanup = () => {
+        isClosed = true;
+        clearInterval(hb);
+        clearTimeout(t);
+        clearTimeout(close);
+      };
+      
       // Heartbeat
       const hb = setInterval(() => send('heartbeat', { t: Date.now() }), 15000);
       // One-time sample balance update
       const t = setTimeout(() => send('balance_update', { asset: 'QCT', amount: 100 }), 2000);
       // Close after 60s
-      const close = setTimeout(() => controller.close(), 60000);
-      // Cleanup
+      const close = setTimeout(() => {
+        cleanup();
+        try {
+          controller.close();
+        } catch (e) {
+          // Already closed
+        }
+      }, 60000);
+      
       // @ts-ignore - Deno runtime
-      controller.signal?.addEventListener?.('abort', () => {
-        clearInterval(hb);
-        clearTimeout(t);
-        clearTimeout(close);
-      });
+      controller.signal?.addEventListener?.('abort', cleanup);
     },
   });
   return new Response(stream, {
