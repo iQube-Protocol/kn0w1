@@ -15,10 +15,11 @@ export function WalletOnboarding() {
   const [isLinking, setIsLinking] = useState(false);
 
   const handleLinkFio = async () => {
-    if (!fioHandle.startsWith('@')) {
+    // Validate FIO handle format: [name]@domain
+    if (!fioHandle.includes('@') || !fioHandle.match(/^[a-z0-9]+@[a-z0-9]+$/i)) {
       toast({
         title: 'Invalid Handle',
-        description: 'FIO handle must start with @',
+        description: 'FIO handle must be in format: name@domain (e.g., dele@qripto or dele@knyt)',
         variant: 'destructive',
       });
       return;
@@ -76,7 +77,7 @@ export function WalletOnboarding() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
-                  <span>Link your FIO handle (@KNYT or @qripto) for identity-based signing</span>
+                  <span>Link your FIO handle (name@knyt or name@qripto) for identity-based signing</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
@@ -108,7 +109,7 @@ export function WalletOnboarding() {
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Link Your FIO Handle</p>
                   <p className="text-xs text-muted-foreground">
-                    Connect your @KNYT or @qripto handle to sign transactions with your identity
+                    Connect your FIO handle (name@knyt or name@qripto) to sign transactions with your identity
                   </p>
                 </div>
               </div>
@@ -118,13 +119,13 @@ export function WalletOnboarding() {
               <Label htmlFor="fio-handle">FIO Handle</Label>
               <Input
                 id="fio-handle"
-                placeholder="@kn0w1"
+                placeholder="yourname@knyt"
                 value={fioHandle}
                 onChange={(e) => setFioHandle(e.target.value)}
                 disabled={isLinking}
               />
               <p className="text-xs text-muted-foreground">
-                Use @kn0w1 for testing with the mock server
+                Use dele@knyt for testing with the mock server
               </p>
             </div>
 
