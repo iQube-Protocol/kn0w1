@@ -12,12 +12,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ShoppingCart, Lock, Check, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { useWallet } from '@/contexts/WalletContext';
+import { useX402Payment } from '@/hooks/useX402Payment';
+import { PaymentMethodSelector } from '@/components/wallet/PaymentMethodSelector';
 
 interface AssetPolicy {
   price_amount: number;
   price_asset: string;
   rights: string[];
   visibility: string;
+  pay_to_did?: string;
 }
 
 interface PurchaseButtonProps {
@@ -29,10 +33,13 @@ interface PurchaseButtonProps {
 
 export function PurchaseButton({ assetId, policy, hasAccess, onPurchaseComplete }: PurchaseButtonProps) {
   const { toast } = useToast();
+  const { state: walletState, initializeWallet } = useWallet();
+  const { payWithWallet, isProcessing } = useX402Payment();
   const [showDialog, setShowDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [x402Request, setX402Request] = useState<any>(null);
   const [purchaseStatus, setPurchaseStatus] = useState<'idle' | 'pending' | 'settled'>('idle');
+  const [paymentMethod, setPaymentMethod] = useState<'qr' | 'wallet' | null>(null);
 
   const isFree = policy.price_amount === 0;
 
@@ -44,7 +51,64 @@ export function PurchaseButton({ assetId, policy, hasAccess, onPurchaseComplete 
     }
 
     setShowDialog(true);
-    await generatePaymentRequest();
+    setPaymentMethod(null); // Reset to show method selector
+  };
+
+  const handleMethodSelect = async (method: 'qr' | 'wallet' | 'create-wallet') => {
+    if (method === 'create-wallet') {
+      setLoading(true);
+      try {
+        await initializeWallet();
+        setPaymentMethod(null);
+      } catch (error) {
+        console.error('Wallet creation failed:', error);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    setPaymentMethod(method);
+
+    if (method === 'qr') {
+      await generatePaymentRequest();
+    } else if (method === 'wallet') {
+      await handleWalletPayment();
+    }
+  };
+
+  const handleWalletPayment = async () => {
+    try {
+      setLoading(true);
+      const result = await payWithWallet({
+        assetId,
+        amount: policy.price_amount,
+        asset: policy.price_asset,
+        recipientDid: policy.pay_to_did || 'platform-did',
+      });
+
+      if (result.success) {
+        setPurchaseStatus('settled');
+        toast({
+          title: 'Purchase Complete!',
+          description: 'Access granted to content',
+        });
+        setTimeout(() => {
+          setShowDialog(false);
+          if (onPurchaseComplete) onPurchaseComplete();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Wallet payment failed:', error);
+      setPurchaseStatus('idle');
+      toast({
+        title: 'Payment Failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generatePaymentRequest = async () => {
@@ -202,9 +266,25 @@ export function PurchaseButton({ assetId, policy, hasAccess, onPurchaseComplete 
             </DialogDescription>
           </DialogHeader>
 
-          {loading && (
+          {!paymentMethod && !loading && (
+            <PaymentMethodSelector
+              amount={policy.price_amount}
+              asset={policy.price_asset}
+              assetId={assetId}
+              onMethodSelect={handleMethodSelect}
+            />
+          )}
+
+          {loading && !x402Request && paymentMethod === 'qr' && (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          )}
+
+          {loading && paymentMethod === 'wallet' && (
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              <p className="text-sm text-muted-foreground">Processing wallet payment...</p>
             </div>
           )}
 
@@ -217,7 +297,7 @@ export function PurchaseButton({ assetId, policy, hasAccess, onPurchaseComplete 
             </div>
           )}
 
-          {x402Request && purchaseStatus === 'pending' && (
+          {x402Request && purchaseStatus === 'pending' && paymentMethod === 'qr' && (
             <div className="space-y-4">
               <div className="flex justify-center py-4">
                 <div className="p-4 bg-background border rounded-lg">

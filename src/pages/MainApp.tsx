@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSelectedSiteId } from "@/hooks/useSelectedSiteId";
 import { useToast } from "@/hooks/use-toast";
+import { WalletDock } from "@/components/wallet/WalletDock";
+import { WalletOnboarding } from "@/components/wallet/WalletOnboarding";
 
 import heroImage from "@/assets/hero-image.jpg";
 
@@ -373,6 +375,11 @@ export default function MainApp() {
           <Menu className="h-4 w-4" />
         </Button>
         
+        {/* Wallet Dock */}
+        <div className="flex justify-center">
+          <WalletDock skin="translucent" />
+        </div>
+        
         {/* Admin Access Button - Only show for admins */}
         {isAdmin && (
           <Button 
@@ -509,10 +516,10 @@ export default function MainApp() {
           isExpanded={isChatExpanded}
           onToggle={() => setIsChatExpanded(!isChatExpanded)}
           onTextSearch={handleContentSearch}
-          onVoiceSearch={handleContentSearch}
         />
       </div>
 
+      <WalletOnboarding />
     </div>
   );
 }
