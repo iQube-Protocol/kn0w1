@@ -15,12 +15,12 @@ export function clearDIDJWT() {
 }
 
 export async function getOrCreateDID(userId: string): Promise<string> {
-  // Check existing DID
-  const { data: existingDid, error } = await supabase
+  // Check existing DID using maybeSingle to avoid error on no rows
+  const { data: existingDid } = await supabase
     .from('did_identities')
     .select('did')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (existingDid?.did) {
     console.log('Using existing DID:', existingDid.did);
@@ -38,6 +38,19 @@ export async function getOrCreateDID(userId: string): Promise<string> {
     });
 
   if (insertError) {
+    // If duplicate key error, fetch and return existing DID
+    if (insertError.code === '23505') {
+      const { data: existing } = await supabase
+        .from('did_identities')
+        .select('did')
+        .eq('user_id', userId)
+        .single();
+      
+      if (existing?.did) {
+        console.log('Using existing DID after duplicate:', existing.did);
+        return existing.did;
+      }
+    }
     console.error('Failed to create DID:', insertError);
     throw new Error(`DID creation failed: ${insertError.message}`);
   }
