@@ -44,7 +44,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   });
 
   const client = useMemo(() => {
-    const baseUrl = import.meta.env.VITE_AGENTIQ_WALLET_BASE_URL || 'http://localhost:8080';
+    const configured = import.meta.env.VITE_AGENTIQ_WALLET_BASE_URL as string | undefined;
+    let baseUrl = configured || 'http://localhost:8080';
+    // Fallback to public Supabase Edge Function mock when not on localhost and no remote URL configured
+    if ((!configured || configured.includes('localhost')) && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      baseUrl = 'https://ysykvckvggaqykhhntyo.supabase.co/functions/v1/wallet-mock';
+    }
+    console.log('[Wallet] Using wallet base URL:', baseUrl);
     return new AgentiqWalletClient(baseUrl);
   }, []);
 
