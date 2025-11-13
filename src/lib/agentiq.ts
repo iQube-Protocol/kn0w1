@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-
-const CORE_MODULE_URL = 'https://cdn.jsdelivr.net/npm/@qriptoagentiq/core-client@0.1.8/+esm';
+import { Core } from '@qriptoagentiq/core-client';
 
 type CoreLike = {
   ensureIamUser(): Promise<void>;
@@ -23,14 +22,8 @@ export async function getCore(): Promise<CoreLike> {
     throw new Error('No active session - user must be logged in');
   }
 
-  // Dynamically import from CDN to avoid bundler resolution issues
-  const mod: any = await import(/* @vite-ignore */ CORE_MODULE_URL);
-  const CoreCtor = mod?.Core || mod?.default?.Core || mod?.default || mod;
-  if (typeof CoreCtor !== 'function') {
-    throw new Error('Failed to load AgentiQ Core client from CDN');
-  }
-
-  coreInstance = new CoreCtor(session.access_token) as CoreLike;
+  // Use npm package directly instead of CDN to avoid bundling issues
+  coreInstance = new Core(session.access_token) as CoreLike;
   
   // Bootstrap - this calls ensureIamUser() internally
   await coreInstance.ensureIamUser();
