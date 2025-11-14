@@ -48,10 +48,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   });
 
   const client = useMemo(() => {
-    const aigentzBase = import.meta.env.VITE_AIGENT_Z_API || 'https://www.dev-beta.aigentz.me';
+    // Note: VITE_AIGENT_Z_API is only used for SSE subscriptions
+    // Auth challenge/verify goes through edge functions which use AIGENT_Z_API_BASE secret
+    const aigentzBase = import.meta.env.VITE_AIGENT_Z_API || 'https://dev-beta.aigentz.me';
     const gatewayProxyBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
     
-    console.log('[Wallet] Using AigentZ API:', aigentzBase);
+    console.log('[Wallet] Using AigentZ API for SSE:', aigentzBase);
     console.log('[Wallet] Gateway proxy:', gatewayProxyBase);
     
     return new AaApiClient({
