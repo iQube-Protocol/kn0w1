@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Copy, Wallet, Link } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { WalletDiagnostics } from './WalletDiagnostics';
 
 interface WalletModalProps {
   open: boolean;
@@ -35,10 +36,11 @@ export function WalletModal({ open, onOpenChange }: WalletModalProps) {
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -134,6 +136,10 @@ export function WalletModal({ open, onOpenChange }: WalletModalProps) {
                 )}
               </div>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="diagnostics" className="space-y-4">
+            <WalletDiagnostics />
           </TabsContent>
         </Tabs>
       </DialogContent>
