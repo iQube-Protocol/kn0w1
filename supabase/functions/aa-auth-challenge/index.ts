@@ -24,7 +24,13 @@ serve(async (req) => {
       throw new Error('AIGENT_Z_API_BASE secret not configured');
     }
     
-    console.log(`[Auth Challenge] Proxying request for DID: ${did} to ${aigentzBase}`);
+    // Validate that the secret is a valid URL, not an API key
+    if (!aigentzBase.startsWith('http://') && !aigentzBase.startsWith('https://')) {
+      console.error('[Auth Challenge] AIGENT_Z_API_BASE is not a valid URL:', aigentzBase.substring(0, 20) + '...');
+      throw new Error('AIGENT_Z_API_BASE must be a valid URL (e.g., https://dev-beta.aigentz.me)');
+    }
+    
+    console.log(`[Auth Challenge] Using AigentZ base: ${aigentzBase}`);
     
     const url = new URL('/aa/v1/auth/challenge', aigentzBase).toString();
     const response = await fetch(url, {

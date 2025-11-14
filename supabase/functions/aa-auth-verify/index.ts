@@ -24,7 +24,13 @@ serve(async (req) => {
       throw new Error('AIGENT_Z_API_BASE secret not configured');
     }
     
-    console.log(`[Auth Verify] Proxying signature verification to ${aigentzBase}`);
+    // Validate that the secret is a valid URL, not an API key
+    if (!aigentzBase.startsWith('http://') && !aigentzBase.startsWith('https://')) {
+      console.error('[Auth Verify] AIGENT_Z_API_BASE is not a valid URL:', aigentzBase.substring(0, 20) + '...');
+      throw new Error('AIGENT_Z_API_BASE must be a valid URL (e.g., https://dev-beta.aigentz.me)');
+    }
+    
+    console.log(`[Auth Verify] Using AigentZ base: ${aigentzBase}`);
     
     const url = new URL('/aa/v1/auth/verify', aigentzBase).toString();
     const response = await fetch(url, {
