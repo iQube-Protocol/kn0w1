@@ -14,7 +14,7 @@ interface WalletModalProps {
 }
 
 export function WalletModal({ open, onOpenChange }: WalletModalProps) {
-  const { state, refreshBalances } = useWallet();
+  const { state } = useWallet();
   const [activeTab, setActiveTab] = useState('overview');
 
   const copyAddress = () => {
@@ -75,9 +75,9 @@ export function WalletModal({ open, onOpenChange }: WalletModalProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium">Balances</h3>
-                <Button variant="ghost" size="sm" onClick={refreshBalances}>
-                  Refresh
-                </Button>
+                <Badge variant="outline" className="text-xs">
+                  {state.sseConnected ? 'Live' : 'Offline'}
+                </Badge>
               </div>
               <div className="grid gap-2">
                 {Object.entries(state.balances).map(([asset, amount]) => (
