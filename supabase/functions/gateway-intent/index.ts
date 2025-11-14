@@ -37,8 +37,8 @@ serve(async (req) => {
     }
 
     // Proxy request to Gateway with API key
-    const gatewayBase = Deno.env.get('VITE_MONEYPENNY_BASE') || 'https://gateway.dev-beta.aigentz.me';
-    const apiKey = Deno.env.get('MONEYPENNY_API_KEY');
+    const gatewayBase = Deno.env.get('VITE_GATEWAY_BASE') || 'https://gateway.dev-beta.aigentz.me';
+    const apiKey = Deno.env.get('GATEWAY_API_KEY');
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
