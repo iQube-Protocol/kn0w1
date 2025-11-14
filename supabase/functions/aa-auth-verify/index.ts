@@ -11,23 +11,23 @@ serve(async (req) => {
   }
 
   try {
-    const { did } = await req.json();
+    const { jws } = await req.json();
 
-    if (!did) {
-      throw new Error('DID is required');
+    if (!jws) {
+      throw new Error('JWS signature is required');
     }
 
     // Proxy request to AigentZ
     const aigentzBase = Deno.env.get('VITE_AIGENT_Z_API') || 'https://www.dev-beta.aigentz.me';
     
-    console.log(`[Auth Challenge] Proxying request for DID: ${did}`);
+    console.log('[Auth Verify] Proxying signature verification to AigentZ');
     
-    const response = await fetch(`${aigentzBase}/aa/v1/auth/challenge`, {
+    const response = await fetch(`${aigentzBase}/aa/v1/auth/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ did }),
+      body: JSON.stringify({ jws }),
     });
 
     if (!response.ok) {
@@ -37,14 +37,14 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('[Auth Challenge] Challenge received from AigentZ');
+    console.log('[Auth Verify] Auth token received from AigentZ');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('aa-auth-challenge error:', error);
+    console.error('aa-auth-verify error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
