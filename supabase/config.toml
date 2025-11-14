@@ -39,3 +39,9 @@ verify_jwt = false
 
 [functions.wallet-mock]
 verify_jwt = false
+
+[functions.gateway-quotes]
+verify_jwt = true
+
+[functions.gateway-intent]
+verify_jwt = true
