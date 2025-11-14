@@ -33,6 +33,7 @@ serve(async (req) => {
     console.log(`[Auth Challenge] Using AigentZ base: ${aigentzBase}`);
     
     const url = new URL('/aa/v1/auth/challenge', aigentzBase).toString();
+    console.log(`[Auth Challenge] Full URL: ${url}`);
     const response = await fetch(url, {
       method: 'POST',
       headers: {
