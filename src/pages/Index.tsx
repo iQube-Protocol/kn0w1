@@ -146,7 +146,7 @@ const Index = () => {
             variant="outline"
             size="lg" 
             onClick={() => navigate("/auth")} 
-            className="hover-glow text-lg px-8 py-3 bg-background/40 backdrop-blur-sm border-secondary/50 text-secondary hover:bg-secondary/15 transition-all"
+            className="hover-glow text-lg px-8 py-3 bg-background/40 backdrop-blur-sm border-primary/50 text-primary hover:bg-primary/15 transition-all"
           >
             Get Started
           </Button>
