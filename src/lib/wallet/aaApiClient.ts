@@ -71,16 +71,16 @@ export class AaApiClient {
     return response.json();
   }
 
-  // AigentZ Auth Methods
+  // AigentZ Auth Methods (via Edge Function Proxies to avoid CORS)
   async authChallenge(did: string): Promise<{ challenge: string }> {
-    return this.fetch(`${this.aigentzBase}/aa/v1/auth/challenge`, {
+    return this.fetch(`${this.gatewayProxyBase}/aa-auth-challenge`, {
       method: 'POST',
       body: JSON.stringify({ did }),
     });
   }
 
   async authVerify(jws: string): Promise<{ token: string }> {
-    return this.fetch(`${this.aigentzBase}/aa/v1/auth/verify`, {
+    return this.fetch(`${this.gatewayProxyBase}/aa-auth-verify`, {
       method: 'POST',
       body: JSON.stringify({ jws }),
     });

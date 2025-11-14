@@ -37,6 +37,9 @@ verify_jwt = true
 [functions.aa-auth-challenge]
 verify_jwt = false
 
+[functions.aa-auth-verify]
+verify_jwt = false
+
 [functions.wallet-mock]
 verify_jwt = false
 
