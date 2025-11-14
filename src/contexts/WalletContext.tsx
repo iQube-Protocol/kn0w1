@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { AgentiqWalletClient, WalletBalance } from '@/lib/wallet/agentiqClient';
+import { AaApiClient, SSEEvent } from '@/lib/wallet/aaApiClient';
 import { 
   getOrCreateDID, 
   generateDIDJWT, 
   storeDIDJWT, 
   getDIDJWT,
-  updateFioHandle 
+  updateFioHandle,
+  signDIDChallenge 
 } from '@/lib/wallet/didQube';
 import { toast } from '@/hooks/use-toast';
 
@@ -17,14 +18,15 @@ interface WalletState {
   fioHandle: string | null;
   policy: 'delegated' | 'local';
   did: string | null;
+  sseConnected: boolean;
+  lastUpdate: string | null;
 }
 
 interface WalletContextType {
   state: WalletState;
-  client: AgentiqWalletClient;
-  initializeWallet: () => Promise<void>;
+  client: AaApiClient;
+  initializeWallet: () => Promise<(() => void) | undefined>;
   linkFioHandle: (handle: string) => Promise<void>;
-  refreshBalances: () => Promise<void>;
   showOnboarding: boolean;
   setShowOnboarding: (show: boolean) => void;
 }
@@ -41,33 +43,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     fioHandle: null,
     policy: 'delegated',
     did: null,
+    sseConnected: false,
+    lastUpdate: null,
   });
 
   const client = useMemo(() => {
-    const configured = import.meta.env.VITE_AGENTIQ_WALLET_BASE_URL as string | undefined;
-    let baseUrl = configured || 'http://localhost:8080';
-    // Fallback to public Supabase Edge Function mock when not on localhost and no remote URL configured
-    if ((!configured || configured.includes('localhost')) && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      baseUrl = 'https://ysykvckvggaqykhhntyo.supabase.co/functions/v1/wallet-mock';
-    }
-    console.log('[Wallet] Using wallet base URL:', baseUrl);
-    return new AgentiqWalletClient(baseUrl);
+    const aigentzBase = import.meta.env.VITE_AIGENT_Z_API || 'https://www.dev-beta.aigentz.me';
+    const gatewayProxyBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+    
+    console.log('[Wallet] Using AigentZ API:', aigentzBase);
+    console.log('[Wallet] Gateway proxy:', gatewayProxyBase);
+    
+    return new AaApiClient({
+      aigentzBase,
+      gatewayProxyBase,
+    });
   }, []);
-
-  const refreshBalances = async () => {
-    if (!state.initialized) return;
-
-    try {
-      const balances = await client.getBalances();
-      const balanceMap: Record<string, number> = {};
-      balances.forEach(b => {
-        balanceMap[b.asset] = b.amount;
-      });
-      setState(prev => ({ ...prev, balances: balanceMap }));
-    } catch (error) {
-      console.error('Failed to refresh balances:', error);
-    }
-  };
 
   const initializeWallet = async () => {
     if (!user?.id) {
@@ -87,32 +78,33 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       storeDIDJWT(jwt);
       console.log('DID JWT generated and stored');
 
-      // 3. Set auth for wallet client
-      if (session?.access_token) {
-        client.setAuth(session.access_token);
-      }
+      // 3. Request auth challenge from AigentZ
+      console.log('Requesting auth challenge from AigentZ...');
+      const { challenge } = await client.authChallenge(did);
+      console.log('Challenge received:', challenge);
 
-      // 4. Initialize wallet via API
-      console.log('Calling wallet API at:', import.meta.env.VITE_AGENTIQ_WALLET_BASE_URL);
-      const result = await client.initWallet('delegated');
-      console.log('Wallet initialized:', result);
-      
-      // 5. Get initial balances
-      const balances = await client.getBalances();
-      const balanceMap: Record<string, number> = {};
-      balances.forEach(b => {
-        balanceMap[b.asset] = b.amount;
-      });
+      // 4. Sign challenge with DID
+      const jws = await signDIDChallenge(challenge, did);
+      console.log('Challenge signed');
 
-      // 6. Subscribe to SSE updates
-      client.subscribeToUpdates((event) => {
+      // 5. Verify signature and get auth token
+      const { token } = await client.authVerify(jws);
+      client.setAuthToken(token);
+      console.log('Auth token received and set');
+
+      // 6. Subscribe to SSE feed for real-time updates
+      console.log('Subscribing to SSE feed...');
+      const unsubscribe = client.subscribeFeed((event: SSEEvent) => {
+        console.log('SSE event received:', event.type, event);
+        
         if (event.type === 'balance_update') {
           setState(prev => ({
             ...prev,
             balances: {
               ...prev.balances,
-              [event.asset]: event.amount,
+              [event.data.asset]: event.data.amount,
             },
+            lastUpdate: new Date().toISOString(),
           }));
         } else if (event.type === 'transaction_update') {
           // Handle transaction status updates
@@ -123,10 +115,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         initialized: true,
-        address: result.address,
-        balances: balanceMap,
-        policy: result.policy as 'delegated' | 'local',
+        address: did, // Use DID as address
         did,
+        sseConnected: true,
+        lastUpdate: new Date().toISOString(),
       }));
 
       // Show onboarding if first time (no FIO handle)
@@ -135,9 +127,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       }
 
       toast({
-        title: 'Wallet Initialized',
-        description: 'Your KNYT wallet is ready',
+        title: 'Wallet Connected',
+        description: 'Your wallet has been initialized successfully',
       });
+
+      // Store unsubscribe function for cleanup
+      return () => {
+        console.log('Cleaning up SSE subscription');
+        unsubscribe();
+      };
     } catch (error) {
       console.error('Failed to initialize wallet:', error);
       toast({
@@ -152,26 +150,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!user?.id) return;
 
     try {
-      // 1. Request challenge from server
-      const { challenge } = await client.requestFioChallenge(handle);
-
-      // 2. Sign challenge using AgentiQ SDK (delegated signing)
-      // In production, this would use the SDK's signing method
-      const signature = `sig_${btoa(challenge).substring(0, 32)}`;
-
-      // 3. Submit signed challenge
-      const result = await client.linkFioHandle(handle, signature);
-
-      if (result.success) {
-        // 4. Update local state and database
-        await updateFioHandle(user.id, handle);
-        setState(prev => ({ ...prev, fioHandle: handle }));
-        
-        toast({
-          title: 'FIO Handle Linked',
-          description: `You can now sign with ${handle}`,
-        });
-      }
+      // Update FIO handle in database
+      await updateFioHandle(user.id, handle);
+      setState(prev => ({ ...prev, fioHandle: handle }));
+      
+      toast({
+        title: 'FIO Handle Linked',
+        description: `You can now use ${handle}`,
+      });
     } catch (error) {
       console.error('Failed to link FIO handle:', error);
       toast({
@@ -185,9 +171,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   // Auto-initialize wallet when user logs in
   useEffect(() => {
-    if (session?.access_token && user?.id && !state.initialized) {
-      client.setAuth(session.access_token);
-      
+    if (user?.id && !state.initialized) {
       // Check if user already has DID JWT
       const existingJWT = getDIDJWT();
       if (existingJWT) {
@@ -205,8 +189,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       state, 
       client, 
       initializeWallet, 
-      linkFioHandle, 
-      refreshBalances,
+      linkFioHandle,
       showOnboarding,
       setShowOnboarding,
     }}>

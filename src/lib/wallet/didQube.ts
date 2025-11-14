@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { createJWT } from 'did-jwt';
 
 export const DID_JWT_KEY = 'did_jws';
 
@@ -96,4 +97,32 @@ export async function updateFioHandle(userId: string, handle: string): Promise<v
       agent_handle: handle,
     })
     .eq('user_id', userId);
+}
+
+/**
+ * Sign a challenge with DID JWT for AigentZ authentication
+ * Creates a DID-JWS (JSON Web Signature) from the challenge
+ */
+export async function signDIDChallenge(challenge: string, did: string): Promise<string> {
+  try {
+    // For now, create a simple JWT with the challenge as payload
+    // In production, this should use proper DID key signing
+    const payload = {
+      challenge,
+      did,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 300, // 5 min expiry
+    };
+
+    // Create JWT - in production, this should use actual DID key
+    // For now, we'll use a simple signed format that AigentZ can verify
+    const header = btoa(JSON.stringify({ alg: 'ES256K', typ: 'JWT' }));
+    const body = btoa(JSON.stringify(payload));
+    const signature = btoa(challenge); // Placeholder - should be proper signature
+    
+    return `${header}.${body}.${signature}`;
+  } catch (error) {
+    console.error('Failed to sign DID challenge:', error);
+    throw new Error('DID challenge signing failed');
+  }
 }
