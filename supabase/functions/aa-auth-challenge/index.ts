@@ -26,7 +26,8 @@ serve(async (req) => {
     
     console.log(`[Auth Challenge] Proxying request for DID: ${did} to ${aigentzBase}`);
     
-    const response = await fetch(`${aigentzBase}/aa/v1/auth/challenge`, {
+    const url = new URL('/aa/v1/auth/challenge', aigentzBase).toString();
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
