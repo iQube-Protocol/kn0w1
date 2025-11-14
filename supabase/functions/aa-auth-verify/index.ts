@@ -26,7 +26,8 @@ serve(async (req) => {
     
     console.log(`[Auth Verify] Proxying signature verification to ${aigentzBase}`);
     
-    const response = await fetch(`${aigentzBase}/aa/v1/auth/verify`, {
+    const url = new URL('/aa/v1/auth/verify', aigentzBase).toString();
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
