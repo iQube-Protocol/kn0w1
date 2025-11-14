@@ -39,8 +39,10 @@ serve(async (req) => {
     }
 
     // Proxy request to Gateway with API key
-    const gatewayBase = Deno.env.get('VITE_GATEWAY_BASE') || 'https://gateway.dev-beta.aigentz.me';
+    const gatewayBase = Deno.env.get('GATEWAY_BASE') || 'https://gateway.dev-beta.aigentz.me';
     const apiKey = Deno.env.get('GATEWAY_API_KEY');
+    
+    console.log(`[Gateway Quotes] Using gateway base: ${gatewayBase}`);
 
     const gatewayUrl = `${gatewayBase}/quotes?chain=${encodeURIComponent(chain)}&size_usd=${encodeURIComponent(sizeUsd)}`;
     

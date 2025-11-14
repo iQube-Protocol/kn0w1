@@ -18,9 +18,13 @@ serve(async (req) => {
     }
 
     // Proxy request to AigentZ
-    const aigentzBase = Deno.env.get('VITE_AIGENT_Z_API') || 'https://www.dev-beta.aigentz.me';
+    const aigentzBase = Deno.env.get('AIGENT_Z_API_BASE');
     
-    console.log(`[Auth Challenge] Proxying request for DID: ${did}`);
+    if (!aigentzBase) {
+      throw new Error('AIGENT_Z_API_BASE secret not configured');
+    }
+    
+    console.log(`[Auth Challenge] Proxying request for DID: ${did} to ${aigentzBase}`);
     
     const response = await fetch(`${aigentzBase}/aa/v1/auth/challenge`, {
       method: 'POST',
