@@ -32,7 +32,7 @@ serve(async (req) => {
     
     console.log(`[Auth Verify] Using AigentZ base: ${aigentzBase}`);
     
-    const url = new URL('/aa/v1/auth/verify', aigentzBase).toString();
+    const url = new URL('/auth/verify', aigentzBase).toString();
     const response = await fetch(url, {
       method: 'POST',
       headers: {
