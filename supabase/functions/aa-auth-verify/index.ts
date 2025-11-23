@@ -32,7 +32,9 @@ serve(async (req) => {
     
     console.log(`[Auth Verify] Using AigentZ base: ${aigentzBase}`);
     
-    const url = new URL('/auth/verify', aigentzBase).toString();
+    // Ensure base URL has trailing slash for proper path joining
+    const baseUrl = aigentzBase.endsWith('/') ? aigentzBase : `${aigentzBase}/`;
+    const url = new URL('auth/verify', baseUrl).toString();
     const response = await fetch(url, {
       method: 'POST',
       headers: {

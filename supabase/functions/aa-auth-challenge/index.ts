@@ -32,7 +32,9 @@ serve(async (req) => {
     
     console.log(`[Auth Challenge] Using AigentZ base: ${aigentzBase}`);
     
-    const url = new URL('/auth/challenge', aigentzBase).toString();
+    // Ensure base URL has trailing slash for proper path joining
+    const baseUrl = aigentzBase.endsWith('/') ? aigentzBase : `${aigentzBase}/`;
+    const url = new URL('auth/challenge', baseUrl).toString();
     console.log(`[Auth Challenge] Full URL: ${url}`);
     const response = await fetch(url, {
       method: 'POST',
