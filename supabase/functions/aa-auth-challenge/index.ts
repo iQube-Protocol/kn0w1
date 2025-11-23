@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requestChallenge } from "../_shared/aaClient.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,41 +18,12 @@ serve(async (req) => {
       throw new Error('DID is required');
     }
 
-    // Proxy request to AigentZ
-    const aigentzBase = Deno.env.get('AIGENT_Z_API_BASE');
+    console.log(`[Auth Challenge] Requesting challenge for DID: ${did}`);
     
-    if (!aigentzBase) {
-      throw new Error('AIGENT_Z_API_BASE secret not configured');
-    }
+    // Use shared AA client
+    const data = await requestChallenge(did);
     
-    // Validate that the secret is a valid URL, not an API key
-    if (!aigentzBase.startsWith('http://') && !aigentzBase.startsWith('https://')) {
-      console.error('[Auth Challenge] AIGENT_Z_API_BASE is not a valid URL:', aigentzBase.substring(0, 20) + '...');
-      throw new Error('AIGENT_Z_API_BASE must be a valid URL (e.g., https://dev-beta.aigentz.me)');
-    }
-    
-    console.log(`[Auth Challenge] Using AigentZ base: ${aigentzBase}`);
-    
-    // Ensure base URL has trailing slash for proper path joining
-    const baseUrl = aigentzBase.endsWith('/') ? aigentzBase : `${aigentzBase}/`;
-    const url = new URL('auth/challenge', baseUrl).toString();
-    console.log(`[Auth Challenge] Full URL: ${url}`);
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ did }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AigentZ error:', response.status, errorText);
-      throw new Error(`AigentZ error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('[Auth Challenge] Challenge received from AigentZ');
+    console.log('[Auth Challenge] Challenge received from AA-API');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
