@@ -35,12 +35,13 @@ export interface SSEEvent {
 }
 
 export class AaApiClient {
-  private aigentzBase: string;
+  private aaBase: string;
   private gatewayProxyBase: string;
   private authToken: string | null = null;
 
   constructor(config: AaApiConfig) {
-    this.aigentzBase = config.aigentzBase;
+    // Expect aigentzBase to be the full AA base: https://dev-beta.aigentz.me/aa/v1
+    this.aaBase = config.aigentzBase;
     this.gatewayProxyBase = config.gatewayProxyBase;
   }
 
@@ -96,8 +97,9 @@ export class AaApiClient {
       return () => {};
     }
 
+    // aaBase already includes /aa/v1
     const eventSource = new EventSource(
-      `${this.aigentzBase}/aa/v1/updates?token=${encodeURIComponent(this.authToken)}`
+      `${this.aaBase}/updates?token=${encodeURIComponent(this.authToken)}`
     );
 
     eventSource.onmessage = (event) => {
